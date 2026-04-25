@@ -79,7 +79,13 @@
     <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 bg-transparent">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
             <a href="#" class="flex items-center gap-3 group">
-                <img src="images/logo.png" alt="Logo" class="w-10 h-10 object-contain group-hover:scale-110 transition-transform duration-300">
+                <div id="logoContainer" class="w-10 h-10 flex items-center justify-center">
+                    <img src="images/logo.png" alt="Logo" class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300" 
+                        onerror="this.style.display='none'; document.getElementById('logoFallback').classList.remove('hidden');">
+                    <div id="logoFallback" class="hidden w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center border border-amber-500/30">
+                        <span>☕</span>
+                    </div>
+                </div>
                 <span class="font-display text-2xl font-bold text-white tracking-widest uppercase">KARSA <span class="text-amber-500">CAFE</span></span>
             </a>
             <div class="hidden md:flex items-center space-x-8">
@@ -565,7 +571,13 @@
         <div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-10 text-sm relative z-10">
             <div>
                 <div class="flex items-center gap-3 mb-4">
-                    <img src="images/logo.png" alt="Logo" class="w-10 h-10 object-contain">
+                    <div class="w-10 h-10 flex items-center justify-center">
+                        <img src="images/logo.png" alt="Logo" class="w-full h-full object-contain"
+                            onerror="this.style.display='none'; document.getElementById('footerLogoFallback').classList.remove('hidden');">
+                        <div id="footerLogoFallback" class="hidden w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center border border-white/20">
+                            <span>☕</span>
+                        </div>
+                    </div>
                     <h3 class="font-display text-xl font-bold text-white tracking-widest">KARSA <span class="text-amber-500">CAFE</span></h3>
                 </div>
                 <p class="text-stone-400 leading-relaxed">Ruang inspirasi untuk berkarya, berdiskusi, dan menikmati kopi

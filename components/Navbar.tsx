@@ -7,6 +7,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
+  const [logoError, setLogoError] = useState(false);
 
   const [userName, setUserName] = useState<string | null>(null);
   const [tableNumber, setTableNumber] = useState<string | null>(null);
@@ -75,11 +76,18 @@ export default function Navbar() {
         <div className="flex items-center">
           <Link href="/" className="flex flex-col items-center md:items-start group">
             <div className="flex items-center gap-4">
-              <img 
-                src="/images/logo.png" 
-                alt="Karsa Kafe Logo" 
-                className="w-11 h-11 object-contain drop-shadow-2xl transform group-hover:scale-110 transition-transform duration-500" 
-              />
+              {logoError ? (
+                <div className="w-11 h-11 bg-amber-500/20 rounded-xl flex items-center justify-center border border-amber-500/30 backdrop-blur-md shadow-inner">
+                  <span className="text-xl">☕</span>
+                </div>
+              ) : (
+                <img 
+                  src="/images/logo.png" 
+                  alt="Karsa Kafe Logo" 
+                  onError={() => setLogoError(true)}
+                  className="w-11 h-11 object-contain drop-shadow-2xl transform group-hover:scale-110 transition-transform duration-500" 
+                />
+              )}
               <span className="font-display text-xl font-black text-white tracking-[0.2em] uppercase hidden sm:block">
                 KARSA <span className="text-amber-500">KAFE</span>
               </span>
