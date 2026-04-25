@@ -9,6 +9,7 @@ export default function Navbar() {
   const [isDark, setIsDark] = useState(false);
 
   const [userName, setUserName] = useState<string | null>(null);
+  const [tableNumber, setTableNumber] = useState<string | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,8 +17,8 @@ export default function Navbar() {
     };
     
     const checkUser = () => {
-      const saved = localStorage.getItem("karsa_user_name");
-      setUserName(saved);
+      setUserName(localStorage.getItem("karsa_user_name"));
+      setTableNumber(localStorage.getItem("karsa_table_number"));
     };
 
     checkUser();
@@ -108,9 +109,11 @@ export default function Navbar() {
             </button>
             {userName ? (
               <div className="flex items-center gap-4">
-                <span className="text-amber-500 font-black text-[10px] uppercase tracking-widest bg-white/5 px-4 py-2 rounded-full border border-white/10">
-                  {userName}
-                </span>
+                <div className="flex flex-col items-end">
+                  <span className="text-amber-500 font-black text-[10px] uppercase tracking-widest bg-white/5 px-4 py-2 rounded-full border border-white/10">
+                    {userName} {tableNumber && `• MEJA ${tableNumber}`}
+                  </span>
+                </div>
                 <button 
                   onClick={handleLogout}
                   className="text-white/40 hover:text-red-500 transition-colors text-[9px] font-bold uppercase tracking-widest"
@@ -169,7 +172,8 @@ export default function Navbar() {
         </Link>
         {userName ? (
           <div className="pt-4 border-t border-white/5">
-             <span className="block text-amber-500 text-xs font-black uppercase tracking-widest mb-2">{userName}</span>
+             <span className="block text-amber-500 text-xs font-black uppercase tracking-widest mb-1">{userName}</span>
+             {tableNumber && <span className="block text-stone-500 text-[10px] font-bold mb-3 uppercase tracking-widest">Meja {tableNumber}</span>}
              <button
               onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
               className="block w-full bg-red-900/20 text-red-500 text-center py-3 rounded-xl text-xs font-bold uppercase"

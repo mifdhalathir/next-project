@@ -12,6 +12,7 @@ export default function Login() {
   const [shake, setShake] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [tableNumber, setTableNumber] = useState("");
   const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -29,8 +30,17 @@ export default function Login() {
     // Simulate successful login
     setTimeout(() => {
       localStorage.setItem("karsa_user_name", username);
-      window.dispatchEvent(new Event("storage")); // Notify navbar
-      router.push("/");
+      if (tableNumber) {
+        localStorage.setItem("karsa_table_number", tableNumber);
+      }
+      window.dispatchEvent(new Event("storage")); // Notify components
+      
+      // If table is selected, go to Menu (Customer), else go to Kasir (Staff)
+      if (tableNumber) {
+        router.push("/");
+      } else {
+        router.push("/kasir");
+      }
     }, 1500);
   };
 
@@ -92,6 +102,22 @@ export default function Login() {
                   className="w-full bg-transparent border-b-2 border-white/10 text-white placeholder-white/20 py-3 outline-none focus:border-amber-500 transition-all font-medium"
                 />
                 <span className="absolute right-0 bottom-3 text-white/20">👤</span>
+              </div>
+
+              <div className="relative">
+                <select
+                  value={tableNumber}
+                  onChange={(e) => setTableNumber(e.target.value)}
+                  className="w-full bg-transparent border-b-2 border-white/10 text-white py-3 outline-none focus:border-amber-500 transition-all font-medium appearance-none cursor-pointer"
+                >
+                  <option value="" className="bg-stone-900 text-white/40">Pilih Nomor Meja (Opsional)</option>
+                  {[...Array(20)].map((_, i) => (
+                    <option key={i} value={String(i + 1).padStart(2, '0')} className="bg-stone-900 text-white">
+                      Meja {String(i + 1).padStart(2, '0')}
+                    </option>
+                  ))}
+                </select>
+                <span className="absolute right-0 bottom-3 text-white/20 pointer-events-none">🪑</span>
               </div>
 
               <div className="relative">

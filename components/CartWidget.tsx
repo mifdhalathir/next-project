@@ -9,6 +9,13 @@ export default function CartWidget() {
   const [tableNumber, setTableNumber] = useState("");
   const [showReceipt, setShowReceipt] = useState(false);
 
+  useEffect(() => {
+    const savedTable = localStorage.getItem("karsa_table_number");
+    if (savedTable) {
+      setTableNumber(savedTable);
+    }
+  }, []);
+
   const cartArray = Object.values(cart);
 
   const handlePlaceOrder = () => {
