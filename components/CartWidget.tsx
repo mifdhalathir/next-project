@@ -115,22 +115,30 @@ export default function CartWidget() {
                   <h4 className="text-amber-500 text-[10px] font-black uppercase tracking-[0.3em] mb-4">Status Pesanan</h4>
                   <div className="space-y-6">
                     <div className="flex items-center gap-4">
-                      <div className={`w-3 h-3 rounded-full ${activeOrder.status === "received" || activeOrder.status === "preparing" || activeOrder.status === "ready" ? "bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]" : "bg-stone-700"}`}></div>
+                      <div className={`w-3 h-3 rounded-full ${["received", "preparing", "cooked", "ready"].includes(activeOrder.status) ? "bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]" : "bg-stone-700"}`}></div>
                       <span className={`text-xs font-bold ${activeOrder.status === "received" ? "text-white" : "text-stone-500"}`}>Pesanan Diterima</span>
                     </div>
                     <div className="flex items-center gap-4">
-                      <div className={`w-3 h-3 rounded-full ${activeOrder.status === "preparing" || activeOrder.status === "ready" ? "bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]" : "bg-stone-700"}`}></div>
-                      <span className={`text-xs font-bold ${activeOrder.status === "preparing" ? "text-white" : "text-stone-500"}`}>Sedang Disiapkan</span>
+                      <div className={`w-3 h-3 rounded-full ${["preparing", "cooked", "ready"].includes(activeOrder.status) ? "bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]" : "bg-stone-700"}`}></div>
+                      <span className={`text-xs font-bold ${activeOrder.status === "preparing" ? "text-white" : "text-stone-500"}`}>Sedang Dimasak 👨‍🍳</span>
                     </div>
                     <div className="flex items-center gap-4">
-                      <div className={`w-3 h-3 rounded-full ${activeOrder.status === "ready" ? "bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]" : "bg-stone-700"}`}></div>
-                      <span className={`text-xs font-bold ${activeOrder.status === "ready" ? "text-white" : "text-stone-500"}`}>Pesanan Siap di Meja</span>
+                      <div className={`w-3 h-3 rounded-full ${["cooked", "ready"].includes(activeOrder.status) ? "bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]" : "bg-stone-700"}`}></div>
+                      <span className={`text-xs font-bold ${activeOrder.status === "cooked" ? "text-white" : "text-stone-500"}`}>Masakan Selesai! ✨</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className={`w-3 h-3 rounded-full ${activeOrder.status === "ready" ? "bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]" : "bg-stone-700"}`}></div>
+                      <span className={`text-xs font-bold ${activeOrder.status === "ready" ? "text-green-500" : "text-stone-500"}`}>Siap di Meja ✅</span>
                     </div>
                   </div>
                   <div className="mt-6 h-1 w-full bg-stone-800 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-amber-600 transition-all duration-1000" 
-                      style={{ width: activeOrder.status === "received" ? "33%" : activeOrder.status === "preparing" ? "66%" : "100%" }}
+                      style={{ 
+                        width: activeOrder.status === "received" ? "25%" : 
+                               activeOrder.status === "preparing" ? "50%" : 
+                               activeOrder.status === "cooked" ? "75%" : "100%" 
+                      }}
                     ></div>
                   </div>
                 </div>

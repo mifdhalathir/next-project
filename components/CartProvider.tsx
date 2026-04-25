@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export type CartItem = { name: string; price: number; qty: number };
-export type OrderStatus = "received" | "preparing" | "ready" | "completed";
+export type OrderStatus = "received" | "preparing" | "cooked" | "ready" | "completed";
 
 export type Order = {
   id: string;
