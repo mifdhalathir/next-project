@@ -1,137 +1,158 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import PageTransition from "@/components/PageTransition";
 import CustomCursor from "@/components/CustomCursor";
 
 export default function Login() {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [shake, setShake] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    
+    if (!username || !password) {
+      setError("Harap isi semua kolom");
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+      return;
+    }
+
     setIsProcessing(true);
+    // Simulate successful login
     setTimeout(() => {
-      router.push("/");
-    }, 1000);
+      router.push("/dapur");
+    }, 1500);
   };
 
   return (
     <>
       <PageTransition />
       <CustomCursor />
-      <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-wood-950">
-        {/* Background with Blur */}
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-black selection:bg-amber-500 selection:text-black">
+        {/* Background with Soft Blur */}
         <div className="absolute inset-0">
           <img
             src="/images/empty_cafe_interior.png"
-            alt=""
-            className="w-full h-full object-cover blur-sm opacity-40 scale-105"
+            alt="Cafe Interior"
+            className="w-full h-full object-cover blur-md opacity-50 scale-110"
           />
-          <div className="absolute inset-0 bg-wood-950/40"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
         </div>
 
-        {/* Login Card */}
-        <div className="login-card relative z-10 w-full max-w-md mx-4" data-aos="zoom-in" data-aos-duration="1000">
-          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-[0_8px_32px_0_rgba(0,0,0,0.8)]">
-            <div className="text-center mb-10">
-              <div className="flex flex-col items-center gap-4 mb-4">
-                <div className="w-16 h-16 bg-amber-600/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-amber-500/30 shadow-lg transform rotate-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 20V4"></path>
-                    <path d="m7 12 5-5"></path>
-                    <path d="m7 12 5 5"></path>
-                    <path d="M12 7h2a4 4 0 0 1 0 8h-2"></path>
-                  </svg>
+        {/* Login Card with Glassmorphism */}
+        <div 
+          className={`relative z-10 w-full max-w-md mx-4 transition-all duration-1000 transform ${shake ? 'animate-shake' : ''}`}
+          data-aos="fade-up"
+        >
+          <div className="bg-white/5 backdrop-blur-[40px] border border-white/10 rounded-[2.5rem] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden group">
+            {/* Logo Section */}
+            <div className="text-center mb-10 relative">
+              <div className="w-20 h-20 mx-auto mb-6 relative group-hover:scale-110 transition-transform duration-500">
+                <div className="absolute inset-0 bg-amber-500/20 blur-2xl rounded-full"></div>
+                <div className="relative w-full h-full bg-white/5 border border-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-inner overflow-hidden">
+                   {/* Placeholder for image_4.png or high-quality logo */}
+                   <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                     <path d="M17 8h1a4 4 0 1 1 0 8h-1"></path>
+                     <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path>
+                     <line x1="6" y1="2" x2="6" y2="4"></line>
+                     <line x1="10" y1="2" x2="10" y2="4"></line>
+                     <line x1="14" y1="2" x2="14" y2="4"></line>
+                   </svg>
                 </div>
-                <h1 className="font-display text-3xl font-bold text-white tracking-[0.2em]">
-                  KARSA KAFE
-                </h1>
               </div>
-              <div className="w-16 h-0.5 bg-amber-500 mx-auto mb-4"></div>
-              <p className="text-cream-100/60 text-sm">Masuk ke ruang inspirasi Anda</p>
+              <h1 className="font-display text-4xl font-black text-white tracking-tighter italic">
+                KARSA <span className="text-amber-500">KAFE</span>
+              </h1>
+              <div className="w-12 h-1 bg-amber-500 mx-auto mt-2 rounded-full"></div>
             </div>
+
+            {error && (
+              <p className="text-red-400 text-[10px] uppercase font-black tracking-widest text-center mb-6 animate-bounce">
+                {error}
+              </p>
+            )}
             
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="group">
-                <label className="block text-cream-100 text-xs uppercase tracking-widest mb-2 ml-1">
-                  Email
-                </label>
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="relative">
                 <input
-                  type="email"
-                  required
-                  placeholder="email@contoh.com"
-                  className="w-full bg-white/5 border border-white/10 text-white placeholder-white/20 rounded-xl px-5 py-3.5 text-sm outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 transition-all"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Username"
+                  className="w-full bg-transparent border-b-2 border-white/10 text-white placeholder-white/20 py-3 outline-none focus:border-amber-500 transition-all font-medium"
                 />
+                <span className="absolute right-0 bottom-3 text-white/20">👤</span>
               </div>
-              <div className="group">
-                <label className="block text-cream-100 text-xs uppercase tracking-widest mb-2 ml-1">
-                  Password
-                </label>
+
+              <div className="relative">
                 <input
-                  type="password"
-                  required
-                  placeholder="••••••••"
-                  className="w-full bg-white/5 border border-white/10 text-white placeholder-white/20 rounded-xl px-5 py-3.5 text-sm outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 transition-all"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password"
+                  className="w-full bg-transparent border-b-2 border-white/10 text-white placeholder-white/20 py-3 outline-none focus:border-amber-500 transition-all font-medium"
                 />
-              </div>
-              <div className="flex items-center justify-between text-xs tracking-wide">
-                <label className="flex items-center text-cream-100/40 cursor-pointer hover:text-cream-100 transition">
-                  <input type="checkbox" className="mr-2 accent-amber-600 rounded" />{" "}
-                  Ingat saya
-                </label>
-                <a
-                  href="#"
-                  className="text-amber-400/60 hover:text-amber-400 transition"
+                <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-0 bottom-3 text-white/40 hover:text-amber-500 transition-colors"
                 >
-                  Lupa password?
-                </a>
+                  {showPassword ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.88 9.88 3 3"></path><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path><path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path><line x1="2" y1="2" x2="22" y2="22"></line><path d="M14.21 14.21a3 3 0 0 1-4.42-4.42"></path></svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                  )}
+                </button>
               </div>
+
               <button
                 type="submit"
                 disabled={isProcessing}
-                className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white py-4 rounded-xl text-xs font-bold tracking-[0.2em] uppercase transition transform hover:scale-[1.02] active:scale-95 disabled:opacity-70 disabled:hover:scale-100 shadow-lg shadow-amber-900/20"
+                className="w-full bg-amber-600 hover:bg-amber-500 text-white py-4 rounded-2xl text-xs font-black tracking-[0.3em] uppercase transition-all shadow-xl shadow-amber-900/40 relative overflow-hidden group/btn active:scale-95"
               >
-                {isProcessing ? "Memverifikasi..." : "Masuk Sekarang"}
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
+                <span className="relative z-10">{isProcessing ? "MEMVERIFIKASI..." : "MASUK"}</span>
               </button>
             </form>
 
-            <div className="mt-10 flex flex-col items-center">
-              <p className="text-cream-100/30 text-[10px] uppercase tracking-widest mb-4">Atau masuk dengan</p>
-              <div className="flex gap-5">
-                <a href="#" className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-amber-500/30 transition-all group">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/40 group-hover:text-pink-500 transition-colors"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-                </a>
-                <a href="#" className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-amber-500/30 transition-all group">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/40 group-hover:text-white transition-colors"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path></svg>
-                </a>
-                <a href="#" className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-amber-500/30 transition-all group">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/40 group-hover:text-green-500 transition-colors"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-                </a>
-              </div>
-            </div>
-
-            <p className="text-center text-cream-100/20 text-[10px] uppercase tracking-widest mt-10">
-              Belum punya akun?{" "}
-              <a href="#" className="text-amber-500/60 hover:text-amber-400 transition ml-1 font-bold">
-                Daftar
-              </a>
-            </p>
-            <div className="text-center mt-6">
-              <button
-                onClick={() => router.push("/")}
-                className="text-cream-100/40 text-[10px] uppercase tracking-[0.2em] hover:text-amber-400 transition"
-              >
-                &larr; Kembali ke Beranda
-              </button>
+            <div className="mt-12 text-center space-y-4">
+               <button 
+                  onClick={() => router.push("/")}
+                  className="text-white/30 text-[10px] uppercase tracking-widest hover:text-amber-500 transition-colors"
+               >
+                 &larr; Kembali ke Beranda
+               </button>
             </div>
           </div>
-          <p className="text-center text-white/10 text-[10px] uppercase tracking-[0.4em] mt-8">
-            &copy; 2024 Karsa Kafe Padang
+
+          <p className="text-center text-white/5 text-[9px] uppercase tracking-[0.6em] mt-10 font-bold">
+            KARSA KAFE COMMAND SYSTEM V1.0
           </p>
         </div>
       </div>
+
+      <style jsx global>{`
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-10px); }
+          75% { transform: translateX(10px); }
+        }
+        .animate-shake {
+          animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        button:hover {
+          box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+        }
+      `}</style>
     </>
   );
 }
+
