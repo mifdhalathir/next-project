@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useCart } from "./CartProvider";
 
 export default function CartWidget() {
-  const { cart, total, totalItems, removeFromCart, addToCart } = useCart();
+  const { cart, total, totalItems, removeFromCart, addToCart, updateQty } = useCart();
   const [isOpen, setIsOpen] = useState(false);
 
   const cartArray = Object.values(cart);
@@ -129,10 +129,17 @@ export default function CartWidget() {
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="flex items-center gap-3 bg-stone-800 rounded-xl px-2 py-1">
-                        <button onClick={() => removeFromCart(item.name)} className="text-stone-400 hover:text-white">-</button>
-                        <span className="text-xs font-bold text-amber-500 w-4 text-center">{item.qty}</span>
-                        <button onClick={() => addToCart(item.name, item.price)} className="text-stone-400 hover:text-white">+</button>
+                        <button onClick={() => updateQty(item.name, item.qty - 1, item.price)} className="text-stone-400 hover:text-white px-1">-</button>
+                        <span className="text-xs font-bold text-amber-500 min-w-[1rem] text-center">{item.qty}</span>
+                        <button onClick={() => updateQty(item.name, item.qty + 1, item.price)} className="text-stone-400 hover:text-white px-1">+</button>
                       </div>
+                      <button 
+                        onClick={() => updateQty(item.name, 0, item.price)}
+                        className="text-stone-500 hover:text-red-500 transition-colors p-1"
+                        title="Hapus item"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                      </button>
                       <span className="text-sm font-black text-white w-20 text-right">
                         Rp {(item.price * item.qty).toLocaleString("id-ID")}
                       </span>

@@ -4,13 +4,38 @@ import { useState } from "react";
 import { useCart } from "./CartProvider";
 
 const MENU_ITEMS = [
-  { id: 1, name: "Kopi Susu Karsa", price: 18000, category: "coffee", img: "/images/kopi-susu-karsa.png", desc: "Signature es kopi susu." },
-  { id: 2, name: "Iced Americano", price: 15000, category: "coffee", img: "/images/kopi-susu-karsa.png", desc: "Espresso dengan air es segar.", filter: "grayscale-[0.2]" },
-  { id: 3, name: "Matcha Latte", price: 22000, category: "non-coffee", img: "/images/matcha-latte.png", desc: "Matcha premium & susu creamy." },
-  { id: 4, name: "Red Velvet Latte", price: 24000, category: "non-coffee", img: "/images/matcha-latte.png", desc: "Cokelat red velvet yang manis.", filter: "hue-rotate-180" },
-  { id: 5, name: "Nasi Goreng Katsu", price: 28000, category: "meals", img: "/images/nasi-goreng-katsu.png", desc: "Nasi goreng & chicken katsu." },
-  { id: 6, name: "Indomie Spesial", price: 15000, category: "meals", img: "/images/indomie-goreng.png", desc: "Dengan telur & topping lengkap." },
-  { id: 7, name: "Mix Platter", price: 35000, category: "meals", img: "/images/mix-platter.png", desc: "Kombinasi snack untuk berbagi." },
+  // Snacks
+  { id: 1, name: "Kentang Goreng", price: 15000, category: "snacks", img: "/images/kentang-goreng.png", desc: "Kentang goreng renyah dengan bumbu spesial." },
+  { id: 2, name: "Nugget/Sosis", price: 18000, category: "snacks", img: "/images/nugget-sosis.png", desc: "Kombinasi nugget dan sosis goreng." },
+  { id: 3, name: "Roti Bakar", price: 20000, category: "snacks", img: "/images/roti-bakar.png", desc: "Roti bakar dengan berbagai pilihan topping." },
+  { id: 4, name: "Pisang Goreng", price: 15000, category: "snacks", img: "/images/pisang-goreng.png", desc: "Pisang goreng manis dan krispi." },
+  { id: 5, name: "Cireng/Dimsum", price: 18000, category: "snacks", img: "/images/cireng-dimsum.png", desc: "Pilihan camilan gurih hangat." },
+
+  // Coffee Based
+  { id: 6, name: "Espresso", price: 12000, category: "coffee", img: "/images/espresso.png", desc: "Ekstrak kopi murni yang kuat." },
+  { id: 7, name: "Americano", price: 15000, category: "coffee", img: "/images/americano.png", desc: "Espresso dengan air panas segar." },
+  { id: 8, name: "Cappuccino", price: 20000, category: "coffee", img: "/images/cappuccino.png", desc: "Keseimbangan sempurna espresso, susu, dan busa." },
+  { id: 9, name: "Latte", price: 20000, category: "coffee", img: "/images/latte.png", desc: "Espresso dengan susu lembut dan sedikit busa." },
+  { id: 10, name: "Mochaccino", price: 22000, category: "coffee", img: "/images/mochaccino.png", desc: "Perpaduan kopi, susu, dan cokelat." },
+
+  // Non-Coffee
+  { id: 11, name: "Teh Tarik", price: 15000, category: "non-coffee", img: "/images/teh-tarik.png", desc: "Teh susu khas dengan busa melimpah." },
+  { id: 12, name: "Lemon Tea", price: 12000, category: "non-coffee", img: "/images/lemon-tea.png", desc: "Teh segar dengan perasan jeruk lemon." },
+  { id: 13, name: "Chocolate", price: 18000, category: "non-coffee", img: "/images/chocolate.png", desc: "Minuman cokelat premium yang kental." },
+  { id: 14, name: "Milo", price: 15000, category: "non-coffee", img: "/images/milo.png", desc: "Minuman cokelat malt favorit semua orang." },
+  { id: 15, name: "Matcha", price: 22000, category: "non-coffee", img: "/images/matcha.png", desc: "Matcha Jepang asli dengan susu segar." },
+
+  // Minuman Dingin (Drinks)
+  { id: 16, name: "Es Kopi Susu", price: 18000, category: "drinks", img: "/images/es-kopi-susu.png", desc: "Kopi susu gula aren yang menyegarkan." },
+  { id: 17, name: "Milkshake", price: 22000, category: "drinks", img: "/images/milkshake.png", desc: "Susu kocok dengan berbagai rasa." },
+  { id: 18, name: "Smoothies", price: 25000, category: "drinks", img: "/images/smoothies.png", desc: "Minuman buah segar yang sehat dan lezat." },
+
+  // Dessert
+  { id: 19, name: "Cake (Coklat/Red Velvet)", price: 25000, category: "dessert", img: "/images/cake.png", desc: "Pilihan cake lembut premium." },
+  { id: 20, name: "Brownies", price: 18000, category: "dessert", img: "/images/brownies.png", desc: "Brownies cokelat fudge yang padat." },
+  { id: 21, name: "Donat", price: 10000, category: "dessert", img: "/images/donat.png", desc: "Donat empuk dengan aneka topping." },
+  { id: 22, name: "Croissant", price: 22000, category: "dessert", img: "/images/croissant.png", desc: "Pastry mentega yang renyah dan berlapis." },
+  { id: 23, name: "Pancake/Waffle", price: 25000, category: "dessert", img: "/images/pancake-waffle.png", desc: "Sajian hangat dengan sirup atau es krim." },
 ];
 
 export default function MenuSection() {
@@ -20,27 +45,34 @@ export default function MenuSection() {
   const filteredItems = filter === "all" ? MENU_ITEMS : MENU_ITEMS.filter((item) => item.category === filter);
 
   return (
-    <section id="menu" className="py-24 px-4 bg-cream-50">
+    <section id="menu" className="py-24 px-4 bg-stone-950">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16" data-aos="fade-up">
-          <p className="text-amber-700 tracking-[.4em] text-xs uppercase mb-3 font-bold">Pilihan Terbaik</p>
-          <h2 className="font-display text-4xl md:text-5xl font-bold text-wood-900">Menu Favorit</h2>
+          <p className="text-amber-500 tracking-[.4em] text-xs uppercase mb-3 font-bold">Pilihan Terbaik</p>
+          <h2 className="font-display text-4xl md:text-5xl font-bold text-white">Menu Favorit</h2>
           <div className="w-20 h-1 bg-amber-600 mx-auto mt-6"></div>
         </div>
 
         {/* Categories Filter */}
-        <div className="flex flex-wrap justify-center gap-4 mb-16" data-aos="fade-up" data-aos-delay="100">
-          {["all", "coffee", "non-coffee", "meals"].map((cat) => (
+        <div className="flex flex-wrap justify-center gap-3 mb-16" data-aos="fade-up" data-aos-delay="100">
+          {[
+            { id: "all", label: "Semua" },
+            { id: "snacks", label: "Snacks" },
+            { id: "coffee", label: "Coffee" },
+            { id: "non-coffee", label: "Non-Coffee" },
+            { id: "drinks", label: "Drinks" },
+            { id: "dessert", label: "Dessert" }
+          ].map((cat) => (
             <button
-              key={cat}
-              onClick={() => setFilter(cat)}
-              className={`px-8 py-3 rounded-full text-xs font-bold tracking-widest uppercase transition-all duration-300 border-2 ${
-                filter === cat 
-                  ? "bg-amber-700 border-amber-700 text-white shadow-lg shadow-amber-900/20 scale-105" 
-                  : "bg-transparent border-stone-200 text-stone-500 hover:border-amber-700 hover:text-amber-700"
+              key={cat.id}
+              onClick={() => setFilter(cat.id)}
+              className={`px-6 py-2.5 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all duration-500 border ${
+                filter === cat.id 
+                  ? "bg-amber-600 border-amber-600 text-white shadow-xl shadow-amber-900/40 scale-105" 
+                  : "bg-white/5 border-white/10 text-stone-400 hover:border-amber-600 hover:text-amber-500"
               }`}
             >
-              {cat === "all" ? "Semua" : cat === "coffee" ? "Coffee" : cat === "non-coffee" ? "Non-Coffee" : "Meals"}
+              {cat.label}
             </button>
           ))}
         </div>
