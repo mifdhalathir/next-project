@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useCart } from "./CartProvider";
 
 export default function CartWidget() {
-  const { cart, total, totalItems, removeFromCart, addToCart, updateQty } = useCart();
+  const { cart, total, totalItems, updateQty } = useCart();
   const [isOpen, setIsOpen] = useState(false);
 
   const cartArray = Object.values(cart);
