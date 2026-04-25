@@ -6,16 +6,16 @@ export default function CeritaKami() {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <section className="py-20 px-4 bg-cream-50 overflow-hidden">
+    <section className="py-20 px-4 bg-cream-50 dark:bg-stone-950 transition-colors duration-500 overflow-hidden border-y border-white/5">
       <div className="max-w-3xl mx-auto text-center">
         <div data-aos="fade-up">
-          <p className="text-amber-700 tracking-[.3em] text-xs uppercase mb-2">Our Story</p>
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-wood-800 mb-6">Cerita Kami</h2>
+          <p className="text-amber-700 dark:text-amber-500 tracking-[.3em] text-xs uppercase mb-2">Our Story</p>
+          <h2 className="font-display text-3xl md:text-4xl font-bold text-theme mb-6">Cerita Kami</h2>
           <div className="w-16 h-0.5 bg-amber-700 mx-auto mb-8"></div>
         </div>
 
-        <div className="text-stone-600 leading-relaxed space-y-4" data-aos="fade-up" data-aos-delay="100">
-          <p className="text-lg italic font-medium text-wood-700">
+        <div className="text-theme opacity-80 leading-relaxed space-y-4" data-aos="fade-up" data-aos-delay="100">
+          <p className="text-lg italic font-medium">
             "Karsa bermula dari sebuah mimpi sederhana untuk menciptakan ruang bagi para pemimpi dan pejuang tugas di Padang."
           </p>
           

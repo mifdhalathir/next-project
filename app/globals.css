@@ -125,11 +125,13 @@ body {
 /* Light/Dark Mode Logic */
 :root {
     --bg-primary: #fdf6e3; /* Cream */
+    --bg-secondary: #fefdf8; /* Lighter Cream */
     --text-primary: #1c1917; /* Stone-900 */
 }
 
 .dark {
     --bg-primary: #1a1410;
+    --bg-secondary: #120d08;
     --text-primary: #fdf6e3;
 }
 
@@ -141,7 +143,13 @@ body {
 
 /* Theme-aware backgrounds */
 .bg-theme { background-color: var(--bg-primary); transition: background-color 0.5s ease; }
+.bg-theme-secondary { background-color: var(--bg-secondary); transition: background-color 0.5s ease; }
 .text-theme { color: var(--text-primary); transition: color 0.5s ease; }
+
+/* Overrides for specific utility classes used in components */
+.bg-cream-50 { background-color: var(--bg-secondary); transition: background-color 0.5s ease; }
+.bg-wood-800 { background-color: #3e2723; transition: background-color 0.5s ease; }
+.dark .bg-wood-800 { background-color: #120d08 !important; }
 
 /* Targeted Overrides (Only for elements that SHOULD change) */
 .nav-link, .footer-link {
