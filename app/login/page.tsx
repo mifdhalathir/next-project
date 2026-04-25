@@ -28,7 +28,9 @@ export default function Login() {
     setIsProcessing(true);
     // Simulate successful login
     setTimeout(() => {
-      router.push("/dapur");
+      localStorage.setItem("karsa_user_name", username);
+      window.dispatchEvent(new Event("storage")); // Notify navbar
+      router.push("/");
     }, 1500);
   };
 

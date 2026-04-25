@@ -8,12 +8,26 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
 
+  const [userName, setUserName] = useState<string | null>(null);
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY >= 80);
     };
+    
+    const checkUser = () => {
+      const saved = localStorage.getItem("karsa_user_name");
+      setUserName(saved);
+    };
+
+    checkUser();
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("storage", checkUser);
+    
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("storage", checkUser);
+    };
   }, []);
 
   useEffect(() => {
@@ -31,6 +45,12 @@ export default function Navbar() {
       localStorage.setItem("darkMode", "false");
     }
   }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("karsa_user_name");
+    setUserName(null);
+    window.dispatchEvent(new Event("storage"));
+  };
 
   const toggleDarkMode = () => {
     if (isDark) {
@@ -86,12 +106,26 @@ export default function Navbar() {
             >
               <span className="text-sm">{isDark ? "🌙" : "☀️"}</span>
             </button>
-            <Link
-              href="/login"
-              className="bg-amber-600 hover:bg-amber-700 text-white px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition"
-            >
-              LOGIN
-            </Link>
+            {userName ? (
+              <div className="flex items-center gap-4">
+                <span className="text-amber-500 font-black text-[10px] uppercase tracking-widest bg-white/5 px-4 py-2 rounded-full border border-white/10">
+                  {userName}
+                </span>
+                <button 
+                  onClick={handleLogout}
+                  className="text-white/40 hover:text-red-500 transition-colors text-[9px] font-bold uppercase tracking-widest"
+                >
+                  LOGOUT
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition shadow-lg shadow-amber-900/40"
+              >
+                LOGIN
+              </Link>
+            )}
           </div>
         </div>
       </div>  <button
@@ -133,13 +167,25 @@ export default function Navbar() {
         >
           KONTAK
         </Link>
-        <Link
-          href="/login"
-          onClick={() => setIsMobileMenuOpen(false)}
-          className="block bg-amber-700 text-white text-center py-2 rounded text-sm"
-        >
-          Login
-        </Link>
+        {userName ? (
+          <div className="pt-4 border-t border-white/5">
+             <span className="block text-amber-500 text-xs font-black uppercase tracking-widest mb-2">{userName}</span>
+             <button
+              onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
+              className="block w-full bg-red-900/20 text-red-500 text-center py-3 rounded-xl text-xs font-bold uppercase"
+            >
+              Logout
+            </button>
+          </div>
+        ) : (
+          <Link
+            href="/login"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="block bg-amber-700 text-white text-center py-3 rounded-xl text-xs font-bold uppercase"
+          >
+            Login
+          </Link>
+        )}
       </div>
     </nav>
   );
