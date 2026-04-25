@@ -17,8 +17,8 @@ const inter = Inter({
 import type { Viewport } from "next";
 
 export const metadata: Metadata = {
-  title: "Karsa Cafe Padang - Ruang Inspirasi di Air Tawar",
-  description: "Karsa Cafe Padang - Tempat nongkrong dan nugas mahasiswa di Air Tawar Barat. Kopi, makanan, dan suasana nyaman.",
+  title: "Karsa Kafe Padang - Ruang Inspirasi di Air Tawar",
+  description: "Karsa Kafe Padang - Tempat nongkrong dan nugas mahasiswa di Air Tawar Barat. Kopi, makanan, dan suasana nyaman.",
   manifest: "/manifest.json",
 };
 

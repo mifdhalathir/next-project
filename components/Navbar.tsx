@@ -51,21 +51,19 @@ export default function Navbar() {
         scrolled ? "navbar-scrolled" : "bg-transparent"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-        <Link
-          href="#"
-          className="font-display text-2xl font-bold text-white tracking-widest flex items-center gap-2"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M17 8h1a4 4 0 1 1 0 8h-1"></path>
-            <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path>
-            <line x1="6" y1="2" x2="6" y2="4"></line>
-            <line x1="10" y1="2" x2="10" y2="4"></line>
-            <line x1="14" y1="2" x2="14" y2="4"></line>
-          </svg>
-          KARSA CAFE
-        </Link>
-        <div className="hidden md:flex items-center space-x-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-20">
+        <div className="flex items-center gap-3">
+          <img
+            src="/images/image_4.png"
+            alt="Karsa Kafe Logo"
+            className="h-12 w-auto object-contain"
+          />
+          <span className="font-display text-2xl font-bold text-white tracking-widest hidden sm:block">
+            KARSA KAFE
+          </span>
+        </div>
+
+        <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
           <Link
             href="#home"
             className="nav-link text-cream-100 hover:text-cream-300 text-sm tracking-wide"
@@ -99,14 +97,14 @@ export default function Navbar() {
           </button>
           <Link
             href="/login"
-            className="bg-amber-700 hover:bg-amber-800 text-white px-4 py-1.5 rounded text-sm transition"
+            className="bg-amber-700 hover:bg-amber-800 text-white px-6 py-2 rounded-full text-sm font-bold tracking-wider transition transform hover:scale-105"
           >
             Login
           </Link>
         </div>
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="md:hidden text-white text-2xl"
+          className="md:hidden text-white text-2xl p-2"
         >
           &#9776;
         </button>

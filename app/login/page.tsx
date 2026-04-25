@@ -42,7 +42,7 @@ export default function Login() {
                   <line x1="10" y1="2" x2="10" y2="4"></line>
                   <line x1="14" y1="2" x2="14" y2="4"></line>
                 </svg>
-                KARSA CAFE
+                KARSA KAFE
               </h1>
               <div className="w-12 h-0.5 bg-amber-500 mx-auto mt-3 mb-4"></div>
               <p className="text-stone-400 text-sm">Masuk ke akun Anda</p>
@@ -123,7 +123,7 @@ export default function Login() {
             </div>
           </div>
           <p className="text-center text-stone-600 text-xs mt-6">
-            &copy; 2024 Karsa Cafe Padang
+            &copy; 2024 Karsa Kafe Padang
           </p>
         </div>
       </div>
