@@ -20,81 +20,95 @@ export default function MenuSection() {
   const filteredItems = filter === "all" ? MENU_ITEMS : MENU_ITEMS.filter((item) => item.category === filter);
 
   return (
-    <section id="menu" className="py-20 px-4 bg-cream-50">
+    <section id="menu" className="py-24 px-4 bg-cream-50">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-14" data-aos="fade-up">
-          <p className="text-amber-700 tracking-[.3em] text-xs uppercase mb-2">Pilihan Terbaik</p>
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-wood-800">Menu Kami</h2>
-          <div className="w-16 h-0.5 bg-amber-700 mx-auto mt-4"></div>
+        <div className="text-center mb-16" data-aos="fade-up">
+          <p className="text-amber-700 tracking-[.4em] text-xs uppercase mb-3 font-bold">Pilihan Terbaik</p>
+          <h2 className="font-display text-4xl md:text-5xl font-bold text-wood-900">Menu Favorit</h2>
+          <div className="w-20 h-1 bg-amber-600 mx-auto mt-6"></div>
         </div>
-        <div className="flex flex-wrap justify-center gap-3 mb-10" data-aos="fade-up" data-aos-delay="100">
+
+        {/* Categories Filter */}
+        <div className="flex flex-wrap justify-center gap-4 mb-16" data-aos="fade-up" data-aos-delay="100">
           {["all", "coffee", "non-coffee", "meals"].map((cat) => (
             <button
               key={cat}
               onClick={() => setFilter(cat)}
-              className={`filter-btn px-5 py-2 rounded-full border border-amber-700 text-sm font-medium transition ${
-                filter === cat ? "active bg-amber-700 text-white" : "text-amber-700"
+              className={`px-8 py-3 rounded-full text-xs font-bold tracking-widest uppercase transition-all duration-300 border-2 ${
+                filter === cat 
+                  ? "bg-amber-700 border-amber-700 text-white shadow-lg shadow-amber-900/20 scale-105" 
+                  : "bg-transparent border-stone-200 text-stone-500 hover:border-amber-700 hover:text-amber-700"
               }`}
             >
               {cat === "all" ? "Semua" : cat === "coffee" ? "Coffee" : cat === "non-coffee" ? "Non-Coffee" : "Meals"}
             </button>
           ))}
         </div>
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
+        {/* Menu Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {filteredItems.map((item, index) => {
             const qty = cart[item.name]?.qty || 0;
             return (
               <div
                 key={item.id}
-                className="menu-item menu-card bg-white rounded-2xl overflow-hidden shadow-md"
+                className="group relative bg-stone-900 rounded-[2.5rem] overflow-hidden shadow-2xl transform transition-all duration-500 hover:-translate-y-2"
                 data-aos="fade-up"
-                data-aos-duration="800"
-                data-aos-delay={index * 50}
+                data-aos-delay={index * 100}
               >
-                <div className="h-36 overflow-hidden">
+                <div className="h-64 overflow-hidden relative">
                   <img
                     src={item.img}
                     alt={item.name}
-                    className={`w-full h-full object-cover hover:scale-110 transition duration-500 ${item.filter || ""}`}
+                    className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${item.filter || ""}`}
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-transparent to-transparent opacity-60"></div>
+                  
+                  {/* Add Button in Corner */}
+                  <button 
+                    onClick={() => updateQty(item.name, qty + 1, item.price)}
+                    className="absolute top-6 right-6 w-12 h-12 bg-amber-600 hover:bg-amber-500 text-white rounded-2xl flex items-center justify-center shadow-xl transition-all duration-300 hover:rotate-90 active:scale-90"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                  </button>
                 </div>
-                <div className="p-4">
-                  <h3 className="font-display text-md font-semibold text-wood-800">{item.name}</h3>
-                  <p className="text-stone-500 text-xs mt-1">{item.desc}</p>
-                  <div className="mt-3 flex justify-between items-center">
-                    <p className="text-amber-700 font-bold text-sm">Rp {item.price.toLocaleString("id-ID")}</p>
-                    <div className="flex items-center gap-2 bg-amber-100 dark:bg-amber-900/40 rounded-full px-2 py-1">
-                      <button
-                        onClick={() => updateQty(item.name, qty - 1, item.price)}
-                        className="w-6 h-6 rounded-full bg-white dark:bg-wood-800 text-amber-700 dark:text-amber-500 font-bold flex items-center justify-center hover:bg-amber-200 transition"
-                      >
-                        -
-                      </button>
-                      <span className="text-xs font-bold w-4 text-center">{qty}</span>
-                      <button
-                        onClick={() => updateQty(item.name, qty + 1, item.price)}
-                        className="w-6 h-6 rounded-full bg-white dark:bg-wood-800 text-amber-700 dark:text-amber-500 font-bold flex items-center justify-center hover:bg-amber-200 transition"
-                      >
-                        +
-                      </button>
-                    </div>
+
+                <div className="p-8 pb-10">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-display text-2xl font-bold text-white leading-tight">{item.name}</h3>
+                  </div>
+                  <p className="text-stone-400 text-sm leading-relaxed mb-6 h-10 overflow-hidden line-clamp-2">
+                    {item.desc}
+                  </p>
+                  
+                  <div className="flex justify-between items-center pt-6 border-t border-white/5">
+                    <p className="text-amber-500 font-black text-2xl tracking-tighter">
+                      <span className="text-xs font-normal text-stone-500 mr-1 italic">Rp</span>
+                      {item.price.toLocaleString("id-ID")}
+                    </p>
+                    
+                    {qty > 0 && (
+                      <div className="flex items-center gap-3 bg-stone-800 rounded-xl p-1 px-3 border border-white/5">
+                        <button
+                          onClick={() => updateQty(item.name, qty - 1, item.price)}
+                          className="w-6 h-6 text-stone-400 hover:text-white transition"
+                        >
+                          -
+                        </button>
+                        <span className="text-xs font-bold text-white w-4 text-center">{qty}</span>
+                        <button
+                          onClick={() => updateQty(item.name, qty + 1, item.price)}
+                          className="w-6 h-6 text-stone-400 hover:text-white transition"
+                        >
+                          +
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
             );
           })}
-          
-          {filter === "all" && (
-             <div className="menu-card bg-white rounded-2xl overflow-hidden shadow-md flex items-center justify-center" data-aos="fade-up" data-aos-duration="800">
-                <div className="text-center p-8">
-                    <div className="w-16 h-16 mx-auto rounded-full bg-cream-100 flex items-center justify-center mb-4">
-                        <span className="text-amber-700 text-3xl">+</span>
-                    </div>
-                    <h3 className="font-display text-lg font-semibold text-wood-800">Dan Lainnya</h3>
-                    <p className="text-stone-500 text-sm mt-1">Kunjungi cafe kami untuk menu selengkapnya!</p>
-                </div>
-            </div>
-          )}
         </div>
       </div>
     </section>

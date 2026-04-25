@@ -18,6 +18,9 @@ import Footer from "@/components/Footer";
 import AmbientWidget from "@/components/AmbientWidget";
 import CartWidget from "@/components/CartWidget";
 import LiveChatWidget from "@/components/LiveChatWidget";
+import FABMenu from "@/components/FABMenu";
+import InstagramGrid from "@/components/InstagramGrid";
+import CeritaKami from "@/components/CeritaKami";
 import OfflineToast from "@/components/OfflineToast";
 import CustomCursor from "@/components/CustomCursor";
 import PageTransition from "@/components/PageTransition";
@@ -40,6 +43,7 @@ export default function Home() {
       <Navbar />
       <main>
         <Hero />
+        <CeritaKami />
         <MenuSection />
         <ReservationForm />
         <TestimonialSlider />
@@ -47,9 +51,11 @@ export default function Home() {
         <Gallery />
         <StatusMeja />
         <MapsSection />
+        <InstagramGrid />
       </main>
       <Footer />
       <AmbientWidget />
+      <FABMenu />
       <CartWidget />
       <LiveChatWidget />
     </CartProvider>

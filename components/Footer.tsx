@@ -1,13 +1,29 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 export default function Footer() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    const checkTime = () => {
+      const now = new Date();
+      const hour = now.getHours();
+      // Open from 08:00 to 00:00
+      setIsOpen(hour >= 8 && hour < 24);
+    };
+
+    checkTime();
+    const timer = setInterval(checkTime, 60000); // Check every minute
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <footer id="kontak" className="bg-wood-900 text-cream-200 py-14 px-4 animated-grid relative overflow-hidden">
       <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-10 text-sm relative z-10">
         <div>
-          <h3 className="font-display text-xl font-bold text-white mb-3">KARSA CAFE</h3>
+          <h3 className="font-display text-xl font-bold text-white mb-3">KARSA KAFE</h3>
           <p className="text-stone-400 leading-relaxed">
             Ruang inspirasi untuk berkarya, berdiskusi, dan menikmati kopi terbaik di Air Tawar, Padang.
           </p>
@@ -19,7 +35,20 @@ export default function Footer() {
           </p>
         </div>
         <div>
-          <h4 className="font-semibold text-white mb-3">Jam Operasional</h4>
+          <h4 className="font-semibold text-white mb-3 flex items-center gap-2">
+            Jam Operasional
+            {isOpen ? (
+              <span className="flex items-center gap-1 bg-green-500/10 text-green-500 text-[10px] px-2 py-0.5 rounded-full border border-green-500/20">
+                <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                OPEN NOW
+              </span>
+            ) : (
+              <span className="flex items-center gap-1 bg-red-500/10 text-red-500 text-[10px] px-2 py-0.5 rounded-full border border-red-500/20">
+                <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                CLOSED
+              </span>
+            )}
+          </h4>
           <p className="text-stone-400">Setiap Hari</p>
           <p className="text-amber-400 font-semibold text-lg">08.00 - 00.00 WIB</p>
         </div>
