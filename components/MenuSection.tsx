@@ -44,11 +44,11 @@ export default function MenuSection() {
   const filteredItems = filter === "all" ? MENU_ITEMS : MENU_ITEMS.filter((item) => item.category === filter);
 
   return (
-    <section id="menu" className="py-24 px-4 bg-stone-950">
+    <section id="menu" className="py-24 px-4 bg-theme">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16" data-aos="fade-up">
           <p className="text-amber-500 tracking-[.4em] text-xs uppercase mb-3 font-bold">Pilihan Terbaik</p>
-          <h2 className="font-display text-4xl md:text-5xl font-bold text-white">Menu Favorit</h2>
+          <h2 className="font-display text-4xl md:text-5xl font-bold text-theme">Menu Favorit</h2>
           <div className="w-20 h-1 bg-amber-600 mx-auto mt-6"></div>
         </div>
 
@@ -120,7 +120,7 @@ export default function MenuSection() {
                 </div>
 
                 <div className="p-5 pb-6">
-                  <h3 className="font-display text-lg font-bold text-white leading-tight mb-1">{item.name}</h3>
+                  <h3 className="font-display text-lg font-bold text-theme leading-tight mb-1">{item.name}</h3>
                   <p className="text-stone-500 text-[11px] leading-relaxed mb-4 h-8 overflow-hidden line-clamp-2">
                     {item.desc}
                   </p>

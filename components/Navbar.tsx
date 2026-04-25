@@ -83,7 +83,7 @@ export default function Navbar() {
                   <path d="M12 7h2a4 4 0 0 1 0 8h-2"></path>
                 </svg>
               </div>
-              <span className="font-display text-lg font-bold text-white tracking-[0.2em] uppercase">
+              <span className="font-display text-lg font-bold text-theme tracking-[0.2em] uppercase">
                 KARSA KAFE
               </span>
             </div>
@@ -93,17 +93,17 @@ export default function Navbar() {
         {/* Right Side: Navigation & Actions */}
         <div className="flex items-center space-x-4 lg:space-x-8">
           <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
-            <Link href="#home" className="nav-link text-cream-100 hover:text-cream-300 text-xs tracking-widest font-bold uppercase">HOME</Link>
-            <Link href="#menu" className="nav-link text-cream-100 hover:text-cream-300 text-xs tracking-widest font-bold uppercase">MENU</Link>
-            <Link href="#reservasi" className="nav-link text-cream-100 hover:text-cream-300 text-xs tracking-widest font-bold uppercase">RESERVASI</Link>
-            <Link href="#kontak" className="nav-link text-cream-100 hover:text-cream-300 text-xs tracking-widest font-bold uppercase">KONTAK</Link>
+            <Link href="#home" className="nav-link text-xs tracking-widest font-bold uppercase">HOME</Link>
+            <Link href="#menu" className="nav-link text-xs tracking-widest font-bold uppercase">MENU</Link>
+            <Link href="#reservasi" className="nav-link text-xs tracking-widest font-bold uppercase">RESERVASI</Link>
+            <Link href="#kontak" className="nav-link text-xs tracking-widest font-bold uppercase">KONTAK</Link>
           </div>
           <div className="flex items-center gap-4">
             <button
               onClick={toggleDarkMode}
               className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition border border-white/10"
             >
-              <span className="text-sm">{isDark ? "☀️" : "🌙"}</span>
+              <span className="text-sm">{isDark ? "🌙" : "☀️"}</span>
             </button>
             {userName ? (
               <div className="flex items-center gap-4">

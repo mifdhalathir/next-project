@@ -139,21 +139,27 @@ body {
     transition: background-color 0.5s ease, color 0.5s ease;
 }
 
-/* Global Overrides for hardcoded Stone/Black backgrounds */
-.bg-stone-950 { background-color: var(--bg-primary); transition: background-color 0.5s ease; }
-.bg-black { background-color: var(--bg-primary); transition: background-color 0.5s ease; }
-.bg-stone-900 { 
-    background-color: rgba(255, 255, 255, 0.8); /* Light mode card */
+/* Theme-aware backgrounds */
+.bg-theme { background-color: var(--bg-primary); transition: background-color 0.5s ease; }
+.text-theme { color: var(--text-primary); transition: color 0.5s ease; }
+
+/* Targeted Overrides (Only for elements that SHOULD change) */
+.nav-link, .footer-link {
+    color: var(--text-primary) !important;
 }
-.dark .bg-stone-900 {
-    background-color: #1c1917 !important; /* Stone-900 */
+.dark .nav-link, .dark .footer-link {
+    color: #fdf6e3 !important;
 }
 
-/* Text Overrides */
-.text-white { color: var(--text-primary); transition: color 0.5s ease; }
-.dark .text-white { color: #ffffff !important; }
-.text-cream-100 { color: var(--text-primary); transition: color 0.5s ease; }
-.dark .text-cream-100 { color: #fdf6e3 !important; }
+/* Ensure sections with fixed dark backgrounds stay readable */
+.hero-overlay ~ * { color: white !important; }
+
+.bg-stone-900 { 
+    background-color: rgba(255, 255, 255, 0.8);
+}
+.dark .bg-stone-900 {
+    background-color: #1c1917 !important;
+}
 
 .dark input, .dark select, .dark textarea { background: rgba(255, 255, 255, 0.08) !important; color: #e8d5a8 !important; border-color: rgba(255, 255, 255, 0.1); }
 
