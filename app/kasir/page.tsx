@@ -7,6 +7,8 @@ export default function KasirPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [lastOrderCount, setLastOrderCount] = useState(0);
+  const [lastResCount, setLastResCount] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const loadData = () => {
@@ -15,12 +17,24 @@ export default function KasirPage() {
     
     if (savedOrders) {
       const parsedOrders: Order[] = JSON.parse(savedOrders);
-      // Filter only for Kasir (cooked or ready)
-      setOrders(parsedOrders.filter(o => o.status === "cooked" || o.status === "ready"));
+      const kasirOrders = parsedOrders.filter(o => o.status === "cooked" || o.status === "ready");
+      setOrders(kasirOrders);
+      
+      if (kasirOrders.length > lastOrderCount) {
+        audioRef.current?.play().catch(() => {});
+      }
+      setLastOrderCount(kasirOrders.length);
     }
 
     if (savedRes) {
-      setReservations(JSON.parse(savedRes));
+      const parsedRes: Reservation[] = JSON.parse(savedRes);
+      setReservations(parsedRes);
+      
+      // Notify for new reservations
+      if (parsedRes.length > lastResCount) {
+        audioRef.current?.play().catch(() => {});
+      }
+      setLastResCount(parsedRes.length);
     }
   };
 
@@ -35,7 +49,7 @@ export default function KasirPage() {
       window.removeEventListener("mousemove", (e) => setMousePos({ x: e.clientX, y: e.clientY }));
       clearInterval(interval);
     };
-  }, []);
+  }, [lastOrderCount, lastResCount]);
 
   const updateOrderStatus = (orderId: string, newStatus: OrderStatus) => {
     const savedOrders = localStorage.getItem("karsa_orders");
@@ -63,6 +77,14 @@ export default function KasirPage() {
 
   const updateReservation = (id: string, status: "arrived" | "cancelled") => {
     const updated = reservations.map(r => r.id === id ? { ...r, status } : r);
+    setReservations(updated);
+    localStorage.setItem("karsa_reservations", JSON.stringify(updated));
+    window.dispatchEvent(new Event("storage"));
+  };
+
+  const deleteReservation = (id: string) => {
+    if (!confirm("Hapus permanen data reservasi ini?")) return;
+    const updated = reservations.filter(r => r.id !== id);
     setReservations(updated);
     localStorage.setItem("karsa_reservations", JSON.stringify(updated));
     window.dispatchEvent(new Event("storage"));
@@ -108,10 +130,24 @@ export default function KasirPage() {
               <div className="py-20 text-center opacity-20 border border-dashed border-white/10 rounded-3xl font-black uppercase text-xs tracking-widest">Tidak ada reservasi</div>
             ) : (
               reservations.sort((a, b) => b.timestamp - a.timestamp).map((res) => (
-                <div key={res.id} className={`glass-card p-6 rounded-3xl border border-white/5 transition-all duration-500 ${res.status === 'arrived' ? 'opacity-40 grayscale border-green-500/20' : 'hover:border-amber-500/30'}`}>
+                <div key={res.id} className={`glass-card p-6 rounded-3xl border border-white/5 transition-all duration-500 relative overflow-hidden ${res.status === 'arrived' ? 'opacity-40 grayscale border-green-500/20' : 'hover:border-amber-500/30'}`}>
+                  {/* Status Indicator Bar */}
+                  <div className={`absolute top-0 left-0 w-1 h-full ${res.status === 'pending' ? 'bg-amber-500' : 'bg-green-500'}`}></div>
+
                   <div className="flex justify-between items-start mb-4">
-                    <span className="text-amber-500 font-black text-lg tracking-tighter">{res.name}</span>
-                    <span className="text-[10px] bg-white/5 px-2 py-1 rounded text-stone-500 font-mono">{res.id}</span>
+                    <div>
+                      <span className="text-amber-500 font-black text-lg tracking-tighter block">{res.name}</span>
+                      {Date.now() - res.timestamp < 30000 && res.status === "pending" && (
+                        <span className="inline-block bg-red-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full animate-pulse mt-1">NEW RESERVATION 🔔</span>
+                      )}
+                    </div>
+                    <button 
+                      onClick={() => deleteReservation(res.id)}
+                      className="text-stone-700 hover:text-red-500 transition-colors p-1"
+                      title="Hapus Permanen"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                    </button>
                   </div>
                   <div className="grid grid-cols-2 gap-4 mb-6">
                     <div>
@@ -119,14 +155,13 @@ export default function KasirPage() {
                       <p className="text-xs font-bold text-white">{res.time}</p>
                     </div>
                     <div>
-                      <p className="text-[9px] text-stone-500 uppercase font-black tracking-widest">Tamu</p>
-                      <p className="text-xs font-bold text-white">{res.guests} Orang</p>
+                      <p className="text-[9px] text-stone-500 uppercase font-black tracking-widest font-mono bg-white/5 px-2 py-1 rounded inline-block">{res.id}</p>
                     </div>
                   </div>
                   {res.status === "pending" && (
                     <div className="flex gap-2">
                       <button onClick={() => updateReservation(res.id, "arrived")} className="flex-1 bg-amber-600 text-[10px] font-black uppercase py-3 rounded-xl hover:bg-amber-500 transition-all">Check-in</button>
-                      <button onClick={() => updateReservation(res.id, "cancelled")} className="px-4 bg-white/5 text-[10px] font-black uppercase py-3 rounded-xl hover:bg-red-900/20 transition-all border border-white/5">Batal</button>
+                      <button onClick={() => updateReservation(res.id, "cancelled")} className="px-4 bg-white/5 text-[10px] font-black uppercase py-3 rounded-xl hover:bg-red-900/20 transition-all border border-white/5 text-stone-500">Batal</button>
                     </div>
                   )}
                   {res.status === "arrived" && (
