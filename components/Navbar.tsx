@@ -74,17 +74,14 @@ export default function Navbar() {
         {/* Left Side: Logo */}
         <div className="flex items-center">
           <Link href="/" className="flex flex-col items-center md:items-start group">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-amber-600 rounded-lg flex items-center justify-center shadow-lg transform group-hover:rotate-12 transition-transform">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 20V4"></path>
-                  <path d="m7 12 5-5"></path>
-                  <path d="m7 12 5 5"></path>
-                  <path d="M12 7h2a4 4 0 0 1 0 8h-2"></path>
-                </svg>
-              </div>
-              <span className="font-display text-lg font-bold text-theme tracking-[0.2em] uppercase">
-                KARSA KAFE
+            <div className="flex items-center gap-4">
+              <img 
+                src="/images/logo.png" 
+                alt="Karsa Kafe Logo" 
+                className="w-11 h-11 object-contain drop-shadow-2xl transform group-hover:scale-110 transition-transform duration-500" 
+              />
+              <span className="font-display text-xl font-black text-white tracking-[0.2em] uppercase hidden sm:block">
+                KARSA <span className="text-amber-500">KAFE</span>
               </span>
             </div>
           </Link>

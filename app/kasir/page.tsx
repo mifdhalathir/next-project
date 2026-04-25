@@ -122,11 +122,15 @@ export default function KasirPage() {
 
       <header className="grid grid-cols-12 gap-6 mb-8 relative z-10">
         <div className="col-span-12 lg:col-span-6 glass-card p-8 rounded-[2rem] border border-white/10 flex flex-col justify-center">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center shadow-[0_0_20px_rgba(245,158,11,0.3)]">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-black"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-            </div>
-            <h1 className="font-display text-4xl font-black tracking-tighter">KARSA <span className="text-amber-500">KASIR</span></h1>
+          <div className="flex items-center gap-4 mb-2">
+            <img 
+              src="/images/logo.png" 
+              alt="Karsa Kafe Logo" 
+              className="w-12 h-12 object-contain drop-shadow-[0_0_15px_rgba(245,158,11,0.3)]" 
+            />
+            <h1 className="font-display text-4xl font-black tracking-tighter uppercase italic">
+              KARSA <span className="text-amber-500">KASIR</span>
+            </h1>
           </div>
           <p className="text-stone-500 text-[9px] uppercase tracking-[0.5em] font-bold">POS & Reservation Management System</p>
         </div>

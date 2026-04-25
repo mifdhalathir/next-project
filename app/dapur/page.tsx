@@ -79,12 +79,14 @@ export default function DapurPage() {
 
       <header className="grid grid-cols-12 gap-6 mb-8 relative z-10">
         <div className="col-span-12 lg:col-span-8 glass-card p-8 rounded-[2.5rem] border border-white/10 flex flex-col justify-center">
-          <div className="flex items-center gap-4 mb-2">
-            <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.2)]">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-black"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>
-            </div>
+          <div className="flex items-center gap-5 mb-2">
+            <img 
+              src="/images/logo.png" 
+              alt="Karsa Kafe Logo" 
+              className="w-14 h-14 object-contain drop-shadow-[0_0_20px_rgba(245,158,11,0.2)]" 
+            />
             <div>
-              <h1 className="font-display text-4xl font-black tracking-tighter">KARSA <span className="text-amber-500 uppercase italic">Dapur</span></h1>
+              <h1 className="font-display text-4xl font-black tracking-tighter uppercase italic">KARSA <span className="text-amber-500">Dapur</span></h1>
               <p className="text-stone-500 text-[9px] uppercase tracking-[0.5em] font-bold">Kitchen Production Monitor • Real-time Sync</p>
             </div>
           </div>

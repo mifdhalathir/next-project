@@ -22,9 +22,14 @@ export default function Footer() {
   return (
     <footer id="kontak" className="bg-wood-900 text-cream-200 py-14 px-4 animated-grid relative overflow-hidden">
       <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-10 text-sm relative z-10">
-        <div>
-          <h3 className="font-display text-xl font-bold text-white mb-3">KARSA KAFE</h3>
-          <p className="text-stone-400 leading-relaxed">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            <img src="/images/logo.png" alt="Karsa Kafe Logo" className="w-12 h-12 object-contain" />
+            <h3 className="font-display text-2xl font-black text-white tracking-widest uppercase">
+              KARSA <span className="text-amber-500">KAFE</span>
+            </h3>
+          </div>
+          <p className="text-stone-400 leading-relaxed max-w-xs">
             Ruang inspirasi untuk berkarya, berdiskusi, dan menikmati kopi terbaik di Air Tawar, Padang.
           </p>
         </div>

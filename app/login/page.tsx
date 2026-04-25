@@ -76,14 +76,11 @@ export default function Login() {
               <div className="w-20 h-20 mx-auto mb-6 relative group-hover:scale-110 transition-transform duration-500">
                 <div className="absolute inset-0 bg-amber-500/20 blur-2xl rounded-full"></div>
                 <div className="relative w-full h-full bg-white/5 border border-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-inner overflow-hidden">
-                   {/* Placeholder for image_4.png or high-quality logo */}
-                   <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                     <path d="M17 8h1a4 4 0 1 1 0 8h-1"></path>
-                     <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path>
-                     <line x1="6" y1="2" x2="6" y2="4"></line>
-                     <line x1="10" y1="2" x2="10" y2="4"></line>
-                     <line x1="14" y1="2" x2="14" y2="4"></line>
-                   </svg>
+                   <img 
+                    src="/images/logo.png" 
+                    alt="Karsa Kafe Logo" 
+                    className="w-14 h-14 object-contain drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]" 
+                   />
                 </div>
               </div>
               <h1 className="font-display text-4xl font-black text-white tracking-tighter italic">
