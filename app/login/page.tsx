@@ -156,7 +156,17 @@ export default function Login() {
               </button>
             </form>
 
-            <div className="mt-12 text-center space-y-4">
+            <div className="mt-12 text-center space-y-6">
+               {typeof window !== "undefined" && localStorage.getItem("karsa_user_name") && (
+                 <div className="bg-amber-600/10 border border-amber-500/30 rounded-2xl p-4 animate-in fade-in zoom-in duration-500">
+                    <p className="text-[9px] font-black uppercase tracking-[0.3em] text-amber-500 mb-1">Loyalty Rewards</p>
+                    <p className="text-2xl font-black text-white">
+                      {localStorage.getItem(`karsa_points_${localStorage.getItem("karsa_user_name")}`) || 0} <span className="text-xs text-amber-500/60 uppercase tracking-widest">Points</span>
+                    </p>
+                    <p className="text-[8px] text-stone-500 uppercase font-bold mt-2">Kumpulkan 100 poin untuk gratis 1 Kopi Susu!</p>
+                 </div>
+               )}
+
                <button 
                   onClick={() => router.push("/")}
                   className="text-white/30 text-[10px] uppercase tracking-widest hover:text-amber-500 transition-colors"

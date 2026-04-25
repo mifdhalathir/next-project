@@ -24,6 +24,7 @@ import CeritaKami from "@/components/CeritaKami";
 import OfflineToast from "@/components/OfflineToast";
 import CustomCursor from "@/components/CustomCursor";
 import PageTransition from "@/components/PageTransition";
+import LiveActivityFeed from "@/components/LiveActivityFeed";
 
 export default function Home() {
   useEffect(() => {
@@ -58,6 +59,7 @@ export default function Home() {
       <FABMenu />
       <CartWidget />
       <LiveChatWidget />
+      <LiveActivityFeed />
     </CartProvider>
   );
 }

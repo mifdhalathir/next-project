@@ -82,6 +82,15 @@ export default function AmbientWidget() {
           </span>
         </a>
       </div>
+
+      {/* Floating Music Visualizer Sync: Ambient Glow Line */}
+      <div 
+        className={`fixed bottom-0 left-0 w-full z-[100] pointer-events-none transition-all duration-1000 ${
+          isPlaying ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1"
+        }`}
+      >
+        <div className="ambient-glow-line bg-amber-500 w-full shadow-[0_0_20px_#f59e0b]"></div>
+      </div>
     </>
   );
 }

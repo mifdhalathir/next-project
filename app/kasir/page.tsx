@@ -70,6 +70,11 @@ export default function KasirPage() {
           if (completedOrder) {
             const totalRevenue = Number(localStorage.getItem("karsa_revenue") || 0);
             localStorage.setItem("karsa_revenue", (totalRevenue + completedOrder.total).toString());
+
+            // Add Loyalty Points
+            const userKey = `karsa_points_${completedOrder.customerName}`;
+            const currentPoints = Number(localStorage.getItem(userKey) || 0);
+            localStorage.setItem(userKey, (currentPoints + 10).toString());
           }
         }
 

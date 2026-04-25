@@ -93,9 +93,24 @@ export default function MenuSection() {
                     alt={item.name}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-transparent to-transparent opacity-60"></div>
-                  
-                  {/* Add Button in Corner */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-transparent to-transparent opacity-60"></div>
+                    
+                    {/* Smart Badge Logic */}
+                    {(() => {
+                      const hour = new Date().getHours();
+                      if (hour >= 18 || hour < 5) {
+                        if (item.name.includes("Matcha") || item.name.includes("Teh")) {
+                          return <div className="absolute top-4 left-4 bg-amber-500 text-black text-[8px] font-black px-3 py-1 rounded-full shadow-lg z-10 animate-pulse">BEST SELLER MALAM 🌙</div>;
+                        }
+                      } else if (hour >= 10 && hour < 16) {
+                        if (item.category === "drinks" || item.name.includes("Cold Brew") || item.name.includes("Smoothies")) {
+                          return <div className="absolute top-4 left-4 bg-blue-500 text-white text-[8px] font-black px-3 py-1 rounded-full shadow-lg z-10 animate-bounce">SEGAR BANGET ❄️</div>;
+                        }
+                      }
+                      return null;
+                    })()}
+
+                    {/* Add Button in Corner */}
                   <button 
                     onClick={() => updateQty(item.name, qty + 1, item.price)}
                     className="absolute top-4 right-4 w-10 h-10 bg-amber-600 hover:bg-amber-500 text-white rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 hover:rotate-90 active:scale-90"

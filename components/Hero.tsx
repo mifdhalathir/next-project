@@ -8,12 +8,15 @@ export default function Hero() {
 
   useEffect(() => {
     const hour = new Date().getHours();
+    const userName = localStorage.getItem("karsa_user_name") || "";
+    const nameStr = userName ? `, ${userName}` : "";
+
     if (hour >= 5 && hour < 15) {
-      setGreeting("Selamat Pagi, Kak! Udah siap nugas?");
+      setGreeting(`Selamat Pagi${nameStr}! Mau nugas apa hari ini?`);
     } else if (hour >= 15 && hour < 19) {
-      setGreeting("Senja di Karsa paling asik bareng Mocktail");
+      setGreeting(`Senja di Karsa paling asik bareng Mocktail${nameStr}`);
     } else {
-      setGreeting("Lembur tugas? Kopi Susu Karsa siap nemenin");
+      setGreeting(`Lembur tugas${nameStr}? Kopi Susu Karsa siap nemenin`);
     }
   }, []);
 
