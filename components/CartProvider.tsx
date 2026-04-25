@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export type OrderStatus = "received" | "preparing" | "ready" | "completed";
 
