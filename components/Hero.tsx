@@ -19,19 +19,12 @@ export default function Hero() {
 
   return (
     <section id="home" className="relative h-screen flex items-center justify-center">
-      {/* Background Video */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
+      {/* Background Image */}
+      <img
+        src="/images/hero-bg.png"
+        alt="Karsa Cafe Background"
         className="fixed inset-0 w-full h-full object-cover -z-10"
-      >
-        <source
-          src="https://cdn.pixabay.com/video/2023/10/22/186121-877112316_tiny.mp4"
-          type="video/mp4"
-        />
-      </video>
+      />
       <div className="hero-overlay absolute inset-0"></div>
       <div className="relative text-center px-4" data-aos="fade-right" data-aos-duration="1000">
         <p className="text-amber-400 tracking-[.15em] text-sm mb-2 font-bold uppercase">
