@@ -51,67 +51,55 @@ export default function Navbar() {
         scrolled ? "navbar-scrolled" : "bg-transparent"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-20">
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 bg-amber-600 rounded-xl flex items-center justify-center shadow-lg transform group-hover:rotate-12 transition-transform">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 20V4"></path>
-              <path d="m7 12 5-5"></path>
-              <path d="m7 12 5 5"></path>
-              <path d="M12 7h2a4 4 0 0 1 0 8h-2"></path>
-            </svg>
-          </div>
-          <span className="font-display text-2xl font-bold text-white tracking-widest">
-            KARSA KAFE
-          </span>
-        </Link>
-
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-20 relative">
+        {/* Left Side: Empty or could put menu here */}
         <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
-          <Link
-            href="#home"
-            className="nav-link text-cream-100 hover:text-cream-300 text-sm tracking-wide"
-          >
-            HOME
+           <Link href="#home" className="nav-link text-cream-100 hover:text-cream-300 text-xs tracking-widest font-bold uppercase">HOME</Link>
+           <Link href="#menu" className="nav-link text-cream-100 hover:text-cream-300 text-xs tracking-widest font-bold uppercase">MENU</Link>
+        </div>
+
+        {/* Center: Logo */}
+        <div className="absolute left-1/2 -translate-x-1/2 flex items-center">
+          <Link href="/" className="flex flex-col items-center group">
+            <div className="w-9 h-9 bg-amber-600 rounded-lg flex items-center justify-center shadow-lg transform group-hover:rotate-12 transition-transform mb-1">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 20V4"></path>
+                <path d="m7 12 5-5"></path>
+                <path d="m7 12 5 5"></path>
+                <path d="M12 7h2a4 4 0 0 1 0 8h-2"></path>
+              </svg>
+            </div>
+            <span className="font-display text-lg font-bold text-white tracking-[0.2em] uppercase">
+              KARSA KAFE
+            </span>
           </Link>
-          <Link
-            href="#menu"
-            className="nav-link text-cream-100 hover:text-cream-300 text-sm tracking-wide"
-          >
-            MENU
-          </Link>
-          <Link
-            href="#reservasi"
-            className="nav-link text-cream-100 hover:text-cream-300 text-sm tracking-wide"
-          >
-            RESERVASI
-          </Link>
-          <Link
-            href="#kontak"
-            className="nav-link text-cream-100 hover:text-cream-300 text-sm tracking-wide"
-          >
-            KONTAK
-          </Link>
+        </div>
+
+        {/* Right Side: Navigation & Actions */}
+        <div className="flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
+            <Link href="#reservasi" className="nav-link text-cream-100 hover:text-cream-300 text-xs tracking-widest font-bold uppercase">RESERVASI</Link>
+            <Link href="#kontak" className="nav-link text-cream-100 hover:text-cream-300 text-xs tracking-widest font-bold uppercase">KONTAK</Link>
+          </div>
           <button
             onClick={toggleDarkMode}
-            className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition"
-            title="Dark Mode"
+            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition"
           >
-            <span>{isDark ? "🌙" : "☀️"}</span>
+            <span className="text-sm">{isDark ? "🌙" : "☀️"}</span>
           </button>
           <Link
             href="/login"
-            className="bg-amber-700 hover:bg-amber-800 text-white px-6 py-2 rounded-full text-sm font-bold tracking-wider transition transform hover:scale-105"
+            className="bg-amber-600 hover:bg-amber-700 text-white px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition"
           >
-            Login
+            LOGIN
           </Link>
         </div>
-        <button
+      </div>  <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="md:hidden text-white text-2xl p-2"
         >
           &#9776;
         </button>
-      </div>
       <div
         className={`${
           isMobileMenuOpen ? "block" : "hidden"

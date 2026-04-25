@@ -46,17 +46,17 @@ export default function MenuSection() {
         </div>
 
         {/* Menu Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
           {filteredItems.map((item, index) => {
             const qty = cart[item.name]?.qty || 0;
             return (
               <div
                 key={item.id}
-                className="group relative bg-stone-900 rounded-[2.5rem] overflow-hidden shadow-2xl transform transition-all duration-500 hover:-translate-y-2"
+                className="group relative bg-stone-900 rounded-[2rem] overflow-hidden shadow-xl transform transition-all duration-500 hover:-translate-y-1"
                 data-aos="fade-up"
                 data-aos-delay={index * 100}
               >
-                <div className="h-64 overflow-hidden relative">
+                <div className="h-44 overflow-hidden relative">
                   <img
                     src={item.img}
                     alt={item.name}
@@ -67,38 +67,36 @@ export default function MenuSection() {
                   {/* Add Button in Corner */}
                   <button 
                     onClick={() => updateQty(item.name, qty + 1, item.price)}
-                    className="absolute top-6 right-6 w-12 h-12 bg-amber-600 hover:bg-amber-500 text-white rounded-2xl flex items-center justify-center shadow-xl transition-all duration-300 hover:rotate-90 active:scale-90"
+                    className="absolute top-4 right-4 w-10 h-10 bg-amber-600 hover:bg-amber-500 text-white rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 hover:rotate-90 active:scale-90"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
                   </button>
                 </div>
 
-                <div className="p-8 pb-10">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-display text-2xl font-bold text-white leading-tight">{item.name}</h3>
-                  </div>
-                  <p className="text-stone-400 text-sm leading-relaxed mb-6 h-10 overflow-hidden line-clamp-2">
+                <div className="p-5 pb-6">
+                  <h3 className="font-display text-lg font-bold text-white leading-tight mb-1">{item.name}</h3>
+                  <p className="text-stone-500 text-[11px] leading-relaxed mb-4 h-8 overflow-hidden line-clamp-2">
                     {item.desc}
                   </p>
                   
-                  <div className="flex justify-between items-center pt-6 border-t border-white/5">
-                    <p className="text-amber-500 font-black text-2xl tracking-tighter">
-                      <span className="text-xs font-normal text-stone-500 mr-1 italic">Rp</span>
+                  <div className="flex justify-between items-center pt-4 border-t border-white/5">
+                    <p className="text-amber-500 font-black text-lg tracking-tighter">
+                      <span className="text-[10px] font-normal text-stone-600 mr-1 italic">Rp</span>
                       {item.price.toLocaleString("id-ID")}
                     </p>
                     
                     {qty > 0 && (
-                      <div className="flex items-center gap-3 bg-stone-800 rounded-xl p-1 px-3 border border-white/5">
+                      <div className="flex items-center gap-2 bg-stone-800 rounded-lg p-1 px-2 border border-white/5">
                         <button
                           onClick={() => updateQty(item.name, qty - 1, item.price)}
-                          className="w-6 h-6 text-stone-400 hover:text-white transition"
+                          className="w-4 h-4 text-stone-500 hover:text-white transition text-xs"
                         >
                           -
                         </button>
-                        <span className="text-xs font-bold text-white w-4 text-center">{qty}</span>
+                        <span className="text-[10px] font-bold text-white w-3 text-center">{qty}</span>
                         <button
                           onClick={() => updateQty(item.name, qty + 1, item.price)}
-                          className="w-6 h-6 text-stone-400 hover:text-white transition"
+                          className="w-4 h-4 text-stone-500 hover:text-white transition text-xs"
                         >
                           +
                         </button>
