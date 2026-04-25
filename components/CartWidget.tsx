@@ -4,21 +4,21 @@ import { useState } from "react";
 import { useCart } from "./CartProvider";
 
 export default function CartWidget() {
-  const { cart, total, totalItems, removeFromCart, addToCart, updateQty } = useCart();
+  const { cart, total, totalItems, removeFromCart, addToCart, updateQty, placeOrder, activeOrder } = useCart();
   const [isOpen, setIsOpen] = useState(false);
+  const [tableNumber, setTableNumber] = useState("");
+  const [showReceipt, setShowReceipt] = useState(false);
 
   const cartArray = Object.values(cart);
 
-  const checkout = () => {
+  const handlePlaceOrder = () => {
     if (total === 0) return;
-    let msg = "Halo Karsa Cafe, saya ingin memesan menu berikut dari meja:\n\n";
-    for (const item of cartArray) {
-      msg += `- ${item.name} (${item.qty}x) = Rp ${(item.price * item.qty).toLocaleString("id-ID")}\n`;
+    if (!tableNumber) {
+      alert("Silakan masukkan Nomor Meja terlebih dahulu!");
+      return;
     }
-    msg += `\n*Total: Rp ${total.toLocaleString("id-ID")}*`;
-
-    const waUrl = `https://wa.me/6281234567890?text=${encodeURIComponent(msg)}`;
-    window.open(waUrl, "_blank");
+    placeOrder(tableNumber);
+    setShowReceipt(true);
   };
 
   return (
@@ -52,10 +52,10 @@ export default function CartWidget() {
               Lihat Detail ({totalItems})
             </button>
             <button
-              onClick={checkout}
+              onClick={handlePlaceOrder}
               className="bg-amber-600 hover:bg-amber-500 text-white px-8 py-3.5 rounded-2xl text-xs font-black tracking-[0.2em] uppercase transition transform hover:scale-105 active:scale-95 shadow-xl shadow-amber-900/40 flex items-center gap-2"
             >
-              <span>Pesan via WA</span>
+              <span>Konfirmasi Pesanan</span>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
             </button>
           </div>
@@ -107,7 +107,75 @@ export default function CartWidget() {
           </div>
 
           <div className="flex-1 overflow-y-auto p-8 space-y-6">
-            {cartArray.length === 0 ? (
+            {activeOrder ? (
+              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                {/* Order Status Tracker */}
+                <div className="bg-white/5 border border-amber-500/20 p-6 rounded-3xl relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-amber-600"></div>
+                  <h4 className="text-amber-500 text-[10px] font-black uppercase tracking-[0.3em] mb-4">Status Pesanan</h4>
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-3 h-3 rounded-full ${activeOrder.status === "received" || activeOrder.status === "preparing" || activeOrder.status === "ready" ? "bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]" : "bg-stone-700"}`}></div>
+                      <span className={`text-xs font-bold ${activeOrder.status === "received" ? "text-white" : "text-stone-500"}`}>Pesanan Diterima</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className={`w-3 h-3 rounded-full ${activeOrder.status === "preparing" || activeOrder.status === "ready" ? "bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]" : "bg-stone-700"}`}></div>
+                      <span className={`text-xs font-bold ${activeOrder.status === "preparing" ? "text-white" : "text-stone-500"}`}>Sedang Disiapkan</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className={`w-3 h-3 rounded-full ${activeOrder.status === "ready" ? "bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]" : "bg-stone-700"}`}></div>
+                      <span className={`text-xs font-bold ${activeOrder.status === "ready" ? "text-white" : "text-stone-500"}`}>Pesanan Siap di Meja</span>
+                    </div>
+                  </div>
+                  <div className="mt-6 h-1 w-full bg-stone-800 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-amber-600 transition-all duration-1000" 
+                      style={{ width: activeOrder.status === "received" ? "33%" : activeOrder.status === "preparing" ? "66%" : "100%" }}
+                    ></div>
+                  </div>
+                </div>
+
+                {/* Digital Receipt Section */}
+                <div className="bg-white p-6 rounded-xl text-stone-900 shadow-2xl relative overflow-hidden font-mono text-xs">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-stone-900/10 border-b border-dashed border-stone-900/20"></div>
+                  <div className="text-center mb-6 pt-4">
+                    <h5 className="font-black text-lg uppercase tracking-tighter">Karsa Kafe</h5>
+                    <p className="text-[10px] opacity-60">Padang, West Sumatra</p>
+                    <div className="my-4 border-y border-dashed border-stone-900/20 py-2">
+                      <p className="font-bold">ORDER ID: {activeOrder.id}</p>
+                      <p>TABLE: {activeOrder.tableNumber}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2 mb-6">
+                    {activeOrder.items.map((item, i) => (
+                      <div key={i} className="flex justify-between">
+                        <span>{item.qty}x {item.name}</span>
+                        <span>Rp {(item.price * item.qty).toLocaleString("id-ID")}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="border-t border-dashed border-stone-900/20 pt-4 mb-6">
+                    <div className="flex justify-between font-black text-sm">
+                      <span>TOTAL</span>
+                      <span>Rp {activeOrder.total.toLocaleString("id-ID")}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-center gap-2 py-4">
+                    <div className="w-full h-16 bg-stone-900/5 flex items-center justify-center border border-stone-900/10 rounded overflow-hidden">
+                      {/* Barcode Simulation */}
+                      <div className="flex gap-1 h-10">
+                        {[1, 2, 4, 1, 2, 1, 3, 2, 4, 1, 2, 1, 3, 2, 4, 1, 2, 1, 3, 2, 4].map((w, i) => (
+                          <div key={i} className="bg-stone-900 h-full" style={{ width: `${w}px` }}></div>
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-[9px] font-bold text-center opacity-70 mt-2">
+                      TUNJUKKAN BARCODE INI KE KASIR<br/>UNTUK PROSES MASAK & PEMBAYARAN
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : cartArray.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center">
                 <div className="w-20 h-20 bg-stone-800 rounded-full flex items-center justify-center text-4xl mb-4 opacity-20">🛒</div>
                 <p className="text-stone-500 text-sm italic">
@@ -116,6 +184,16 @@ export default function CartWidget() {
               </div>
             ) : (
               <div className="space-y-4">
+                <div className="mb-8 p-6 bg-amber-600/10 border border-amber-600/20 rounded-3xl">
+                  <label className="block text-amber-500 text-[10px] font-black uppercase tracking-[0.3em] mb-3">Nomor Meja</label>
+                  <input 
+                    type="number" 
+                    value={tableNumber}
+                    onChange={(e) => setTableNumber(e.target.value)}
+                    placeholder="Contoh: 05"
+                    className="w-full bg-stone-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none transition-all"
+                  />
+                </div>
                 {cartArray.map((item, index) => (
                   <div
                     key={index}
@@ -136,13 +214,9 @@ export default function CartWidget() {
                       <button 
                         onClick={() => updateQty(item.name, 0, item.price)}
                         className="text-stone-500 hover:text-red-500 transition-colors p-1"
-                        title="Hapus item"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
                       </button>
-                      <span className="text-sm font-black text-white w-20 text-right">
-                        Rp {(item.price * item.qty).toLocaleString("id-ID")}
-                      </span>
                     </div>
                   </div>
                 ))}
@@ -151,19 +225,31 @@ export default function CartWidget() {
           </div>
 
           <div className="p-8 bg-stone-900 border-t border-white/5">
-            <div className="flex justify-between items-center mb-6">
-              <span className="text-stone-500 uppercase tracking-widest text-xs font-bold">Total Pembayaran</span>
-              <span className="font-black text-3xl text-amber-500 tracking-tighter">
-                Rp {total.toLocaleString("id-ID")}
-              </span>
-            </div>
-            <button
-              onClick={checkout}
-              disabled={total === 0}
-              className="w-full bg-amber-600 hover:bg-amber-500 disabled:opacity-50 disabled:grayscale text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.3em] transition-all transform hover:scale-[1.02] active:scale-95 shadow-xl shadow-amber-900/40"
-            >
-              Konfirmasi & Pesan via WA
-            </button>
+            {!activeOrder && (
+              <>
+                <div className="flex justify-between items-center mb-6">
+                  <span className="text-stone-500 uppercase tracking-widest text-xs font-bold">Total Pembayaran</span>
+                  <span className="font-black text-3xl text-amber-500 tracking-tighter">
+                    Rp {total.toLocaleString("id-ID")}
+                  </span>
+                </div>
+                <button
+                  onClick={handlePlaceOrder}
+                  disabled={total === 0}
+                  className="w-full bg-amber-600 hover:bg-amber-500 disabled:opacity-50 disabled:grayscale text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.3em] transition-all transform hover:scale-[1.02] active:scale-95 shadow-xl shadow-amber-900/40"
+                >
+                  Konfirmasi Pesanan
+                </button>
+              </>
+            )}
+            {activeOrder && (
+              <button
+                onClick={() => setIsOpen(false)}
+                className="w-full bg-stone-800 hover:bg-stone-700 text-white py-4 rounded-2xl font-bold text-xs uppercase tracking-[0.2em] transition-all"
+              >
+                Kembali ke Menu
+              </button>
+            )}
           </div>
         </div>
       </div>
