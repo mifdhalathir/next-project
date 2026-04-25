@@ -13,6 +13,16 @@ export type Order = {
   timestamp: number;
 };
 
+export type Reservation = {
+  id: string;
+  name: string;
+  time: string;
+  guests: number;
+  notes: string;
+  status: "pending" | "arrived" | "cancelled";
+  timestamp: number;
+};
+
 type CartContextType = {
   cart: { [key: string]: CartItem };
   addToCart: (name: string, price: number) => void;
@@ -20,6 +30,7 @@ type CartContextType = {
   updateQty: (name: string, qty: number, price: number) => void;
   clearCart: () => void;
   placeOrder: (tableNumber: string) => Order;
+  placeReservation: (res: Omit<Reservation, "id" | "status" | "timestamp">) => void;
   activeOrder: Order | null;
   total: number;
   totalItems: number;
@@ -49,7 +60,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     };
 
     window.addEventListener("storage", syncStatus);
-    // Also check periodically for smoother experience if storage event doesn't fire (same tab)
     const interval = setInterval(syncStatus, 2000);
     
     return () => {
@@ -58,7 +68,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     };
   }, [activeOrder]);
 
-  // Sync with localStorage for persistence and multi-tab kitchen monitoring
   const placeOrder = (tableNumber: string): Order => {
     const newOrder: Order = {
       id: `KRSA-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -69,18 +78,30 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       timestamp: Date.now(),
     };
 
-    // Save to all orders for kitchen
     const existingOrdersJson = localStorage.getItem("karsa_orders");
     const existingOrders: Order[] = existingOrdersJson ? JSON.parse(existingOrdersJson) : [];
     const updatedOrders = [...existingOrders, newOrder];
     localStorage.setItem("karsa_orders", JSON.stringify(updatedOrders));
 
-    // Notify other tabs (like Dapur page)
     window.dispatchEvent(new Event("storage"));
 
     setActiveOrder(newOrder);
-    setCart({}); // Clear cart after order
+    setCart({});
     return newOrder;
+  };
+
+  const placeReservation = (res: Omit<Reservation, "id" | "status" | "timestamp">) => {
+    const newRes: Reservation = {
+      ...res,
+      id: `RES-${Math.floor(1000 + Math.random() * 9000)}`,
+      status: "pending",
+      timestamp: Date.now(),
+    };
+
+    const existingResJson = localStorage.getItem("karsa_reservations");
+    const existingRes: Reservation[] = existingResJson ? JSON.parse(existingResJson) : [];
+    localStorage.setItem("karsa_reservations", JSON.stringify([...existingRes, newRes]));
+    window.dispatchEvent(new Event("storage"));
   };
 
   const clearCart = () => setCart({});
@@ -117,7 +138,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   return (
     <CartContext.Provider value={{ 
       cart, addToCart, removeFromCart, updateQty, clearCart, 
-      placeOrder, activeOrder, total, totalItems 
+      placeOrder, placeReservation, activeOrder, total, totalItems 
     }}>
       {children}
     </CartContext.Provider>

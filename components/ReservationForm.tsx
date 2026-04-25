@@ -5,8 +5,10 @@ import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import "flatpickr/dist/themes/dark.css";
 import confetti from "canvas-confetti";
+import { useCart } from "./CartProvider";
 
 export default function ReservationForm() {
+  const { placeReservation } = useCart();
   const dateRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     nama: "",
@@ -61,15 +63,16 @@ export default function ReservationForm() {
     setShowSuccess(true);
 
     setTimeout(() => {
-      const message = `Halo Karsa Cafe, saya ${formData.nama} ingin reservasi untuk ${
-        formData.jumlah
-      } orang pada tanggal ${formData.tanggal} jam ${formData.jam}. Catatan: ${formData.catatan || "-"}`;
-      const waUrl = `https://wa.me/6281234567890?text=${encodeURIComponent(message)}`;
-      window.open(waUrl, "_blank");
+      placeReservation({
+        name: formData.nama,
+        time: `${formData.tanggal} ${formData.jam}`,
+        guests: parseInt(formData.jumlah),
+        notes: formData.catatan,
+      });
 
       setFormData({ nama: "", jumlah: "", tanggal: "", jam: "", catatan: "" });
       setIsSubmitting(false);
-      setTimeout(() => setShowSuccess(false), 3000);
+      setTimeout(() => setShowSuccess(false), 5000);
     }, 1500);
   };
 
@@ -177,12 +180,15 @@ export default function ReservationForm() {
 
       {/* Success Toast */}
       <div
-        className={`fixed top-6 left-1/2 -translate-x-1/2 z-[80] bg-green-600 text-white px-6 py-4 rounded-xl shadow-2xl transform transition-all duration-500 flex items-center gap-3 ${
+        className={`fixed top-6 left-1/2 -translate-x-1/2 z-[80] bg-green-600 text-white px-6 py-4 rounded-xl shadow-2xl transform transition-all duration-500 flex flex-col items-center gap-1 ${
           showSuccess ? "translate-y-0 opacity-100" : "-translate-y-32 opacity-0"
         }`}
       >
-        <span className="text-2xl">✅</span>
-        <h4 className="font-bold">Reservasi Berhasil Dikirim!</h4>
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">✅</span>
+          <h4 className="font-bold">Reservasi Berhasil Terkirim!</h4>
+        </div>
+        <p className="text-[10px] opacity-80 uppercase tracking-widest font-black">Silakan datang sesuai jam yang dipesan</p>
       </div>
     </>
   );
