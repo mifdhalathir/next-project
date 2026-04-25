@@ -12,20 +12,28 @@ export default function CommandCenterPage() {
 
   const loadData = () => {
     const savedOrders = localStorage.getItem("karsa_orders");
+    const savedRes = localStorage.getItem("karsa_reservations");
+    
     if (savedOrders) {
       const parsedOrders: Order[] = JSON.parse(savedOrders);
       setOrders(parsedOrders);
       
-      // Play sound if new order detected
-      if (parsedOrders.length > lastOrderCount) {
-        audioRef.current?.play().catch(() => {});
-      }
-      setLastOrderCount(parsedOrders.length);
+      // Check for new orders to play sound
+      setLastOrderCount(prev => {
+        if (parsedOrders.length > prev) {
+          audioRef.current?.play().catch(() => {});
+        }
+        return parsedOrders.length;
+      });
+    } else {
+      setOrders([]);
+      setLastOrderCount(0);
     }
 
-    const savedRes = localStorage.getItem("karsa_reservations");
     if (savedRes) {
       setReservations(JSON.parse(savedRes));
+    } else {
+      setReservations([]);
     }
   };
 
@@ -34,15 +42,21 @@ export default function CommandCenterPage() {
     audioRef.current = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
     
     loadData();
-    window.addEventListener("storage", loadData);
-    window.addEventListener("mousemove", (e) => setMousePos({ x: e.clientX, y: e.clientY }));
     
-    const interval = setInterval(loadData, 3000);
+    const handleStorage = () => loadData();
+    window.addEventListener("storage", handleStorage);
+    
+    const handleMouseMove = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY });
+    window.addEventListener("mousemove", handleMouseMove);
+    
+    const interval = setInterval(loadData, 2000);
+    
     return () => {
-      window.removeEventListener("storage", loadData);
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("mousemove", handleMouseMove);
       clearInterval(interval);
     };
-  }, [lastOrderCount]);
+  }, []);
 
   const updateOrderStatus = (orderId: string, newStatus: OrderStatus) => {
     const updated = orders.map(order => 
@@ -93,7 +107,7 @@ export default function CommandCenterPage() {
 
       <header className="flex justify-between items-end mb-8 bg-white/5 p-8 rounded-[2.5rem] border border-white/10 backdrop-blur-md">
         <div>
-          <h1 className="font-display text-5xl font-black tracking-tighter italic">KARSA <span className="text-amber-500">COMMAND CENTER</span></h1>
+          <h1 className="font-display text-5xl font-black tracking-tighter italic">KARSA <span className="text-amber-500">kafe </span></h1>
           <p className="text-stone-500 text-[10px] uppercase tracking-[0.6em] mt-2 font-black">Elite Dashboard • Kasir & Dapur System</p>
         </div>
         <div className="flex gap-6 items-center">
