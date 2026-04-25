@@ -34,14 +34,13 @@ export default function Login() {
         <div className="login-card relative z-10 w-full max-w-md mx-4">
           <div className="bg-cream-50/10 backdrop-blur-lg border border-cream-200/20 rounded-2xl p-8 shadow-2xl">
             <div className="text-center mb-8">
-              <h1 className="font-display text-3xl font-bold text-white tracking-widest flex items-center justify-center gap-3">
+              <div className="flex justify-center mb-4">
                 <img
                   src="/images/image_4.png"
                   alt="Karsa Kafe Logo"
-                  className="h-10 w-auto object-contain brightness-0 invert"
+                  className="h-24 w-auto object-contain brightness-0 invert"
                 />
-                KARSA KAFE
-              </h1>
+              </div>
               <div className="w-12 h-0.5 bg-amber-500 mx-auto mt-3 mb-4"></div>
               <p className="text-stone-400 text-sm">Masuk ke akun Anda</p>
             </div>
