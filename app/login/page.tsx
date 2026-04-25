@@ -31,6 +31,7 @@ export default function Login() {
     // Simulate successful login
     setTimeout(() => {
       localStorage.setItem("karsa_user_name", username);
+      sessionStorage.setItem("username", username);
       if (tableNumber) {
         localStorage.setItem("karsa_table_number", tableNumber);
       }

@@ -52,10 +52,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (savedOrders) {
         const orders: Order[] = JSON.parse(savedOrders);
         const current = orders.find(o => o.id === activeOrder.id);
+        
         if (current && current.status !== activeOrder.status) {
+          // Play sound if status becomes "ready"
+          if (current.status === "ready") {
+            const beep = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
+            beep.play().catch(e => console.log("Sound error:", e));
+            addKarsaNotification(`Pesananmu SIAP diantar/ambil! 🛎️`, "success");
+          }
           setActiveOrder(current);
         } else if (!current && activeOrder.status !== "completed") {
-          // If order is gone from karsa_orders, it's likely completed
           setActiveOrder({ ...activeOrder, status: "completed" });
         }
       }
@@ -71,7 +77,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [activeOrder]);
 
   const placeOrder = (tableNumber: string): Order => {
-    const customerName = localStorage.getItem("karsa_user_name") || "Tamu";
+    // Priority: sessionStorage -> localStorage -> Tamu
+    const customerName = sessionStorage.getItem("username") || localStorage.getItem("karsa_user_name") || "Tamu";
     const newOrder: Order = {
       id: `KRSA-${Math.floor(1000 + Math.random() * 9000)}`,
       tableNumber,

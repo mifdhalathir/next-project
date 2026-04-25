@@ -25,6 +25,7 @@ import OfflineToast from "@/components/OfflineToast";
 import CustomCursor from "@/components/CustomCursor";
 import PageTransition from "@/components/PageTransition";
 import LiveActivityFeed from "@/components/LiveActivityFeed";
+import OrderTrackerCard from "@/components/OrderTrackerCard";
 
 export default function Home() {
   useEffect(() => {
@@ -60,6 +61,7 @@ export default function Home() {
       <CartWidget />
       <LiveChatWidget />
       <LiveActivityFeed />
+      <OrderTrackerCard />
     </CartProvider>
   );
 }
