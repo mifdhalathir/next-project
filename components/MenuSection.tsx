@@ -5,36 +5,36 @@ import { useCart } from "./CartProvider";
 
 const MENU_ITEMS = [
   // Snacks
-  { id: 1, name: "Kentang Goreng", price: 15000, category: "snacks", img: "https://images.unsplash.com/photo-1630384066272-1177f68bc50d?q=80&w=800&auto=format&fit=crop", desc: "Kentang goreng renyah dengan bumbu spesial." },
+  { id: 1, name: "Kentang Goreng", price: 15000, category: "snacks", img: "https://images.pexels.com/photos/1893556/pexels-photo-1893556.jpeg?auto=compress&cs=tinysrgb&w=800", desc: "Kentang goreng renyah dengan bumbu spesial." },
   { id: 2, name: "Nugget/Sosis", price: 18000, category: "snacks", img: "https://images.unsplash.com/photo-1562967914-608f82629710?q=80&w=800&auto=format&fit=crop", desc: "Kombinasi nugget dan sosis goreng." },
   { id: 3, name: "Roti Bakar", price: 20000, category: "snacks", img: "https://images.unsplash.com/photo-1484723091739-30a097e8f929?q=80&w=800&auto=format&fit=crop", desc: "Roti bakar dengan berbagai pilihan topping." },
   { id: 5, name: "Cireng/Dimsum", price: 18000, category: "snacks", img: "https://images.unsplash.com/photo-1541529086526-db283c563270?q=80&w=800&auto=format&fit=crop", desc: "Pilihan camilan gurih hangat." },
 
   // Coffee Based
   { id: 6, name: "Espresso", price: 12000, category: "coffee", img: "https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?q=80&w=800&auto=format&fit=crop", desc: "Ekstrak kopi murni yang kuat." },
-  { id: 7, name: "Americano", price: 15000, category: "coffee", img: "https://images.unsplash.com/photo-1551033406-611cf9a28f67?q=80&w=800&auto=format&fit=crop", desc: "Espresso dengan air panas segar." },
+  { id: 7, name: "Americano", price: 15000, category: "coffee", img: "https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&w=800", desc: "Espresso dengan air panas segar." },
   { id: 8, name: "Cappuccino", price: 20000, category: "coffee", img: "https://images.unsplash.com/photo-1534778101976-62847782c213?q=80&w=800&auto=format&fit=crop", desc: "Keseimbangan sempurna espresso, susu, dan busa." },
-  { id: 9, name: "Latte", price: 20000, category: "coffee", img: "https://images.unsplash.com/photo-1536939459926-301728717817?q=80&w=800&auto=format&fit=crop", desc: "Espresso dengan susu lembut dan sedikit busa." },
+  { id: 9, name: "Latte", price: 20000, category: "coffee", img: "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=800", desc: "Espresso dengan susu lembut dan sedikit busa." },
   { id: 10, name: "Mochaccino", price: 22000, category: "coffee", img: "https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?q=80&w=800&auto=format&fit=crop", desc: "Perpaduan kopi, susu, dan cokelat." },
 
   // Non-Coffee
-  { id: 11, name: "Teh Tarik", price: 15000, category: "non-coffee", img: "https://images.unsplash.com/photo-1594631252845-29fc4586c562?q=80&w=800&auto=format&fit=crop", desc: "Teh susu khas dengan busa melimpah." },
+  { id: 11, name: "Teh Tarik", price: 15000, category: "non-coffee", img: "https://images.pexels.com/photos/3735169/pexels-photo-3735169.jpeg?auto=compress&cs=tinysrgb&w=800", desc: "Teh susu khas dengan busa melimpah." },
   { id: 12, name: "Lemon Tea", price: 12000, category: "non-coffee", img: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?q=80&w=800&auto=format&fit=crop", desc: "Teh segar dengan perasan jeruk lemon." },
-  { id: 13, name: "Chocolate", price: 18000, category: "non-coffee", img: "https://images.unsplash.com/photo-1544787210-2213d94ad332?q=80&w=800&auto=format&fit=crop", desc: "Minuman cokelat premium yang kental." },
-  { id: 14, name: "Milo", price: 15000, category: "non-coffee", img: "https://images.unsplash.com/photo-1541658016709-82535e94bc71?q=80&w=800&auto=format&fit=crop", desc: "Minuman cokelat malt favorit semua orang." },
+  { id: 13, name: "Chocolate", price: 18000, category: "non-coffee", img: "https://images.pexels.com/photos/904616/pexels-photo-904616.jpeg?auto=compress&cs=tinysrgb&w=800", desc: "Minuman cokelat premium yang kental." },
+  { id: 14, name: "Milo", price: 15000, category: "non-coffee", img: "https://images.pexels.com/photos/4109998/pexels-photo-4109998.jpeg?auto=compress&cs=tinysrgb&w=800", desc: "Minuman cokelat malt favorit semua orang." },
   { id: 15, name: "Matcha", price: 22000, category: "non-coffee", img: "https://images.unsplash.com/photo-1515823064-d6e0c04616a7?q=80&w=800&auto=format&fit=crop", desc: "Matcha Jepang asli dengan susu segar." },
 
   // Minuman Dingin (Drinks)
-  { id: 16, name: "Es Kopi Susu", price: 18000, category: "drinks", img: "https://images.unsplash.com/photo-1461023235550-c1f09239b222?q=80&w=800&auto=format&fit=crop", desc: "Kopi susu gula aren yang menyegarkan." },
+  { id: 16, name: "Es Kopi Susu", price: 18000, category: "drinks", img: "https://images.pexels.com/photos/2615323/pexels-photo-2615323.jpeg?auto=compress&cs=tinysrgb&w=800", desc: "Kopi susu gula aren yang menyegarkan." },
   { id: 17, name: "Milkshake", price: 22000, category: "drinks", img: "https://images.unsplash.com/photo-1572490122747-3968b75cc699?q=80&w=800&auto=format&fit=crop", desc: "Susu kocok dengan berbagai rasa." },
   { id: 18, name: "Smoothies", price: 25000, category: "drinks", img: "https://images.unsplash.com/photo-1502741224143-90386d7f8c82?q=80&w=800&auto=format&fit=crop", desc: "Minuman buah segar yang sehat dan lezat." },
 
   // Dessert
   { id: 19, name: "Cake Slice", price: 25000, category: "dessert", img: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=800&auto=format&fit=crop", desc: "Pilihan cake lembut premium." },
   { id: 20, name: "Brownies", price: 18000, category: "dessert", img: "https://images.unsplash.com/photo-1461009312844-e80697a81cc7?q=80&w=800&auto=format&fit=crop", desc: "Brownies cokelat fudge yang padat." },
-  { id: 21, name: "Donat", price: 10000, category: "dessert", img: "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?q=80&w=800&auto=format&fit=crop", desc: "Donat empuk dengan aneka topping." },
+  { id: 21, name: "Donat", price: 10000, category: "dessert", img: "https://images.pexels.com/photos/1191639/pexels-photo-1191639.jpeg?auto=compress&cs=tinysrgb&w=800", desc: "Donat empuk dengan aneka topping." },
   { id: 22, name: "Croissant", price: 22000, category: "dessert", img: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=800&auto=format&fit=crop", desc: "Pastry mentega yang renyah dan berlapis." },
-  { id: 23, name: "Waffle", price: 25000, category: "dessert", img: "https://images.unsplash.com/photo-1562329265-95a6d7a83440?q=80&w=800&auto=format&fit=crop", desc: "Sajian hangat dengan sirup atau es krim." },
+  { id: 23, name: "Waffle", price: 25000, category: "dessert", img: "https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg?auto=compress&cs=tinysrgb&w=800", desc: "Sajian hangat dengan sirup atau es krim." },
 ];
 
 export default function MenuSection() {
