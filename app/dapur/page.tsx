@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { Order, OrderStatus } from "@/components/CartProvider";
+import { addKarsaNotification } from "@/components/NotificationHub";
 
 export default function DapurPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -44,9 +45,17 @@ export default function DapurPage() {
     const savedOrders = localStorage.getItem("karsa_orders");
     if (savedOrders) {
       const allOrders: Order[] = JSON.parse(savedOrders);
-      const updated = allOrders.map(order => 
-        order.id === orderId ? { ...order, status: newStatus } : order
-      );
+      const updated = allOrders.map(order => {
+        if (order.id === orderId) {
+          if (newStatus === "preparing") {
+            addKarsaNotification(`Pesanan ${order.customerName} (Meja ${order.tableNumber}) sedang diproses`, "info");
+          } else if (newStatus === "cooked") {
+            addKarsaNotification(`Pesanan ${order.customerName} (Meja ${order.tableNumber}) SELESAI dimasak`, "success");
+          }
+          return { ...order, status: newStatus };
+        }
+        return order;
+      });
       localStorage.setItem("karsa_orders", JSON.stringify(updated));
       window.dispatchEvent(new Event("storage"));
       loadData();

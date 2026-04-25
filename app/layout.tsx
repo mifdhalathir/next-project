@@ -26,6 +26,8 @@ export const viewport: Viewport = {
   themeColor: "#2c1a12",
 };
 
+import NotificationHub from "@/components/NotificationHub";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -37,6 +39,7 @@ export default function RootLayout({
       className={`${playfairDisplay.variable} ${inter.variable}`}
     >
       <body className="bg-cream-50 text-stone-800 min-h-screen">
+        <NotificationHub />
         {children}
       </body>
     </html>

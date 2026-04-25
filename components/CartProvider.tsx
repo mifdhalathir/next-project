@@ -1,5 +1,6 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { addKarsaNotification } from './NotificationHub';
 
 export type CartItem = { name: string; price: number; qty: number };
 export type OrderStatus = "received" | "preparing" | "cooked" | "ready" | "completed";
@@ -7,6 +8,7 @@ export type OrderStatus = "received" | "preparing" | "cooked" | "ready" | "compl
 export type Order = {
   id: string;
   tableNumber: string;
+  customerName: string;
   items: CartItem[];
   total: number;
   status: OrderStatus;
@@ -69,9 +71,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [activeOrder]);
 
   const placeOrder = (tableNumber: string): Order => {
+    const customerName = localStorage.getItem("karsa_user_name") || "Tamu";
     const newOrder: Order = {
       id: `KRSA-${Math.floor(1000 + Math.random() * 9000)}`,
       tableNumber,
+      customerName,
       items: Object.values(cart),
       total: Object.values(cart).reduce((sum, item) => sum + item.price * item.qty, 0),
       status: "received",
@@ -83,6 +87,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const updatedOrders = [...existingOrders, newOrder];
     localStorage.setItem("karsa_orders", JSON.stringify(updatedOrders));
 
+    addKarsaNotification(`Pesanan Baru dari ${customerName} di Meja ${tableNumber}`, "warning");
     window.dispatchEvent(new Event("storage"));
 
     setActiveOrder(newOrder);

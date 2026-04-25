@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { Order, OrderStatus, Reservation } from "@/components/CartProvider";
+import { addKarsaNotification } from "@/components/NotificationHub";
 
 export default function KasirPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -212,15 +213,25 @@ export default function KasirPage() {
                         onClick={() => updateOrderStatus(order.id, "ready")} 
                         className="w-full bg-green-600 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-green-500 transition-all shadow-xl shadow-green-900/40"
                       >
-                        Kirim Notif Ready ke Pelanggan 🔔
+                        Terima & Siapkan 🛎️
                       </button>
                     ) : (
-                      <button 
-                        onClick={() => updateOrderStatus(order.id, "completed")} 
-                        className="w-full bg-white text-black py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-stone-200 transition-all shadow-2xl"
-                      >
-                        Selesaikan Transaksi (Lunas) 💰
-                      </button>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => {
+                            addKarsaNotification(`Halo ${order.customerName}, pesananmu sudah ready di meja/konter!`, "alert");
+                          }} 
+                          className="flex-1 bg-amber-600 text-white py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-amber-500 transition-all shadow-xl"
+                        >
+                          Panggil Pelanggan 📣
+                        </button>
+                        <button 
+                          onClick={() => updateOrderStatus(order.id, "completed")} 
+                          className="flex-1 bg-white text-black py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-stone-200 transition-all shadow-2xl"
+                        >
+                          Selesai (Lunas) 💰
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>

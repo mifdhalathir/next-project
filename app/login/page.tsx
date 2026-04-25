@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import PageTransition from "@/components/PageTransition";
 import CustomCursor from "@/components/CustomCursor";
+import { addKarsaNotification } from "@/components/NotificationHub";
 
 export default function Login() {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -33,6 +34,10 @@ export default function Login() {
       if (tableNumber) {
         localStorage.setItem("karsa_table_number", tableNumber);
       }
+      
+      // Notify Kasir
+      addKarsaNotification(`Pelanggan ${username} telah Aktif (Meja ${tableNumber || '??'})`, "info");
+      
       window.dispatchEvent(new Event("storage")); // Notify components
       
       // If table is selected, go to Menu (Customer), else go to Kasir (Staff)
