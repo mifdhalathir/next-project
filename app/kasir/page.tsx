@@ -8,56 +8,78 @@ export default function KasirPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const loadData = () => {
-    const savedOrders = localStorage.getItem("karsa_orders");
-    const savedRes = localStorage.getItem("karsa_reservations");
-    
-    if (savedOrders) {
-      const parsedOrders: Order[] = JSON.parse(savedOrders);
-      const kasirOrders = parsedOrders.filter(o => o.status === "cooked" || o.status === "ready");
-      setOrders(kasirOrders);
-    }
+    try {
+      const savedOrders = localStorage.getItem("karsa_orders");
+      const savedRes = localStorage.getItem("karsa_reservations");
+      
+      if (savedOrders) {
+        const parsedOrders: Order[] = JSON.parse(savedOrders);
+        const kasirOrders = parsedOrders.filter(o => o.status === "cooked" || o.status === "ready");
+        setOrders(kasirOrders);
+      }
 
-    if (savedRes) {
-      const parsedRes: Reservation[] = JSON.parse(savedRes);
-      setReservations(parsedRes);
+      if (savedRes) {
+        let parsedRes: Reservation[] = JSON.parse(savedRes);
+        // Optimization: only keep the last 30 reservations to prevent lag
+        if (parsedRes.length > 30) {
+          parsedRes = parsedRes.slice(-30);
+          localStorage.setItem("karsa_reservations", JSON.stringify(parsedRes));
+        }
+        setReservations(parsedRes);
+      }
+    } catch (e) {
+      console.error("Data sync error:", e);
     }
   };
 
   useEffect(() => {
     loadData();
-    window.addEventListener("storage", loadData);
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "karsa_orders" || e.key === "karsa_reservations" || e.key === "karsa_notifications") {
+        loadData();
+      }
+    };
+    window.addEventListener("storage", handleStorage);
     window.addEventListener("mousemove", (e) => setMousePos({ x: e.clientX, y: e.clientY }));
-    const interval = setInterval(loadData, 2000);
+    const interval = setInterval(loadData, 3000); // Relaxed interval to 3s
     return () => {
-      window.removeEventListener("storage", loadData);
+      window.removeEventListener("storage", handleStorage);
       window.removeEventListener("mousemove", (e) => setMousePos({ x: e.clientX, y: e.clientY }));
       clearInterval(interval);
     };
   }, []);
 
   const updateOrderStatus = (orderId: string, newStatus: OrderStatus) => {
-    const savedOrders = localStorage.getItem("karsa_orders");
-    if (savedOrders) {
-      const allOrders: Order[] = JSON.parse(savedOrders);
-      const updated = allOrders.map(order => 
-        order.id === orderId ? { ...order, status: newStatus } : order
-      );
+    if (isUpdating) return;
+    setIsUpdating(true);
 
-      let finalOrders = updated;
-      if (newStatus === "completed") {
-        finalOrders = updated.filter(order => order.id !== orderId);
-        const completedOrder = allOrders.find(o => o.id === orderId);
-        if (completedOrder) {
-          const totalRevenue = Number(localStorage.getItem("karsa_revenue") || 0);
-          localStorage.setItem("karsa_revenue", (totalRevenue + completedOrder.total).toString());
+    try {
+      const savedOrders = localStorage.getItem("karsa_orders");
+      if (savedOrders) {
+        const allOrders: Order[] = JSON.parse(savedOrders);
+        const updated = allOrders.map(order => 
+          order.id === orderId ? { ...order, status: newStatus } : order
+        );
+
+        let finalOrders = updated;
+        if (newStatus === "completed") {
+          finalOrders = updated.filter(order => order.id !== orderId);
+          const completedOrder = allOrders.find(o => o.id === orderId);
+          if (completedOrder) {
+            const totalRevenue = Number(localStorage.getItem("karsa_revenue") || 0);
+            localStorage.setItem("karsa_revenue", (totalRevenue + completedOrder.total).toString());
+          }
         }
-      }
 
-      localStorage.setItem("karsa_orders", JSON.stringify(finalOrders));
-      window.dispatchEvent(new Event("storage"));
-      loadData();
+        localStorage.setItem("karsa_orders", JSON.stringify(finalOrders));
+        window.dispatchEvent(new Event("storage"));
+        loadData();
+      }
+    } finally {
+      setTimeout(() => setIsUpdating(false), 500); // 500ms debounce
     }
   };
 
