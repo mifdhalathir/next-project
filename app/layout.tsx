@@ -36,7 +36,7 @@ export default function RootLayout({
       lang="id"
       className={`${playfairDisplay.variable} ${inter.variable}`}
     >
-      <body className="bg-cream-50 text-stone-800 overflow-hidden min-h-screen">
+      <body className="bg-cream-50 text-stone-800 min-h-screen">
         {children}
       </body>
     </html>
