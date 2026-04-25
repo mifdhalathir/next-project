@@ -1,0 +1,16 @@
+{
+  "name": "Karsa Cafe",
+  "short_name": "Karsa",
+  "description": "Ruang inspirasi untuk berkarya, berdiskusi, dan menikmati kopi terbaik di Air Tawar, Padang.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#2c1a12",
+  "theme_color": "#b45309",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3053/3053535.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

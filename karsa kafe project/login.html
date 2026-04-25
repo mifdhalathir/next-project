@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Karsa Cafe Padang</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        cream: { 50:'#fefdf8', 100:'#fdf6e3', 200:'#f5ead0', 300:'#e8d5a8' },
+        wood: { 600:'#5d4037', 700:'#4a3728', 800:'#3e2723', 900:'#2c1a12' },
+      },
+      fontFamily: { display:['Playfair Display','serif'], body:['Inter','sans-serif'] }
+    }
+  }
+}
+</script>
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2c1a12">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body class="min-h-screen flex items-center justify-center relative overflow-hidden bg-wood-800">
+
+<!-- Page Transition Overlay -->
+<div id="pageTransition" class="page-transition"></div>
+<!-- Background -->
+<img src="C:/Users/mifdh/.gemini/antigravity/brain/065e698e-0174-47c0-ba79-45076fb3994e/empty_cafe_interior_1776993460957.png" alt="" class="absolute inset-0 w-full h-full object-cover opacity-30">
+<div class="absolute inset-0 bg-gradient-to-br from-wood-900/90 to-wood-800/80"></div>
+
+<!-- Login Card -->
+<div class="login-card relative z-10 w-full max-w-md mx-4">
+<div class="bg-cream-50/10 backdrop-blur-lg border border-cream-200/20 rounded-2xl p-8 shadow-2xl">
+<div class="text-center mb-8">
+<h1 class="font-display text-3xl font-bold text-white tracking-widest">KARSA CAFE</h1>
+<div class="w-12 h-0.5 bg-amber-500 mx-auto mt-3 mb-4"></div>
+<p class="text-stone-400 text-sm">Masuk ke akun Anda</p>
+</div>
+<form id="loginForm" class="space-y-5">
+<div>
+<label class="block text-cream-200 text-sm mb-1.5">Email</label>
+<input id="email" type="email" required placeholder="email@contoh.com" class="w-full bg-white/10 border border-cream-200/20 text-cream-100 placeholder-stone-500 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition">
+</div>
+<div>
+<label class="block text-cream-200 text-sm mb-1.5">Password</label>
+<input id="password" type="password" required placeholder="Masukkan password" class="w-full bg-white/10 border border-cream-200/20 text-cream-100 placeholder-stone-500 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition">
+</div>
+<div class="flex items-center justify-between text-sm">
+<label class="flex items-center text-stone-400"><input type="checkbox" class="mr-2 accent-amber-700"> Ingat saya</label>
+<a href="#" class="text-amber-400 hover:text-amber-300 transition">Lupa password?</a>
+</div>
+<button type="submit" id="loginBtn" class="w-full bg-amber-700 hover:bg-amber-800 text-white py-3 rounded-lg text-sm tracking-wider transition transform hover:scale-[1.02]">Masuk</button>
+</form>
+<p class="text-center text-stone-500 text-xs mt-6">Belum punya akun? <a href="#" class="text-amber-400 hover:text-amber-300">Daftar</a></p>
+</div>
+<p class="text-center text-stone-600 text-xs mt-6">&copy; 2024 Karsa Cafe Padang</p>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
