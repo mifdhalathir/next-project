@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useCart } from "./CartProvider";
 
 export default function CartWidget() {
-  const { cart, total, totalItems, removeFromCart, addToCart, updateQty, placeOrder, activeOrder } = useCart();
+  const { cart, total, totalItems, updateQty, placeOrder, activeOrder } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const [tableNumber, setTableNumber] = useState("");
   const [showReceipt, setShowReceipt] = useState(false);
