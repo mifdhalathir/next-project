@@ -21,7 +21,7 @@ export default function Hero() {
     <section id="home" className="relative h-screen flex items-center justify-center">
       {/* Background Image */}
       <img
-        src="/images/hero-bg.png"
+        src="/images/empty_cafe_interior.png"
         alt="Karsa Cafe Background"
         className="fixed inset-0 w-full h-full object-cover -z-10"
       />
