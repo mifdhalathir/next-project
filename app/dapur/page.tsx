@@ -37,8 +37,37 @@ export default function DapurPage() {
     window.dispatchEvent(new Event("storage"));
   };
 
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-stone-950 text-white p-8 font-sans">
+    <div className="min-h-screen bg-stone-950 text-white p-8 font-sans cursor-none overflow-x-hidden">
+      {/* Custom White Cursor */}
+      <div 
+        className="fixed w-8 h-8 border-2 border-white rounded-full pointer-events-none z-[9999] transition-transform duration-100 ease-out mix-blend-difference"
+        style={{ 
+          left: mousePos.x, 
+          top: mousePos.y, 
+          transform: `translate(-50%, -50%) scale(1)`,
+          boxShadow: '0 0 15px rgba(255,255,255,0.5)'
+        }}
+      ></div>
+      <div 
+        className="fixed w-1.5 h-1.5 bg-white rounded-full pointer-events-none z-[9999]"
+        style={{ 
+          left: mousePos.x, 
+          top: mousePos.y, 
+          transform: `translate(-50%, -50%)`
+        }}
+      ></div>
+
       <div className="max-w-7xl mx-auto">
         <header className="flex justify-between items-center mb-12 border-b border-white/5 pb-8">
           <div>
