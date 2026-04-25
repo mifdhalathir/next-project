@@ -90,7 +90,7 @@ export default function DapurPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {orders.sort((a, b) => a.timestamp - b.timestamp).map((order) => {
+            {[...orders].sort((a, b) => a.timestamp - b.timestamp).map((order) => {
               const waitTime = Math.floor((Date.now() - order.timestamp) / 60000);
               const isLate = waitTime >= 10 && order.status === "received";
 

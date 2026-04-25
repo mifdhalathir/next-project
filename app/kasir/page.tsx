@@ -115,7 +115,7 @@ export default function KasirPage() {
             {reservations.length === 0 ? (
               <div className="py-20 text-center opacity-20 border border-dashed border-white/10 rounded-3xl font-black uppercase text-xs tracking-widest">Tidak ada reservasi</div>
             ) : (
-              reservations.sort((a, b) => b.timestamp - a.timestamp).map((res) => (
+              [...reservations].sort((a, b) => b.timestamp - a.timestamp).map((res) => (
                 <div key={res.id} className={`glass-card p-6 rounded-3xl border border-white/5 transition-all duration-500 relative overflow-hidden ${res.status === 'arrived' ? 'opacity-40 grayscale border-green-500/20' : 'hover:border-amber-500/30'}`}>
                   {/* Status Indicator Bar */}
                   <div className={`absolute top-0 left-0 w-1 h-full ${res.status === 'pending' ? 'bg-amber-500' : 'bg-green-500'}`}></div>
@@ -171,7 +171,7 @@ export default function KasirPage() {
             {orders.length === 0 ? (
               <div className="col-span-2 py-40 text-center opacity-20 border border-dashed border-white/10 rounded-[3rem] font-black uppercase text-sm tracking-widest italic">Menunggu Dapur Selesai Masak...</div>
             ) : (
-              orders.sort((a, b) => b.timestamp - a.timestamp).map((order) => (
+              [...orders].sort((a, b) => b.timestamp - a.timestamp).map((order) => (
                 <div key={order.id} className="glass-card rounded-[2.5rem] overflow-hidden flex flex-col border border-white/5 transition-all hover:border-green-500/30">
                   <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/2">
                     <div>
