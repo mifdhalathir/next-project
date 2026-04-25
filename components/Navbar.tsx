@@ -52,12 +52,18 @@ export default function Navbar() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-20">
-        <Link href="/" className="flex items-center">
-          <img
-            src="/images/image_4.png"
-            alt="Karsa Kafe Logo"
-            className="h-14 w-auto object-contain"
-          />
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="w-10 h-10 bg-amber-600 rounded-xl flex items-center justify-center shadow-lg transform group-hover:rotate-12 transition-transform">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 20V4"></path>
+              <path d="m7 12 5-5"></path>
+              <path d="m7 12 5 5"></path>
+              <path d="M12 7h2a4 4 0 0 1 0 8h-2"></path>
+            </svg>
+          </div>
+          <span className="font-display text-2xl font-bold text-white tracking-widest">
+            KARSA KAFE
+          </span>
         </Link>
 
         <div className="hidden md:flex items-center space-x-6 lg:space-x-8">

@@ -36,8 +36,7 @@ export default function Login() {
             <div className="text-center mb-8">
               <div className="flex justify-center mb-4">
                 <img
-                  src="/images/image_4.png"
-                  alt="Karsa Kafe Logo"
+                  alt="Karsa Kafe "
                   className="h-24 w-auto object-contain brightness-0 invert"
                 />
               </div>
