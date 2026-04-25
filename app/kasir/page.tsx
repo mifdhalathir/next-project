@@ -204,7 +204,8 @@ export default function KasirPage() {
                       <div className="flex gap-2">
                         <button 
                           onClick={() => {
-                            addKarsaNotification(`Halo ${order.customerName}, pesananmu sudah ready di meja/konter!`, "alert");
+                            const name = order.customerName || `Pelanggan Meja ${order.tableNumber}`;
+                            addKarsaNotification(`Halo ${name}, pesananmu sudah ready di meja/konter!`, "alert");
                           }} 
                           className="flex-1 bg-amber-600 text-white py-4 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-amber-500 transition-all shadow-xl"
                         >

@@ -99,14 +99,28 @@ export default function NotificationHub() {
 
 // Helper to add notifications from anywhere
 export const addKarsaNotification = (message: string, type: KarsaNotification["type"] = "info") => {
-  const saved = localStorage.getItem("karsa_notifications");
-  const parsed = saved ? JSON.parse(saved) : [];
-  const newNotif: KarsaNotification = {
-    id: `NOTIF-${Date.now()}`,
-    message,
-    type,
-    timestamp: Date.now()
-  };
-  localStorage.setItem("karsa_notifications", JSON.stringify([...parsed, newNotif]));
-  window.dispatchEvent(new Event("storage"));
+  try {
+    const saved = localStorage.getItem("karsa_notifications");
+    let parsed = [];
+    try {
+      parsed = saved ? JSON.parse(saved) : [];
+      if (!Array.isArray(parsed)) parsed = [];
+    } catch (e) {
+      parsed = [];
+    }
+
+    const newNotif: KarsaNotification = {
+      id: `NOTIF-${Date.now()}-${Math.random()}`,
+      message,
+      type,
+      timestamp: Date.now()
+    };
+
+    // Keep only last 20 notifications to prevent storage bloat
+    const updated = [...parsed, newNotif].slice(-20);
+    localStorage.setItem("karsa_notifications", JSON.stringify(updated));
+    window.dispatchEvent(new Event("storage"));
+  } catch (error) {
+    console.error("Gagal mengirim notifikasi:", error);
+  }
 };
