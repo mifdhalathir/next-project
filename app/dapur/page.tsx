@@ -7,8 +7,6 @@ import { addKarsaNotification } from "@/components/NotificationHub";
 export default function DapurPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [lastOrderCount, setLastOrderCount] = useState(0);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const loadData = () => {
     const savedOrders = localStorage.getItem("karsa_orders");
@@ -17,19 +15,12 @@ export default function DapurPage() {
       // Filter only for Kitchen (received or preparing)
       const kitchenOrders = parsedOrders.filter(o => o.status === "received" || o.status === "preparing");
       setOrders(kitchenOrders);
-      
-      if (kitchenOrders.length > lastOrderCount) {
-        audioRef.current?.play().catch(() => {});
-      }
-      setLastOrderCount(kitchenOrders.length);
     } else {
       setOrders([]);
-      setLastOrderCount(0);
     }
   };
 
   useEffect(() => {
-    audioRef.current = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
     loadData();
     window.addEventListener("storage", loadData);
     window.addEventListener("mousemove", (e) => setMousePos({ x: e.clientX, y: e.clientY }));

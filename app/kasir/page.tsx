@@ -8,9 +8,6 @@ export default function KasirPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [lastOrderCount, setLastOrderCount] = useState(0);
-  const [lastResCount, setLastResCount] = useState(0);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const loadData = () => {
     const savedOrders = localStorage.getItem("karsa_orders");
@@ -20,27 +17,15 @@ export default function KasirPage() {
       const parsedOrders: Order[] = JSON.parse(savedOrders);
       const kasirOrders = parsedOrders.filter(o => o.status === "cooked" || o.status === "ready");
       setOrders(kasirOrders);
-      
-      if (kasirOrders.length > lastOrderCount) {
-        audioRef.current?.play().catch(() => {});
-      }
-      setLastOrderCount(kasirOrders.length);
     }
 
     if (savedRes) {
       const parsedRes: Reservation[] = JSON.parse(savedRes);
       setReservations(parsedRes);
-      
-      // Notify for new reservations
-      if (parsedRes.length > lastResCount) {
-        audioRef.current?.play().catch(() => {});
-      }
-      setLastResCount(parsedRes.length);
     }
   };
 
   useEffect(() => {
-    audioRef.current = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
     loadData();
     window.addEventListener("storage", loadData);
     window.addEventListener("mousemove", (e) => setMousePos({ x: e.clientX, y: e.clientY }));
@@ -50,7 +35,7 @@ export default function KasirPage() {
       window.removeEventListener("mousemove", (e) => setMousePos({ x: e.clientX, y: e.clientY }));
       clearInterval(interval);
     };
-  }, [lastOrderCount, lastResCount]);
+  }, []);
 
   const updateOrderStatus = (orderId: string, newStatus: OrderStatus) => {
     const savedOrders = localStorage.getItem("karsa_orders");

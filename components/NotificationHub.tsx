@@ -12,15 +12,14 @@ export type KarsaNotification = {
 export default function NotificationHub() {
   const [notifications, setNotifications] = useState<KarsaNotification[]>([]);
   const [activeAlert, setActiveAlert] = useState<string | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const loadNotifications = () => {
     const saved = localStorage.getItem("karsa_notifications");
     if (saved) {
       const parsed: KarsaNotification[] = JSON.parse(saved);
-      // Only show notifications from the last 2 minutes
       const now = Date.now();
-      const recent = parsed.filter(n => now - n.timestamp < 120000);
+      // Only show notifications from the last 1 minute for a clean chat feel
+      const recent = parsed.filter(n => now - n.timestamp < 60000);
       setNotifications(recent.sort((a, b) => b.timestamp - a.timestamp));
 
       // Check for specialized "Call" alert for THIS specific user
@@ -28,13 +27,11 @@ export default function NotificationHub() {
       const lastCall = recent.find(n => n.type === "alert" && n.message.includes(currentUserName || "___"));
       if (lastCall && (!activeAlert || activeAlert !== lastCall.id)) {
          setActiveAlert(lastCall.id);
-         audioRef.current?.play().catch(() => {});
       }
     }
   };
 
   useEffect(() => {
-    audioRef.current = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
     loadNotifications();
     window.addEventListener("storage", loadNotifications);
     const interval = setInterval(loadNotifications, 2000);
