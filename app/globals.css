@@ -122,22 +122,39 @@ body {
     border-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Light Mode (Standard) */
+/* Light/Dark Mode Logic */
+:root {
+    --bg-primary: #fdf6e3; /* Cream */
+    --text-primary: #1c1917; /* Stone-900 */
+}
+
+.dark {
+    --bg-primary: #1a1410;
+    --text-primary: #fdf6e3;
+}
+
 body {
-    background: #fdf6e3; /* Cream */
-    color: #2c1a12; /* Stone-900 like */
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.5s ease, color 0.5s ease;
 }
 
-.dark body { 
-    background: #1a1410 !important; 
-    color: #fdf6e3 !important; 
+/* Global Overrides for hardcoded Stone/Black backgrounds */
+.bg-stone-950 { background-color: var(--bg-primary); transition: background-color 0.5s ease; }
+.bg-black { background-color: var(--bg-primary); transition: background-color 0.5s ease; }
+.bg-stone-900 { 
+    background-color: rgba(255, 255, 255, 0.8); /* Light mode card */
+}
+.dark .bg-stone-900 {
+    background-color: #1c1917 !important; /* Stone-900 */
 }
 
-.dark .bg-white, .dark .menu-card.bg-white { background: #2c1a12 !important; }
-.dark .text-wood-800, .dark .text-stone-800 { color: #e8d5a8 !important; }
-.dark .text-stone-500 { color: #a8967a !important; }
-.dark footer { background: #0f0a06 !important; }
-.dark .bg-wood-800 { background: #120d08 !important; }
+/* Text Overrides */
+.text-white { color: var(--text-primary); transition: color 0.5s ease; }
+.dark .text-white { color: #ffffff !important; }
+.text-cream-100 { color: var(--text-primary); transition: color 0.5s ease; }
+.dark .text-cream-100 { color: #fdf6e3 !important; }
+
 .dark input, .dark select, .dark textarea { background: rgba(255, 255, 255, 0.08) !important; color: #e8d5a8 !important; border-color: rgba(255, 255, 255, 0.1); }
 
 /* Ambient Music Glow */

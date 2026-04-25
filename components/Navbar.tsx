@@ -32,18 +32,16 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    const currentHour = new Date().getHours();
-    const isDeepNight = currentHour >= 18 || currentHour < 8;
     const stored = localStorage.getItem("darkMode");
 
-    if (stored === "true" || (stored === null && isDeepNight)) {
-      document.documentElement.classList.add("dark");
-      setIsDark(true);
-      localStorage.setItem("darkMode", "true");
-    } else {
+    // Default to dark mode (true) if no preference is stored
+    if (stored === "false") {
       document.documentElement.classList.remove("dark");
       setIsDark(false);
-      localStorage.setItem("darkMode", "false");
+    } else {
+      document.documentElement.classList.add("dark");
+      setIsDark(true);
+      if (stored === null) localStorage.setItem("darkMode", "true");
     }
   }, []);
 
@@ -103,9 +101,9 @@ export default function Navbar() {
           <div className="flex items-center gap-4">
             <button
               onClick={toggleDarkMode}
-              className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition"
+              className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition border border-white/10"
             >
-              <span className="text-sm">{isDark ? "🌙" : "☀️"}</span>
+              <span className="text-sm">{isDark ? "☀️" : "🌙"}</span>
             </button>
             {userName ? (
               <div className="flex items-center gap-4">
