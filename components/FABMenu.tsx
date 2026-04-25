@@ -12,10 +12,10 @@ export default function FABMenu() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="fixed bottom-44 right-6 z-[51] flex flex-col items-end gap-4">
+    <div className="fixed bottom-24 left-1/2 -translate-x-[120%] z-[51] flex flex-col items-center gap-4">
       {/* Pop-up Menu */}
       <div
-        className={`bg-white/90 dark:bg-wood-800/90 backdrop-blur-md p-4 rounded-2xl shadow-2xl border border-white/20 w-56 transform origin-bottom-right transition-all duration-500 ease-out ${
+        className={`bg-white/90 dark:bg-wood-800/90 backdrop-blur-md p-4 rounded-2xl shadow-2xl border border-white/20 w-56 transform origin-bottom transition-all duration-500 ease-out ${
           isOpen ? "scale-100 opacity-100 rotate-0" : "scale-0 opacity-0 rotate-12 pointer-events-none"
         }`}
       >

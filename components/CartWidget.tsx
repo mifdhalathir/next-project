@@ -63,7 +63,7 @@ export default function CartWidget() {
       </div>
 
       {/* Cart Modal Toggle FAB (Hidden when sticky bar is active to avoid clutter, or kept for mobile) */}
-      <div className={`fixed bottom-24 right-6 z-50 transition-all duration-500 ${total > 0 ? "scale-0 opacity-0" : "scale-100 opacity-100"}`}>
+      <div className={`fixed bottom-24 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ${total > 0 ? "scale-0 opacity-0" : "scale-100 opacity-100"}`}>
         <button
           onClick={() => setIsOpen(true)}
           className="w-16 h-16 bg-amber-700 hover:bg-amber-800 text-white rounded-full flex items-center justify-center shadow-xl transition-transform hover:scale-110 text-2xl relative"

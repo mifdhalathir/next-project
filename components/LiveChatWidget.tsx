@@ -31,10 +31,10 @@ export default function LiveChatWidget() {
   };
 
   return (
-    <div id="liveChatWidget" className="fixed bottom-24 right-6 z-50 flex flex-col items-end gap-3">
+    <div id="liveChatWidget" className="fixed bottom-24 left-1/2 translate-x-[20%] z-50 flex flex-col items-center gap-3">
       <div
         ref={popupRef}
-        className={`bg-white dark:bg-wood-800 p-4 rounded-xl shadow-2xl border border-stone-200 dark:border-wood-700 w-64 transform origin-bottom-right transition-all duration-300 ${
+        className={`bg-white dark:bg-wood-800 p-4 rounded-xl shadow-2xl border border-stone-200 dark:border-wood-700 w-64 transform origin-bottom transition-all duration-300 ${
           isOpen ? "scale-100 opacity-100" : "scale-0 opacity-0 pointer-events-none"
         }`}
       >
