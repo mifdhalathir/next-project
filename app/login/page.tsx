@@ -35,13 +35,11 @@ export default function Login() {
           <div className="bg-cream-50/10 backdrop-blur-lg border border-cream-200/20 rounded-2xl p-8 shadow-2xl">
             <div className="text-center mb-8">
               <h1 className="font-display text-3xl font-bold text-white tracking-widest flex items-center justify-center gap-3">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M17 8h1a4 4 0 1 1 0 8h-1"></path>
-                  <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path>
-                  <line x1="6" y1="2" x2="6" y2="4"></line>
-                  <line x1="10" y1="2" x2="10" y2="4"></line>
-                  <line x1="14" y1="2" x2="14" y2="4"></line>
-                </svg>
+                <img
+                  src="/images/image_4.png"
+                  alt="Karsa Kafe Logo"
+                  className="h-10 w-auto object-contain brightness-0 invert"
+                />
                 KARSA KAFE
               </h1>
               <div className="w-12 h-0.5 bg-amber-500 mx-auto mt-3 mb-4"></div>
