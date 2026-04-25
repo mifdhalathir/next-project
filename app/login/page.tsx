@@ -111,27 +111,11 @@ export default function Login() {
               </div>
 
               <div className="relative">
-                <select
-                  value={tableNumber}
-                  onChange={(e) => setTableNumber(e.target.value)}
-                  className="w-full bg-transparent border-b-2 border-white/10 text-white py-3 outline-none focus:border-amber-500 transition-all font-black tracking-widest text-sm appearance-none cursor-pointer"
-                >
-                  <option value="" className="bg-stone-900 text-white/40">PILIH NOMOR MEJA</option>
-                  {[...Array(20)].map((_, i) => (
-                    <option key={i} value={String(i + 1).padStart(2, '0')} className="bg-stone-900 text-white">
-                      MEJA {String(i + 1).padStart(2, '0')}
-                    </option>
-                  ))}
-                </select>
-                <span className="absolute right-0 bottom-3 text-white/20 pointer-events-none">🪑</span>
-              </div>
-
-              <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="PASSWORD"
+                  placeholder="password"
                   className="w-full bg-transparent border-b-2 border-white/10 text-white placeholder-white/20 py-3 outline-none focus:border-amber-500 transition-all font-black tracking-widest text-sm"
                 />
                 <button 
@@ -145,6 +129,22 @@ export default function Login() {
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                   )}
                 </button>
+              </div>
+
+              <div className="relative">
+                <select
+                  value={tableNumber}
+                  onChange={(e) => setTableNumber(e.target.value)}
+                  className="w-full bg-transparent border-b-2 border-white/10 text-white py-3 outline-none focus:border-amber-500 transition-all font-black tracking-widest text-sm appearance-none cursor-pointer"
+                >
+                  <option value="" className="bg-stone-900 text-white/40">pilih no meja</option>
+                  {[...Array(20)].map((_, i) => (
+                    <option key={i} value={String(i + 1).padStart(2, '0')} className="bg-stone-900 text-white">
+                      MEJA {String(i + 1).padStart(2, '0')}
+                    </option>
+                  ))}
+                </select>
+                <span className="absolute right-0 bottom-3 text-white/20 pointer-events-none">🪑</span>
               </div>
 
               <button
