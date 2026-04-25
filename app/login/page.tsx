@@ -104,8 +104,8 @@ export default function Login() {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Username"
-                  className="w-full bg-transparent border-b-2 border-white/10 text-white placeholder-white/20 py-3 outline-none focus:border-amber-500 transition-all font-medium"
+                  placeholder="NAMA"
+                  className="w-full bg-transparent border-b-2 border-white/10 text-white placeholder-white/20 py-3 outline-none focus:border-amber-500 transition-all font-black tracking-widest text-sm"
                 />
                 <span className="absolute right-0 bottom-3 text-white/20">👤</span>
               </div>
@@ -114,12 +114,12 @@ export default function Login() {
                 <select
                   value={tableNumber}
                   onChange={(e) => setTableNumber(e.target.value)}
-                  className="w-full bg-transparent border-b-2 border-white/10 text-white py-3 outline-none focus:border-amber-500 transition-all font-medium appearance-none cursor-pointer"
+                  className="w-full bg-transparent border-b-2 border-white/10 text-white py-3 outline-none focus:border-amber-500 transition-all font-black tracking-widest text-sm appearance-none cursor-pointer"
                 >
-                  <option value="" className="bg-stone-900 text-white/40">Pilih Nomor Meja (Opsional)</option>
+                  <option value="" className="bg-stone-900 text-white/40">PILIH NOMOR MEJA</option>
                   {[...Array(20)].map((_, i) => (
                     <option key={i} value={String(i + 1).padStart(2, '0')} className="bg-stone-900 text-white">
-                      Meja {String(i + 1).padStart(2, '0')}
+                      MEJA {String(i + 1).padStart(2, '0')}
                     </option>
                   ))}
                 </select>
@@ -131,8 +131,8 @@ export default function Login() {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Password"
-                  className="w-full bg-transparent border-b-2 border-white/10 text-white placeholder-white/20 py-3 outline-none focus:border-amber-500 transition-all font-medium"
+                  placeholder="PASSWORD"
+                  className="w-full bg-transparent border-b-2 border-white/10 text-white placeholder-white/20 py-3 outline-none focus:border-amber-500 transition-all font-black tracking-widest text-sm"
                 />
                 <button 
                   type="button"
@@ -191,6 +191,9 @@ export default function Login() {
         }
         .animate-shake {
           animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        input:focus, select:focus {
+          text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
         }
         button:hover {
           box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
