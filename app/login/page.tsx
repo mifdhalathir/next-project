@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import PageTransition from "@/components/PageTransition";
 import CustomCursor from "@/components/CustomCursor";
 import { addKarsaNotification } from "@/components/NotificationHub";
+import SocialSidebar from "@/components/SocialSidebar";
+
 
 export default function Login() {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -178,7 +180,9 @@ export default function Login() {
             KARSA KAFE COMMAND SYSTEM V1.0
           </p>
         </div>
+        <SocialSidebar />
       </div>
+
 
       <style jsx global>{`
         @keyframes shake {

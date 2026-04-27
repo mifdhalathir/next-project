@@ -26,6 +26,8 @@ import CustomCursor from "@/components/CustomCursor";
 import PageTransition from "@/components/PageTransition";
 import LiveActivityFeed from "@/components/LiveActivityFeed";
 import OrderTrackerCard from "@/components/OrderTrackerCard";
+import SocialSidebar from "@/components/SocialSidebar";
+
 
 export default function Home() {
   useEffect(() => {
@@ -62,6 +64,8 @@ export default function Home() {
       <LiveChatWidget />
       <LiveActivityFeed />
       <OrderTrackerCard />
+      <SocialSidebar />
+
     </CartProvider>
   );
 }
