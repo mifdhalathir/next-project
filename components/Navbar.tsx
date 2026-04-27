@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import SocialIcons from "./SocialIcons";
+
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -125,12 +127,16 @@ export default function Navbar() {
                 </button>
               </div>
             ) : (
-              <Link
-                href="/login"
-                className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition shadow-lg shadow-amber-900/40"
-              >
-                LOGIN
-              </Link>
+              <div className="flex items-center gap-3">
+                <SocialIcons className="mr-2" />
+                <Link
+                  href="/login"
+                  className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition shadow-lg shadow-amber-900/40"
+                >
+                  LOGIN
+                </Link>
+              </div>
+
             )}
           </div>
         </div>

@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import PageTransition from "@/components/PageTransition";
 import CustomCursor from "@/components/CustomCursor";
 import { addKarsaNotification } from "@/components/NotificationHub";
-import SocialSidebar from "@/components/SocialSidebar";
+import SocialIcons from "@/components/SocialIcons";
+
 
 
 export default function Login() {
@@ -88,7 +89,12 @@ export default function Login() {
               <h1 className="font-display text-4xl font-black text-white tracking-tighter italic">
                 KARSA <span className="text-amber-500">KAFE</span>
               </h1>
-              <div className="w-12 h-1 bg-amber-500 mx-auto mt-2 rounded-full"></div>
+              <div className="flex items-center justify-center gap-4 mt-6">
+                <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em]">LOGIN</span>
+                <div className="w-8 h-[1px] bg-white/10"></div>
+                <SocialIcons />
+              </div>
+
             </div>
 
             {error && (
@@ -180,8 +186,8 @@ export default function Login() {
             KARSA KAFE COMMAND SYSTEM V1.0
           </p>
         </div>
-        <SocialSidebar />
       </div>
+
 
 
       <style jsx global>{`
