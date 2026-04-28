@@ -75,6 +75,14 @@ export default function KasirPage() {
             const userKey = `karsa_points_${completedOrder.customerName}`;
             const currentPoints = Number(localStorage.getItem(userKey) || 0);
             localStorage.setItem(userKey, (currentPoints + 10).toString());
+
+            // Save to History (Selesai)
+            const historyJson = localStorage.getItem("karsa_completed_orders");
+            const history: Order[] = historyJson ? JSON.parse(historyJson) : [];
+            const newHistoryItem = { ...completedOrder, status: "completed" as OrderStatus, timestamp: Date.now() };
+            // Limit history to 50 items
+            const updatedHistory = [newHistoryItem, ...history].slice(0, 50);
+            localStorage.setItem("karsa_completed_orders", JSON.stringify(updatedHistory));
           }
         }
 

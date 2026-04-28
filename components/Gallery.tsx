@@ -3,11 +3,11 @@
 import { useState } from "react";
 
 const GALLERY_IMAGES = [
-  "/images/kopi-susu-karsa.png",
-  "/images/matcha-latte.png",
-  "/images/mix-platter.png",
-  "/images/indomie-goreng.png",
-  "/images/nasi-goreng-katsu.png",
+  { src: "/images/kopi-susu-karsa.png", title: "Signature Karsa", span: "row-span-2 col-span-2" },
+  { src: "/images/matcha-latte.png", title: "Green Zen", span: "col-span-1" },
+  { src: "/images/mix-platter.png", title: "Shared Joy", span: "col-span-1" },
+  { src: "/images/indomie-goreng.png", title: "Comfort Food", span: "col-span-1" },
+  { src: "/images/nasi-goreng-katsu.png", title: "Golden Katsu", span: "col-span-1" },
 ];
 
 export default function Gallery() {
@@ -17,26 +17,39 @@ export default function Gallery() {
     <>
       <section 
         id="gallery" 
-        className="py-20 px-4 bg-wood-800 text-white relative bg-fixed bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/kopi-susu-karsa.png')" }}
+        className="py-24 px-4 bg-black relative overflow-hidden"
       >
-        <div className="absolute inset-0 bg-wood-900/80"></div>
-        <div className="max-w-5xl mx-auto relative z-10">
-          <div className="text-center mb-14" data-aos="fade-up">
-            <p className="text-amber-400 tracking-[.3em] text-xs uppercase mb-2">Visual Mahal</p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold">Karsa Gallery</h2>
-            <div className="w-16 h-0.5 bg-amber-500 mx-auto mt-4"></div>
+        {/* Background glow */}
+        <div className="absolute top-1/2 left-0 w-96 h-96 bg-amber-600/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="text-center mb-16" data-aos="fade-up">
+            <span className="text-amber-500 tracking-[.4em] text-[10px] font-black uppercase mb-3 block">Atmosphere</span>
+            <h2 className="font-display text-4xl md:text-5xl font-black text-white tracking-tighter italic uppercase">
+              Karsa <span className="text-amber-500">Gallery</span>
+            </h2>
+            <div className="w-16 h-1 bg-amber-600 mx-auto mt-6"></div>
           </div>
 
-          <div className="columns-2 md:columns-3 gap-4 space-y-4" data-aos="fade-up" data-aos-delay="200">
-            {GALLERY_IMAGES.map((src, index) => (
-              <img 
-                key={index}
-                src={src}
-                className="w-full rounded-2xl cursor-pointer hover:opacity-80 transition duration-300 shadow-lg object-cover"
-                alt={`Gallery ${index}`}
-                onClick={() => setLightboxImg(src)}
-              />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[200px]" data-aos="fade-up" data-aos-delay="200">
+            {GALLERY_IMAGES.map((item, index) => (
+              <div 
+                key={index} 
+                className={`group relative rounded-[2rem] overflow-hidden cursor-pointer ${item.span || ""}`}
+                onClick={() => setLightboxImg(item.src)}
+              >
+                <img 
+                  src={item.src}
+                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                  alt={item.title}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
+                  <p className="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-1">{item.title}</p>
+                  <p className="text-white font-bold text-xs uppercase tracking-tighter">View Full Scene</p>
+                </div>
+                {/* Glassy border effect */}
+                <div className="absolute inset-0 border border-white/5 group-hover:border-white/20 transition-colors rounded-[2rem] pointer-events-none"></div>
+              </div>
             ))}
           </div>
         </div>
@@ -44,24 +57,25 @@ export default function Gallery() {
 
       {/* Lightbox Modal */}
       <div 
-        className={`fixed inset-0 z-[100] items-center justify-center bg-wood-900/60 backdrop-blur-xl transition-all duration-300 ${
+        className={`fixed inset-0 z-[100] items-center justify-center bg-black/90 backdrop-blur-2xl transition-all duration-500 ${
           lightboxImg ? "flex opacity-100" : "hidden opacity-0 pointer-events-none"
         }`}
         onClick={() => setLightboxImg(null)}
       >
         <button 
-          className="absolute top-6 right-8 text-cream-100/50 hover:text-white text-4xl transition"
+          className="absolute top-8 right-8 w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-white text-3xl hover:bg-amber-600 transition-all duration-300 border border-white/10"
           onClick={() => setLightboxImg(null)}
         >
           &times;
         </button>
         {lightboxImg && (
-          <img 
-            src={lightboxImg}
-            className="max-w-[90%] max-h-[90%] rounded-2xl shadow-2xl transform transition-transform duration-300 object-contain scale-100"
-            onClick={(e) => e.stopPropagation()}
-            alt="Lightbox"
-          />
+          <div className="relative p-4 max-w-5xl w-full" onClick={(e) => e.stopPropagation()}>
+            <img 
+              src={lightboxImg}
+              className="w-full h-auto max-h-[85vh] rounded-[3rem] shadow-2xl object-contain border border-white/10"
+              alt="Lightbox"
+            />
+          </div>
         )}
       </div>
     </>

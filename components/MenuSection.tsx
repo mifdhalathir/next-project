@@ -53,24 +53,25 @@ export default function MenuSection() {
         </div>
 
         {/* Categories Filter */}
-        <div className="flex flex-wrap justify-center gap-3 mb-16" data-aos="fade-up" data-aos-delay="100">
+        <div className="flex flex-wrap justify-center gap-4 mb-16" data-aos="fade-up" data-aos-delay="100">
           {[
-            { id: "all", label: "Semua" },
-            { id: "snacks", label: "Snacks" },
-            { id: "coffee", label: "Coffee" },
-            { id: "non-coffee", label: "Non-Coffee" },
-            { id: "drinks", label: "Drinks" },
-            { id: "dessert", label: "Dessert" }
+            { id: "all", label: "Semua", icon: "🍱" },
+            { id: "snacks", label: "Snacks", icon: "🍟" },
+            { id: "coffee", label: "Coffee", icon: "☕" },
+            { id: "non-coffee", label: "Non-Coffee", icon: "🍵" },
+            { id: "drinks", label: "Drinks", icon: "🥤" },
+            { id: "dessert", label: "Dessert", icon: "🍰" }
           ].map((cat) => (
             <button
               key={cat.id}
               onClick={() => setFilter(cat.id)}
-              className={`px-6 py-2.5 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all duration-500 border ${
+              className={`flex items-center gap-3 px-6 py-3 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all duration-500 border ${
                 filter === cat.id 
                   ? "bg-amber-600 border-amber-600 text-white shadow-xl shadow-amber-900/40 scale-105" 
                   : "bg-white/5 border-white/10 text-stone-400 hover:border-amber-600 hover:text-amber-500"
               }`}
             >
+              <span className={`text-sm transition-transform duration-500 ${filter === cat.id ? "scale-125 rotate-12" : "group-hover:scale-110"}`}>{cat.icon}</span>
               {cat.label}
             </button>
           ))}

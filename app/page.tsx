@@ -7,6 +7,7 @@ import "aos/dist/aos.css";
 import { CartProvider } from "@/components/CartProvider";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
+import RecentOrders from "@/components/RecentOrders";
 import MenuSection from "@/components/MenuSection";
 import ReservationForm from "@/components/ReservationForm";
 import TestimonialSlider from "@/components/TestimonialSlider";
@@ -27,8 +28,6 @@ import PageTransition from "@/components/PageTransition";
 import LiveActivityFeed from "@/components/LiveActivityFeed";
 import OrderTrackerCard from "@/components/OrderTrackerCard";
 
-
-
 export default function Home() {
   useEffect(() => {
     AOS.init({
@@ -47,6 +46,7 @@ export default function Home() {
       <Navbar />
       <main>
         <Hero />
+        <RecentOrders />
         <CeritaKami />
         <MenuSection />
         <ReservationForm />
@@ -64,8 +64,6 @@ export default function Home() {
       <LiveChatWidget />
       <LiveActivityFeed />
       <OrderTrackerCard />
-
-
     </CartProvider>
   );
 }
