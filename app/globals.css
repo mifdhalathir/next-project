@@ -404,9 +404,9 @@ body {
   left: 0;
   width: 100%;
   height: 2px;
-  background: linear-gradient(to right, transparent, rgba(245, 158, 11, 0.2), transparent);
+  background: linear-gradient(to right, transparent, rgba(245, 158, 11, 0.4), transparent);
   opacity: 0.1;
-  z-index: 5;
+  z-index: 1; /* Move to a low level but above background */
   pointer-events: none;
   animation: scan 8s linear infinite;
 }
