@@ -24,8 +24,8 @@ export default function Login() {
     e.preventDefault();
     setError("");
     
-    if (!username || !password) {
-      setError("Harap isi semua kolom");
+    if (!username || !tableNumber) {
+      setError("Eits! Isi namamu dan pilih nomor meja dulu ya!");
       setShake(true);
       setTimeout(() => setShake(false), 500);
       return;
@@ -35,10 +35,8 @@ export default function Login() {
     // Simulate successful login
     setTimeout(() => {
       localStorage.setItem("karsa_user_name", username);
+      localStorage.setItem("karsa_table_number", tableNumber);
       sessionStorage.setItem("username", username);
-      if (tableNumber) {
-        localStorage.setItem("karsa_table_number", tableNumber);
-      }
       
       // Notify Kasir
       addKarsaNotification(`Pelanggan ${username} telah Aktif (Meja ${tableNumber || '??'})`, "info");

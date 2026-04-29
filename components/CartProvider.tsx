@@ -79,8 +79,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const placeOrder = (tableNumber: string): Order => {
     // Auth Guard
     const userName = typeof window !== "undefined" ? localStorage.getItem("karsa_user_name") : null;
-    if (!userName) {
-      alert("Login dulu yuk, biar pesananmu tersimpan! ☕");
+    const tableNum = typeof window !== "undefined" ? localStorage.getItem("karsa_table_number") : null;
+    
+    if (!userName || !tableNum) {
+      alert("Eits! Isi namamu dan pilih nomor meja dulu ya! ☕");
       window.location.href = "/login";
       throw new Error("Unauthorized");
     }
@@ -127,8 +129,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addToCart = (name: string, price: number) => {
     const userName = typeof window !== "undefined" ? localStorage.getItem("karsa_user_name") : null;
-    if (!userName) {
-      alert("Login dulu yuk, biar pesananmu tersimpan! ☕");
+    const tableNum = typeof window !== "undefined" ? localStorage.getItem("karsa_table_number") : null;
+
+    if (!userName || !tableNum) {
+      alert("Eits! Isi namamu dan pilih nomor meja dulu ya! ☕");
       window.location.href = "/login";
       return;
     }
@@ -148,8 +152,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const updateQty = (name: string, qty: number, price: number) => {
     const userName = typeof window !== "undefined" ? localStorage.getItem("karsa_user_name") : null;
-    if (!userName) {
-      alert("Login dulu yuk, biar pesananmu tersimpan! ☕");
+    const tableNum = typeof window !== "undefined" ? localStorage.getItem("karsa_table_number") : null;
+
+    if (!userName || !tableNum) {
+      alert("Eits! Isi namamu dan pilih nomor meja dulu ya! ☕");
       window.location.href = "/login";
       return;
     }
