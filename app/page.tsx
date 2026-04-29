@@ -22,6 +22,7 @@ import LiveChatWidget from "@/components/LiveChatWidget";
 import FABMenu from "@/components/FABMenu";
 import InstagramGrid from "@/components/InstagramGrid";
 import CeritaKami from "@/components/CeritaKami";
+import MembershipSection from "@/components/MembershipSection";
 import OfflineToast from "@/components/OfflineToast";
 import CustomCursor from "@/components/CustomCursor";
 import PageTransition from "@/components/PageTransition";
@@ -36,6 +37,19 @@ export default function Home() {
       duration: 800,
       easing: "ease-out-cubic",
     });
+
+    // Dynamic Tab Title
+    const originalTitle = document.title;
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        document.title = "Kopi Susu Karsa Menunggumu! ☕";
+      } else {
+        document.title = originalTitle;
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, []);
 
   return (
@@ -49,6 +63,7 @@ export default function Home() {
         <RecentOrders />
         <CeritaKami />
         <MenuSection />
+        <MembershipSection />
         <ReservationForm />
         <TestimonialSlider />
         <BeforeAfterSlider />

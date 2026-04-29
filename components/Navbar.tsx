@@ -102,6 +102,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
             <Link href="#home" className="nav-link text-xs tracking-widest font-bold uppercase">HOME</Link>
             <Link href="#menu" className="nav-link text-xs tracking-widest font-bold uppercase">MENU</Link>
+            <Link href="#rewards" className="nav-link text-xs tracking-widest font-bold uppercase">REWARDS</Link>
             <Link href="#reservasi" className="nav-link text-xs tracking-widest font-bold uppercase">RESERVASI</Link>
             <Link href="#kontak" className="nav-link text-xs tracking-widest font-bold uppercase">KONTAK</Link>
           </div>
@@ -164,6 +165,13 @@ export default function Navbar() {
           className="block text-cream-100 py-2 text-sm"
         >
           MENU
+        </Link>
+        <Link
+          href="#rewards"
+          onClick={() => setIsMobileMenuOpen(false)}
+          className="block text-cream-100 py-2 text-sm"
+        >
+          REWARDS
         </Link>
         <Link
           href="#reservasi"

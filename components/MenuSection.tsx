@@ -113,7 +113,12 @@ export default function MenuSection() {
 
                     {/* Add Button in Corner */}
                   <button 
-                    onClick={() => updateQty(item.name, qty + 1, item.price)}
+                    onClick={() => {
+                      updateQty(item.name, qty + 1, item.price);
+                      if (typeof window !== "undefined" && window.navigator.vibrate) {
+                        window.navigator.vibrate(10);
+                      }
+                    }}
                     className="absolute top-4 right-4 w-10 h-10 bg-amber-600 hover:bg-amber-500 text-white rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 hover:rotate-90 active:scale-90"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
