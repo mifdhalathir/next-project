@@ -22,7 +22,6 @@ import LiveChatWidget from "@/components/LiveChatWidget";
 import FABMenu from "@/components/FABMenu";
 import InstagramGrid from "@/components/InstagramGrid";
 import CeritaKami from "@/components/CeritaKami";
-import MembershipSection from "@/components/MembershipSection";
 import OfflineToast from "@/components/OfflineToast";
 import CustomCursor from "@/components/CustomCursor";
 import PageTransition from "@/components/PageTransition";
@@ -63,7 +62,6 @@ export default function Home() {
         <RecentOrders />
         <CeritaKami />
         <MenuSection />
-        <MembershipSection />
         <ReservationForm />
         <TestimonialSlider />
         <BeforeAfterSlider />
