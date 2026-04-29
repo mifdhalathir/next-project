@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import SocialIcons from "./SocialIcons";
+import MagneticWrapper from "./MagneticWrapper";
 
 
 export default function Navbar() {
@@ -129,12 +130,14 @@ export default function Navbar() {
             ) : (
               <div className="flex items-center gap-3">
                 <SocialIcons className="mr-2" />
-                <Link
-                  href="/login"
-                  className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition shadow-lg shadow-amber-900/40"
-                >
-                  LOGIN
-                </Link>
+                <MagneticWrapper>
+                  <Link
+                    href="/login"
+                    className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition shadow-lg shadow-amber-900/40"
+                  >
+                    LOGIN
+                  </Link>
+                </MagneticWrapper>
               </div>
 
             )}

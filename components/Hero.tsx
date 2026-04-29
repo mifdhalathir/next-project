@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import MagneticWrapper from "./MagneticWrapper";
 
 export default function Hero() {
   const [greeting, setGreeting] = useState("");
@@ -56,13 +57,15 @@ export default function Hero() {
         >
           Tempat nugas, ngopi, dan diskusi paling nyaman untuk mahasiswa Air Tawar dan sekitarnya.
         </p>
-        <Link
-          href="#menu"
-          className="blur-reveal inline-block bg-amber-700 hover:bg-amber-800 text-white px-8 py-3 rounded-full text-sm tracking-wider transition transform hover:scale-105"
-          style={{ animationDelay: "3s" }}
-        >
-          Lihat Menu
-        </Link>
+        <MagneticWrapper>
+          <Link
+            href="#menu"
+            className="blur-reveal inline-block bg-amber-700 hover:bg-amber-800 text-white px-8 py-3 rounded-full text-sm tracking-wider transition transform hover:scale-105"
+            style={{ animationDelay: "3s" }}
+          >
+            Lihat Menu
+          </Link>
+        </MagneticWrapper>
       </div>
     </section>
   );

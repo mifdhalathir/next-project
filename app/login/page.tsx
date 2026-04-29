@@ -6,6 +6,7 @@ import PageTransition from "@/components/PageTransition";
 import CustomCursor from "@/components/CustomCursor";
 import { addKarsaNotification } from "@/components/NotificationHub";
 import SocialIcons from "@/components/SocialIcons";
+import MagneticWrapper from "@/components/MagneticWrapper";
 
 
 
@@ -152,14 +153,16 @@ export default function Login() {
                 <span className="absolute right-0 bottom-3 text-white/20 pointer-events-none">🪑</span>
               </div>
 
-              <button
-                type="submit"
-                disabled={isProcessing}
-                className="w-full bg-amber-600 hover:bg-amber-500 text-white py-4 rounded-2xl text-xs font-black tracking-[0.3em] uppercase transition-all shadow-xl shadow-amber-900/40 relative overflow-hidden group/btn active:scale-95"
-              >
-                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
-                <span className="relative z-10">{isProcessing ? "MEMVERIFIKASI..." : "MASUK"}</span>
-              </button>
+              <MagneticWrapper strength={0.3} distance={40}>
+                <button
+                  type="submit"
+                  disabled={isProcessing}
+                  className="w-full bg-amber-600 hover:bg-amber-500 text-white py-4 rounded-2xl text-xs font-black tracking-[0.3em] uppercase transition-all shadow-xl shadow-amber-900/40 relative overflow-hidden group/btn active:scale-95"
+                >
+                  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
+                  <span className="relative z-10">{isProcessing ? "MEMVERIFIKASI..." : "MASUK"}</span>
+                </button>
+              </MagneticWrapper>
             </form>
 
             <div className="mt-12 text-center space-y-6">
@@ -209,4 +212,3 @@ export default function Login() {
     </>
   );
 }
-
