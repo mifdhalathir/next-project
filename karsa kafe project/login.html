@@ -42,7 +42,11 @@ tailwind.config = {
         <div class="text-center mb-10">
             <h1 class="font-display text-4xl font-bold text-white tracking-[0.2em]">KARSA <span class="text-amber-500">CAFE</span></h1>
             <div class="w-16 h-1 bg-amber-500 mx-auto mt-4 mb-4 rounded-full"></div>
-            <p class="text-stone-300 text-sm tracking-widest uppercase">Ruang Inspirasi</p>
+            <p id="defaultSubtitle" class="text-stone-300 text-sm tracking-widest uppercase">Ruang Inspirasi</p>
+            <div id="personalGreeting" class="hidden mt-2">
+                <p class="text-amber-500 font-display text-lg font-semibold italic">Selamat datang kembali, <span id="savedNameDisplay"></span>!</p>
+                <p class="text-stone-400 text-xs mt-1 tracking-wider">Mau ngopi di meja mana hari ini?</p>
+            </div>
         </div>
         
         <form id="loginForm" class="space-y-6">

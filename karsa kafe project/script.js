@@ -274,6 +274,34 @@ function initLoginRedirect() {
 }
 
 
+// ===== ORDER MEMORY (REMEMBER ME) =====
+function initOrderMemory() {
+  const savedName = localStorage.getItem('karsa_user_name');
+  const userNameInput = document.getElementById('userName');
+  const tableNumberSelect = document.getElementById('tableNumber');
+  const personalGreeting = document.getElementById('personalGreeting');
+  const defaultSubtitle = document.getElementById('defaultSubtitle');
+  const savedNameDisplay = document.getElementById('savedNameDisplay');
+
+  if (savedName && userNameInput) {
+    // Auto-fill name
+    userNameInput.value = savedName;
+    
+    // Update header greeting if elements exist
+    if (personalGreeting && defaultSubtitle && savedNameDisplay) {
+      defaultSubtitle.classList.add('hidden');
+      personalGreeting.classList.remove('hidden');
+      savedNameDisplay.textContent = savedName;
+    }
+  }
+
+  // Always reset table number for new session on the login page
+  if (tableNumberSelect) {
+    tableNumberSelect.value = "";
+  }
+}
+
+
 function initPageTransition() {
     const loadingScreen = document.getElementById('loadingScreen');
     if (loadingScreen) {
@@ -793,6 +821,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initFadeIn();
   initForm();
   initLoginRedirect();
+  initOrderMemory();
   initCapacityLogic();
   initAmbientSound();
   initCartSimulation();
