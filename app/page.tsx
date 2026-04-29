@@ -7,6 +7,7 @@ import "aos/dist/aos.css";
 import { CartProvider } from "@/components/CartProvider";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
+import QueueTracker from "@/components/QueueTracker";
 import RecentOrders from "@/components/RecentOrders";
 import MenuSection from "@/components/MenuSection";
 import ReservationForm from "@/components/ReservationForm";
@@ -59,6 +60,7 @@ export default function Home() {
       <Navbar />
       <main>
         <Hero />
+        <QueueTracker />
         <RecentOrders />
         <CeritaKami />
         <MenuSection />

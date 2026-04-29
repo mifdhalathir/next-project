@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useCart } from "./CartProvider";
+import DigitalReceipt from "./DigitalReceipt";
 
 export default function CartWidget() {
   const { cart, total, totalItems, updateQty, placeOrder, activeOrder } = useCart();
@@ -25,7 +26,8 @@ export default function CartWidget() {
       return;
     }
     placeOrder(tableNumber);
-    setShowReceipt(true);
+    setIsOpen(false); // Close cart sidebar
+    setShowReceipt(true); // Show digital receipt modal
   };
 
   return (
@@ -268,6 +270,12 @@ export default function CartWidget() {
           </div>
         </div>
       </div>
+
+      <DigitalReceipt 
+        order={activeOrder} 
+        isOpen={showReceipt} 
+        onClose={() => setShowReceipt(false)} 
+      />
     </>
 
   );

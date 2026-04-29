@@ -130,12 +130,24 @@
                 <span class="blur-reveal block text-3xl sm:text-4xl mt-2 text-cream-200" style="animation-delay: 2s;">di
                     Air Tawar</span>
             </h1>
-            <p class="blur-reveal text-cream-200 text-lg md:text-xl max-w-xl mx-auto mb-8"
+            <p class="blur-reveal text-cream-200 text-lg md:text-xl max-w-xl mx-auto mb-6"
                 style="animation-delay: 2.5s;">Tempat nugas, ngopi, dan diskusi paling nyaman untuk mahasiswa Air Tawar
                 dan sekitarnya.</p>
-            <a href="#menu"
-                class="blur-reveal inline-block bg-amber-700 hover:bg-amber-800 text-white px-8 py-3 rounded-full text-sm tracking-wider transition transform hover:scale-105"
-                style="animation-delay: 3s;">Lihat Menu</a>
+            
+            <!-- Queue Tracker -->
+            <div id="queueTracker" class="blur-reveal mb-8 inline-flex items-center gap-3 bg-white/5 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/10" style="animation-delay: 2.8s;">
+                <span class="flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-amber-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                </span>
+                <p id="queueText" class="text-xs font-bold text-cream-100 tracking-wider uppercase">Memuat antrean...</p>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="#menu"
+                    class="blur-reveal inline-block bg-amber-700 hover:bg-amber-800 text-white px-8 py-3 rounded-full text-sm tracking-wider transition transform hover:scale-105"
+                    style="animation-delay: 3s;">Lihat Menu</a>
+            </div>
         </div>
     </section>
 
@@ -770,6 +782,61 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="script.js"></script>
+    <!-- Digital Receipt Modal -->
+    <div id="receiptModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/80 backdrop-blur-md p-4">
+        <div class="glass-receipt w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 flex flex-col relative animate-float">
+            <!-- Receipt Header -->
+            <div class="bg-amber-600/20 p-8 text-center border-b border-white/5">
+                <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-white/10">
+                    <span class="text-3xl">☕</span>
+                </div>
+                <h3 class="font-display text-2xl font-bold text-white tracking-widest uppercase">KARSA <span class="text-amber-500">STRUK</span></h3>
+                <p class="text-stone-400 text-[10px] tracking-[0.3em] uppercase mt-1">Digital Receipt</p>
+            </div>
+
+            <!-- Receipt Content -->
+            <div id="receiptContent" class="p-8 space-y-6 bg-wood-900/40">
+                <div class="flex justify-between items-start border-b border-white/5 pb-4">
+                    <div>
+                        <p class="text-[10px] text-stone-500 uppercase font-bold tracking-widest">Meja</p>
+                        <p id="receiptTable" class="text-xl font-bold text-white">--</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[10px] text-stone-500 uppercase font-bold tracking-widest">Waktu</p>
+                        <p id="receiptTime" class="text-xs text-stone-300">--:--</p>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <p class="text-[10px] text-stone-500 uppercase font-bold tracking-widest">Pesanan Kamu</p>
+                    <div id="receiptItems" class="space-y-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
+                        <!-- Items populated via JS -->
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-white/10">
+                    <div class="flex justify-between items-center mb-6">
+                        <p class="text-sm font-bold text-stone-400">Total Pembayaran</p>
+                        <p id="receiptTotal" class="text-2xl font-black text-amber-500">Rp 0</p>
+                    </div>
+
+                    <!-- Mock QR Code -->
+                    <div class="flex flex-col items-center gap-3 py-4 bg-white/5 rounded-3xl border border-white/5">
+                        <div class="w-24 h-24 bg-white p-2 rounded-xl">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=KARSA-CAFE-ORDER" alt="QR Code" class="w-full h-full">
+                        </div>
+                        <p class="text-[8px] text-stone-500 uppercase tracking-widest font-bold">Scan untuk Status Pesanan</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Receipt Actions -->
+            <div class="p-6 bg-wood-900/60 flex gap-3">
+                <button id="downloadReceiptBtn" class="flex-1 bg-white/10 hover:bg-white/20 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/10">Simpan Struk</button>
+                <button id="closeReceiptBtn" class="flex-1 bg-amber-700 hover:bg-amber-800 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-amber-900/20">Selesai</button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
