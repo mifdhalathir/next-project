@@ -28,18 +28,18 @@ body {
 
 /* Advanced Glassmorphism Navbar */
 .navbar-scrolled {
-    background: rgba(255, 255, 255, 0.6) !important;
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.7) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .dark .navbar-scrolled {
-    background: rgba(30, 18, 10, 0.5) !important;
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.7) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* Advanced Glassmorphism Reservasi Form */
@@ -86,18 +86,27 @@ body {
 .menu-item { transition: opacity 0.3s, transform 0.3s; }
 
 /* Navigation Links */
-.nav-link { position: relative; }
+.nav-link { 
+    position: relative;
+    transition: color 0.3s ease;
+}
 .nav-link::after {
     content: '';
     position: absolute;
-    bottom: -2px;
+    bottom: -6px;
     left: 0;
     width: 0;
     height: 2px;
-    background: #d4a574;
+    background: #f59e0b; /* Amber 500 */
     transition: width 0.3s ease-in-out;
+    border-radius: 2px;
 }
-.nav-link:hover::after { width: 100%; }
+.nav-link:hover::after, .nav-link.active::after { 
+    width: 100%; 
+}
+.nav-link.active {
+    color: #f59e0b !important;
+}
 
 /* Buttons */
 .filter-btn { transition: all 0.3s ease; }
