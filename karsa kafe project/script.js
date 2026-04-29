@@ -240,23 +240,39 @@ function initAOS() {
     }
 }
 
+
 // ===== LOGIN REDIRECT & PAGE TRANSITIONS =====
 function initLoginRedirect() {
   const loginForm = document.getElementById('loginForm');
   if (loginForm) {
     loginForm.addEventListener('submit', function(e) {
       e.preventDefault();
+      
+      const name = document.getElementById('userName').value.trim();
+      const table = document.getElementById('tableNumber').value;
+      
+      if (!name || !table) {
+        alert('Eits! Isi namamu dan pilih nomor meja dulu ya!');
+        return;
+      }
+      
       const btn = document.getElementById('loginBtn');
       if(btn) {
         btn.textContent = 'Memproses...';
         btn.disabled = true;
       }
+      
+      // Save to localStorage
+      localStorage.setItem('karsa_user_name', name);
+      localStorage.setItem('karsa_table_number', table);
+      
       setTimeout(function() {
          triggerPageTransition('index.html');
       }, 1000);
     });
   }
 }
+
 
 function initPageTransition() {
     const loadingScreen = document.getElementById('loadingScreen');
@@ -617,8 +633,13 @@ function initMenuCalculator() {
     });
     
     checkoutBtn.addEventListener('click', () => {
+        if (!checkAuth()) return;
         if (total === 0) return;
-        let msg = "Halo Karsa Cafe, saya ingin memesan menu berikut dari meja:\n\n";
+        
+        const userName = localStorage.getItem('karsa_user_name');
+        const tableNum = localStorage.getItem('karsa_table_number');
+        
+        let msg = `Halo Karsa Cafe, saya ${userName} dari Meja ${tableNum} ingin memesan menu berikut:\n\n`;
         for (const [name, item] of Object.entries(cartItems)) {
             msg += `- ${name} (${item.qty}x) = Rp ${(item.price * item.qty).toLocaleString('id-ID')}\n`;
         }
@@ -627,7 +648,29 @@ function initMenuCalculator() {
         const waUrl = `https://wa.me/6281234567890?text=${encodeURIComponent(msg)}`;
         window.open(waUrl, '_blank');
     });
+
+    // Handle final checkout button in modal
+    const finalCheckoutBtn = document.getElementById('finalCheckoutBtn');
+    if (finalCheckoutBtn) {
+        finalCheckoutBtn.addEventListener('click', () => {
+            if (!checkAuth()) return;
+            // Similar logic for cart modal could be added here if needed, 
+            // but usually this would be handled by the cart simulation logic.
+            alert('Pesananmu sedang diproses, ' + localStorage.getItem('karsa_user_name') + '!');
+        });
+    }
 }
+
+function checkAuth() {
+    const name = localStorage.getItem('karsa_user_name');
+    const table = localStorage.getItem('karsa_table_number');
+    if (!name || !table) {
+        triggerPageTransition('login.html');
+        return false;
+    }
+    return true;
+}
+
 
 // ===== GALLERY LIGHTBOX =====
 function initGalleryLightbox() {

@@ -75,8 +75,12 @@ export default function Login() {
                 <div className="relative w-full h-full bg-black/40 border border-white/10 backdrop-blur-xl rounded-[2rem] flex items-center justify-center shadow-2xl overflow-hidden">
                    <img 
                     src="/images/logo.png" 
-                    alt="Karsa Kafe Logo" 
-                    className="w-16 h-16 object-contain drop-shadow-[0_0_20px_rgba(245,158,11,0.6)]" 
+                    alt="Karsa Kafe" 
+                    className="w-16 h-16 object-contain drop-shadow-[0_0_20px_rgba(245,158,11,0.6)]"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                      (e.target as HTMLImageElement).parentElement!.innerHTML = '<span class="text-amber-500 font-black text-2xl">K</span>';
+                    }}
                    />
                 </div>
               </div>

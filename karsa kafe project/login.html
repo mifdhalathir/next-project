@@ -28,37 +28,57 @@ tailwind.config = {
 
 <!-- Page Transition Overlay -->
 <div id="pageTransition" class="page-transition"></div>
-<!-- Background -->
-<img src="C:/Users/mifdh/.gemini/antigravity/brain/065e698e-0174-47c0-ba79-45076fb3994e/empty_cafe_interior_1776993460957.png" alt="" class="absolute inset-0 w-full h-full object-cover opacity-30">
-<div class="absolute inset-0 bg-gradient-to-br from-wood-900/90 to-wood-800/80"></div>
+
+<!-- Animated Mesh Gradient -->
+<div class="mesh-gradient-container">
+    <div class="mesh-ball mesh-ball-1"></div>
+    <div class="mesh-ball mesh-ball-2"></div>
+    <div class="mesh-ball mesh-ball-3"></div>
+</div>
 
 <!-- Login Card -->
 <div class="login-card relative z-10 w-full max-w-md mx-4">
-<div class="bg-cream-50/10 backdrop-blur-lg border border-cream-200/20 rounded-2xl p-8 shadow-2xl">
-<div class="text-center mb-8">
-<h1 class="font-display text-3xl font-bold text-white tracking-widest">KARSA CAFE</h1>
-<div class="w-12 h-0.5 bg-amber-500 mx-auto mt-3 mb-4"></div>
-<p class="text-stone-400 text-sm">Masuk ke akun Anda</p>
+    <div class="glass-login rounded-3xl p-10 shadow-2xl">
+        <div class="text-center mb-10">
+            <h1 class="font-display text-4xl font-bold text-white tracking-[0.2em]">KARSA <span class="text-amber-500">CAFE</span></h1>
+            <div class="w-16 h-1 bg-amber-500 mx-auto mt-4 mb-4 rounded-full"></div>
+            <p class="text-stone-300 text-sm tracking-widest uppercase">Ruang Inspirasi</p>
+        </div>
+        
+        <form id="loginForm" class="space-y-6">
+            <div>
+                <label class="block text-cream-200 text-xs font-bold uppercase tracking-widest mb-2">Nama Lengkap</label>
+                <input id="userName" type="text" required placeholder="Masukkan namamu..." class="w-full bg-white/5 border border-white/10 text-white placeholder-stone-500 rounded-xl px-4 py-4 text-sm focus:outline-none focus:border-amber-500 focus:bg-white/10 transition-all">
+            </div>
+            
+            <div>
+                <label class="block text-cream-200 text-xs font-bold uppercase tracking-widest mb-2">Password</label>
+                <input id="password" type="password" required placeholder="Masukkan password..." class="w-full bg-white/5 border border-white/10 text-white placeholder-stone-500 rounded-xl px-4 py-4 text-sm focus:outline-none focus:border-amber-500 focus:bg-white/10 transition-all">
+            </div>
+
+            <div>
+                <label class="block text-cream-200 text-xs font-bold uppercase tracking-widest mb-2">Nomor Meja</label>
+                <select id="tableNumber" required class="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-4 text-sm focus:outline-none focus:border-amber-500 focus:bg-white/10 transition-all appearance-none">
+                    <option value="" class="bg-wood-900">Pilih Nomor Meja</option>
+                    <option value="01" class="bg-wood-900">Meja 01 (Indoor)</option>
+                    <option value="02" class="bg-wood-900">Meja 02 (Indoor)</option>
+                    <option value="03" class="bg-wood-900">Meja 03 (Indoor)</option>
+                    <option value="04" class="bg-wood-900">Meja 04 (Indoor)</option>
+                    <option value="05" class="bg-wood-900">Meja 05 (Outdoor)</option>
+                    <option value="06" class="bg-wood-900">Meja 06 (Outdoor)</option>
+                    <option value="07" class="bg-wood-900">Meja 07 (Outdoor)</option>
+                    <option value="08" class="bg-wood-900">Meja 08 (Outdoor)</option>
+                </select>
+            </div>
+
+            <button type="submit" id="loginBtn" class="w-full bg-amber-700 hover:bg-amber-600 text-white py-4 rounded-xl text-sm font-bold tracking-[0.2em] uppercase transition-all transform hover:scale-[1.05] btn-glow">Masuk Sekarang</button>
+        </form>
+        
+        <p class="text-center text-stone-400 text-xs mt-10">Belum punya akun? <a href="#" class="text-amber-500 hover:text-amber-400 font-bold transition">Daftar di Sini</a></p>
+    </div>
+    <p class="text-center text-stone-600 text-xs mt-8 tracking-widest uppercase">&copy; 2024 Karsa Cafe Padang</p>
 </div>
-<form id="loginForm" class="space-y-5">
-<div>
-<label class="block text-cream-200 text-sm mb-1.5">Email</label>
-<input id="email" type="email" required placeholder="email@contoh.com" class="w-full bg-white/10 border border-cream-200/20 text-cream-100 placeholder-stone-500 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition">
-</div>
-<div>
-<label class="block text-cream-200 text-sm mb-1.5">Password</label>
-<input id="password" type="password" required placeholder="Masukkan password" class="w-full bg-white/10 border border-cream-200/20 text-cream-100 placeholder-stone-500 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition">
-</div>
-<div class="flex items-center justify-between text-sm">
-<label class="flex items-center text-stone-400"><input type="checkbox" class="mr-2 accent-amber-700"> Ingat saya</label>
-<a href="#" class="text-amber-400 hover:text-amber-300 transition">Lupa password?</a>
-</div>
-<button type="submit" id="loginBtn" class="w-full bg-amber-700 hover:bg-amber-800 text-white py-3 rounded-lg text-sm tracking-wider transition transform hover:scale-[1.02]">Masuk</button>
-</form>
-<p class="text-center text-stone-500 text-xs mt-6">Belum punya akun? <a href="#" class="text-amber-400 hover:text-amber-300">Daftar</a></p>
-</div>
-<p class="text-center text-stone-600 text-xs mt-6">&copy; 2024 Karsa Cafe Padang</p>
-</div>
+
 
 <script src="script.js"></script>
 </body>
