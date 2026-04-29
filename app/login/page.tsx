@@ -58,135 +58,123 @@ export default function Login() {
     <>
       <PageTransition />
       <CustomCursor />
-      <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-black selection:bg-amber-500 selection:text-black">
-        {/* Background with Soft Blur */}
-        <div className="absolute inset-0">
-          <img
-            src="/images/empty_cafe_interior.png"
-            alt="Cafe Interior"
-            className="w-full h-full object-cover blur-md opacity-50 scale-110"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
-        </div>
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden mesh-gradient selection:bg-amber-500 selection:text-black">
+        {/* Decorative elements */}
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-amber-600/10 rounded-full blur-[120px]"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-amber-900/20 rounded-full blur-[120px]"></div>
 
         {/* Login Card with Glassmorphism */}
         <div 
           className={`relative z-10 w-full max-w-md mx-4 transition-all duration-1000 transform ${shake ? 'animate-shake' : ''}`}
-          data-aos="fade-up"
+          data-aos="zoom-in"
         >
-          <div className="bg-white/5 backdrop-blur-[40px] border border-white/10 rounded-[2.5rem] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden group">
+          <div className="bg-black/20 backdrop-blur-[50px] border border-white/10 rounded-[3rem] p-12 shadow-[0_30px_100px_rgba(0,0,0,0.8)] overflow-hidden group relative">
+            {/* Subtle Inner Glow */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/5 to-transparent pointer-events-none"></div>
+
             {/* Logo Section */}
-            <div className="text-center mb-10 relative">
-              <div className="w-20 h-20 mx-auto mb-6 relative group-hover:scale-110 transition-transform duration-500">
-                <div className="absolute inset-0 bg-amber-500/20 blur-2xl rounded-full"></div>
-                <div className="relative w-full h-full bg-white/5 border border-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-inner overflow-hidden">
+            <div className="text-center mb-12 relative">
+              <p className="text-amber-500/80 text-[10px] font-black uppercase tracking-[0.5em] mb-4 animate-pulse">Wangi kopi sudah menantimu</p>
+              
+              <div className="w-24 h-24 mx-auto mb-6 relative group-hover:scale-110 transition-transform duration-700">
+                <div className="absolute inset-0 bg-amber-500/30 blur-3xl rounded-full"></div>
+                <div className="relative w-full h-full bg-black/40 border border-white/10 backdrop-blur-xl rounded-[2rem] flex items-center justify-center shadow-2xl overflow-hidden">
                    <img 
                     src="/images/logo.png" 
                     alt="Karsa Kafe Logo" 
-                    className="w-14 h-14 object-contain drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]" 
+                    className="w-16 h-16 object-contain drop-shadow-[0_0_20px_rgba(245,158,11,0.6)]" 
                    />
                 </div>
               </div>
-              <h1 className="font-display text-4xl font-black text-white tracking-tighter italic">
+
+              <h1 className="font-display text-5xl font-black text-white tracking-tighter italic">
                 KARSA <span className="text-amber-500">KAFE</span>
               </h1>
-              <div className="flex items-center justify-center gap-4 mt-6">
-                <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em]">LOGIN</span>
-                <div className="w-8 h-[1px] bg-white/10"></div>
+              
+              <div className="flex items-center justify-center gap-4 mt-8">
+                <div className="w-10 h-[1px] bg-white/5"></div>
                 <SocialIcons />
+                <div className="w-10 h-[1px] bg-white/5"></div>
               </div>
-
             </div>
 
             {error && (
-              <p className="text-red-400 text-[10px] uppercase font-black tracking-widest text-center mb-6 animate-bounce">
-                {error}
-              </p>
+              <div className="bg-red-500/10 border border-red-500/20 py-3 rounded-2xl mb-8 animate-bounce">
+                <p className="text-red-400 text-[9px] uppercase font-black tracking-widest text-center">
+                  {error}
+                </p>
+              </div>
             )}
             
             <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="relative">
+              <div className="group/input relative">
                 <input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="NAMA"
-                  className="w-full bg-transparent border-b-2 border-white/10 text-white placeholder-white/20 py-3 outline-none focus:border-amber-500 transition-all font-black tracking-widest text-sm"
+                  placeholder="NAMA LENGKAP"
+                  className="w-full bg-white/5 border border-white/5 rounded-2xl text-white placeholder-white/20 py-4 px-6 outline-none focus:border-amber-500 focus:bg-white/10 transition-all font-black tracking-widest text-xs uppercase"
                 />
-                <span className="absolute right-0 bottom-3 text-white/20">👤</span>
+                <span className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within/input:text-amber-500 transition-colors">👤</span>
               </div>
 
-              <div className="relative">
+              <div className="group/input relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="password"
-                  className="w-full bg-transparent border-b-2 border-white/10 text-white placeholder-white/20 py-3 outline-none focus:border-amber-500 transition-all font-black tracking-widest text-sm"
+                  placeholder="PASSWORD"
+                  className="w-full bg-white/5 border border-white/5 rounded-2xl text-white placeholder-white/20 py-4 px-6 outline-none focus:border-amber-500 focus:bg-white/10 transition-all font-black tracking-widest text-xs uppercase"
                 />
                 <button 
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-0 bottom-3 text-white/40 hover:text-amber-500 transition-colors"
+                  className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 hover:text-amber-500 transition-colors"
                 >
-                  {showPassword ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.88 9.88 3 3"></path><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path><path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path><line x1="2" y1="2" x2="22" y2="22"></line><path d="M14.21 14.21a3 3 0 0 1-4.42-4.42"></path></svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                  )}
+                  {showPassword ? "👁️" : "🙈"}
                 </button>
               </div>
 
-              <div className="relative">
+              <div className="group/input relative">
                 <select
                   value={tableNumber}
                   onChange={(e) => setTableNumber(e.target.value)}
-                  className="w-full bg-transparent border-b-2 border-white/10 text-white py-3 outline-none focus:border-amber-500 transition-all font-black tracking-widest text-sm appearance-none cursor-pointer"
+                  className="w-full bg-white/5 border border-white/5 rounded-2xl text-white py-4 px-6 outline-none focus:border-amber-500 focus:bg-white/10 transition-all font-black tracking-widest text-xs uppercase appearance-none cursor-pointer"
                 >
-                  <option value="" className="bg-stone-900 text-white/40">pilih no meja</option>
+                  <option value="" className="bg-stone-950">NOMOR MEJA</option>
                   {[...Array(20)].map((_, i) => (
-                    <option key={i} value={String(i + 1).padStart(2, '0')} className="bg-stone-900 text-white">
+                    <option key={i} value={String(i + 1).padStart(2, '0')} className="bg-stone-950">
                       MEJA {String(i + 1).padStart(2, '0')}
                     </option>
                   ))}
                 </select>
-                <span className="absolute right-0 bottom-3 text-white/20 pointer-events-none">🪑</span>
+                <span className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none">🪑</span>
               </div>
 
-              <MagneticWrapper strength={0.3} distance={40}>
+              <MagneticWrapper strength={0.4} distance={60}>
                 <button
                   type="submit"
                   disabled={isProcessing}
-                  className="w-full bg-amber-600 hover:bg-amber-500 text-white py-4 rounded-2xl text-xs font-black tracking-[0.3em] uppercase transition-all shadow-xl shadow-amber-900/40 relative overflow-hidden group/btn active:scale-95"
+                  className="w-full bg-amber-600 hover:bg-amber-500 text-white py-5 rounded-2xl text-xs font-black tracking-[0.4em] uppercase transition-all shadow-2xl relative overflow-hidden group/btn btn-glow-pulse active:scale-95"
                 >
-                  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
-                  <span className="relative z-10">{isProcessing ? "MEMVERIFIKASI..." : "MASUK"}</span>
+                  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500"></div>
+                  <span className="relative z-10">{isProcessing ? "MEMVERIFIKASI..." : "MASUK KE KARSA"}</span>
                 </button>
               </MagneticWrapper>
             </form>
 
-            <div className="mt-12 text-center space-y-6">
-               {typeof window !== "undefined" && localStorage.getItem("karsa_user_name") && (
-                 <div className="bg-amber-600/10 border border-amber-500/30 rounded-2xl p-4 animate-in fade-in zoom-in duration-500">
-                    <p className="text-[9px] font-black uppercase tracking-[0.3em] text-amber-500 mb-1">Loyalty Rewards</p>
-                    <p className="text-2xl font-black text-white">
-                      {localStorage.getItem(`karsa_points_${localStorage.getItem("karsa_user_name")}`) || 0} <span className="text-xs text-amber-500/60 uppercase tracking-widest">Points</span>
-                    </p>
-                    <p className="text-[8px] text-stone-500 uppercase font-bold mt-2">Kumpulkan 100 poin untuk gratis 1 Kopi Susu!</p>
-                 </div>
-               )}
-
+            <div className="mt-12 text-center">
                <button 
                   onClick={() => router.push("/")}
-                  className="text-white/30 text-[10px] uppercase tracking-widest hover:text-amber-500 transition-colors"
+                  className="text-white/20 text-[9px] uppercase tracking-[0.4em] font-black hover:text-amber-500 transition-all border-b border-transparent hover:border-amber-500 pb-1"
                >
                  &larr; Kembali ke Beranda
                </button>
             </div>
           </div>
 
-          <p className="text-center text-white/5 text-[9px] uppercase tracking-[0.6em] mt-10 font-bold">
-            KARSA KAFE COMMAND SYSTEM V1.0
+          <p className="text-center text-white/10 text-[8px] uppercase tracking-[0.8em] mt-12 font-black">
+            AUTHENTIC EXPERIENCE &bull; EST. 2024
           </p>
         </div>
       </div>
@@ -196,17 +184,11 @@ export default function Login() {
       <style jsx global>{`
         @keyframes shake {
           0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(-10px); }
-          75% { transform: translateX(10px); }
+          25% { transform: translateX(-15px); }
+          75% { transform: translateX(15px); }
         }
         .animate-shake {
           animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-        }
-        input:focus, select:focus {
-          text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
-        }
-        button:hover {
-          box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
         }
       `}</style>
     </>

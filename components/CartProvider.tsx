@@ -77,8 +77,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [activeOrder]);
 
   const placeOrder = (tableNumber: string): Order => {
-    // Priority: sessionStorage -> localStorage -> Tamu
-    const customerName = sessionStorage.getItem("username") || localStorage.getItem("karsa_user_name") || "Tamu";
+    // Auth Guard
+    const userName = typeof window !== "undefined" ? localStorage.getItem("karsa_user_name") : null;
+    if (!userName) {
+      alert("Login dulu yuk, biar pesananmu tersimpan! ☕");
+      window.location.href = "/login";
+      throw new Error("Unauthorized");
+    }
+
+    const customerName = sessionStorage.getItem("username") || userName || "Tamu";
     const newOrder: Order = {
       id: `KRSA-${Math.floor(1000 + Math.random() * 9000)}`,
       tableNumber,
@@ -119,6 +126,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const clearCart = () => setCart({});
 
   const addToCart = (name: string, price: number) => {
+    const userName = typeof window !== "undefined" ? localStorage.getItem("karsa_user_name") : null;
+    if (!userName) {
+      alert("Login dulu yuk, biar pesananmu tersimpan! ☕");
+      window.location.href = "/login";
+      return;
+    }
     setCart(prev => ({
       ...prev,
       [name]: { name, price, qty: (prev[name]?.qty || 0) + 1 }
@@ -134,6 +147,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateQty = (name: string, qty: number, price: number) => {
+    const userName = typeof window !== "undefined" ? localStorage.getItem("karsa_user_name") : null;
+    if (!userName) {
+      alert("Login dulu yuk, biar pesananmu tersimpan! ☕");
+      window.location.href = "/login";
+      return;
+    }
     setCart(prev => {
       if (qty <= 0) {
         const newCart = { ...prev };
