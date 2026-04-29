@@ -45,12 +45,8 @@ export default function Login() {
       
       window.dispatchEvent(new Event("storage")); // Notify components
       
-      // If table is selected, go to Menu (Customer), else go to Kasir (Staff)
-      if (tableNumber) {
-        router.push("/");
-      } else {
-        router.push("/kasir");
-      }
+      // Selalu arahkan ke Halaman Utama (Web Utama)
+      router.push("/");
     }, 1500);
   };
 
