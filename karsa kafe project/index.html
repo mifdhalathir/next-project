@@ -97,6 +97,8 @@
                 <button id="darkModeBtn"
                     class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition"
                     title="Dark Mode"><span id="darkModeIcon">☀️</span></button>
+                <a href="kasir.html"
+                    class="bg-white/10 hover:bg-white/20 text-cream-100 px-4 py-1.5 rounded text-sm transition border border-white/10">🖥️ Kasir</a>
                 <a href="login.html"
                     class="bg-amber-700 hover:bg-amber-800 text-white px-4 py-1.5 rounded text-sm transition">Login</a>
             </div>
@@ -441,12 +443,91 @@
         </div>
     </section>
 
-    <!-- ===== INLINE SCRIPT UNTUK AREA TOGGLE ===== -->
+    <!-- ===== RESERVASI FEEDBACK TOAST ===== -->
+    <div id="reservasiFeedbackToast" style="position:fixed; top:24px; left:50%; transform:translateX(-50%) translateY(-120px); z-index:9999; background:rgba(15,10,5,0.92); backdrop-filter:blur(20px); border:1px solid rgba(245,158,11,0.3); border-radius:20px; padding:20px 28px; display:flex; align-items:center; gap:14px; box-shadow:0 20px 60px rgba(0,0,0,0.6); transition:all 0.6s cubic-bezier(0.23,1,0.32,1); opacity:0; min-width:320px; max-width:480px;">
+        <div style="width:44px; height:44px; border-radius:14px; background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <span style="font-size:22px;">✅</span>
+        </div>
+        <div>
+            <p style="color:white; font-weight:800; font-size:14px; margin:0;" id="feedbackTitle">Reservasi Berhasil!</p>
+            <p style="color:rgba(255,255,255,0.6); font-size:11px; margin:4px 0 0 0;" id="feedbackSubtitle">Kasir kami sedang menyiapkan tempatmu.</p>
+        </div>
+    </div>
+
+    <!-- ===== INLINE SCRIPT: AREA TOGGLE + RESERVASI SYSTEM ===== -->
     <script>
-        // State tracking
+        // ===== AREA CAPACITY SYSTEM =====
+        // Initialize default capacity in localStorage if not set
+        (function initCapacityData() {
+            if (!localStorage.getItem('karsa_area_capacity')) {
+                localStorage.setItem('karsa_area_capacity', JSON.stringify({
+                    indoor: { total: 10, used: 8 },   // 80% = Steady (Amber)
+                    outdoor: { total: 10, used: 4 }    // 40% = Available (Green)
+                }));
+            }
+            if (!localStorage.getItem('karsa_pesanan_masuk')) {
+                localStorage.setItem('karsa_pesanan_masuk', JSON.stringify([]));
+            }
+        })();
+
+        function getCapacity() {
+            try {
+                return JSON.parse(localStorage.getItem('karsa_area_capacity'));
+            } catch(e) {
+                return { indoor: { total: 10, used: 8 }, outdoor: { total: 10, used: 4 } };
+            }
+        }
+
+        // State
         window._selectedArea = null;
 
+        // On page load, check capacity and lock full areas
+        function initAreaToggles() {
+            var cap = getCapacity();
+            var indoorPct = Math.round((cap.indoor.used / cap.indoor.total) * 100);
+            var outdoorPct = Math.round((cap.outdoor.used / cap.outdoor.total) * 100);
+            var indoorFull = indoorPct >= 100;
+            var outdoorFull = outdoorPct >= 100;
+
+            var labelIn = document.getElementById('labelIndoor');
+            var labelOut = document.getElementById('labelOutdoor');
+            var inText = document.getElementById('indoorText');
+            var outText = document.getElementById('outdoorText');
+
+            if (!labelIn || !labelOut) return;
+
+            // Indoor status badge
+            if (indoorFull) {
+                inText.textContent = 'INDOOR — PENUH';
+                inText.style.color = '#ef4444';
+                labelIn.style.opacity = '0.4';
+                labelIn.style.cursor = 'not-allowed';
+                labelIn.onclick = function(e) { e.preventDefault(); };
+            } else {
+                inText.innerHTML = 'Indoor <span style="font-size:9px; color:#22c55e; margin-left:4px;">● Tersedia</span>';
+            }
+
+            // Outdoor status badge
+            if (outdoorFull) {
+                outText.textContent = 'OUTDOOR — PENUH';
+                outText.style.color = '#ef4444';
+                labelOut.style.opacity = '0.4';
+                labelOut.style.cursor = 'not-allowed';
+                labelOut.onclick = function(e) { e.preventDefault(); };
+            } else {
+                outText.innerHTML = 'Outdoor <span style="font-size:9px; color:#22c55e; margin-left:4px;">● Tersedia</span>';
+            }
+        }
+
         function selectArea(area) {
+            var cap = getCapacity();
+            var pct = area === 'Indoor'
+                ? Math.round((cap.indoor.used / cap.indoor.total) * 100)
+                : Math.round((cap.outdoor.used / cap.outdoor.total) * 100);
+            var isFull = pct >= 100;
+
+            if (isFull) return; // Don't allow selecting full areas
+
             window._selectedArea = area;
             var labelIn = document.getElementById('labelIndoor');
             var labelOut = document.getElementById('labelOutdoor');
@@ -460,51 +541,74 @@
             var radios = document.querySelectorAll('input[name="resArea"]');
             radios.forEach(function(r) { r.checked = r.value === area; });
 
+            var indoorPct = Math.round((cap.indoor.used / cap.indoor.total) * 100);
+            var outdoorPct = Math.round((cap.outdoor.used / cap.outdoor.total) * 100);
+
             if (area === 'Indoor') {
-                // Active state: Indoor (Amber)
                 labelIn.style.background = 'rgba(245,158,11,0.15)';
                 labelIn.style.border = '1px solid rgba(245,158,11,0.6)';
                 labelIn.style.boxShadow = '0 0 18px rgba(245,158,11,0.2)';
+                inText.innerHTML = 'Indoor <span style="font-size:9px; color:#f59e0b;">● Dipilih</span>';
                 inText.style.color = '#f59e0b';
 
-                // Reset Outdoor
                 labelOut.style.background = 'transparent';
                 labelOut.style.border = '1px solid transparent';
                 labelOut.style.boxShadow = 'none';
-                outText.style.color = 'rgba(255,255,255,0.5)';
+                var oFull = outdoorPct >= 100;
+                outText.innerHTML = oFull ? 'OUTDOOR — PENUH' : 'Outdoor <span style="font-size:9px; color:#22c55e; margin-left:4px;">● Tersedia</span>';
+                outText.style.color = oFull ? '#ef4444' : 'rgba(255,255,255,0.5)';
 
-                // Status pill - Amber
                 pill.style.display = 'flex';
                 pill.style.background = 'rgba(245,158,11,0.12)';
                 pill.style.border = '1px solid rgba(245,158,11,0.3)';
                 dot.style.background = '#f59e0b';
                 dot.style.boxShadow = '0 0 8px #f59e0b';
                 statusText.style.color = '#f59e0b';
-                statusText.innerHTML = '<strong>80% Occupied</strong> &mdash; Area mulai terisi';
-
+                statusText.innerHTML = '<strong>' + indoorPct + '% Occupied</strong> &mdash; Area mulai terisi';
             } else {
-                // Active state: Outdoor (Green)
                 labelOut.style.background = 'rgba(34,197,94,0.15)';
                 labelOut.style.border = '1px solid rgba(34,197,94,0.6)';
                 labelOut.style.boxShadow = '0 0 18px rgba(34,197,94,0.2)';
+                outText.innerHTML = 'Outdoor <span style="font-size:9px; color:#22c55e;">● Dipilih</span>';
                 outText.style.color = '#22c55e';
 
-                // Reset Indoor
                 labelIn.style.background = 'transparent';
                 labelIn.style.border = '1px solid transparent';
                 labelIn.style.boxShadow = 'none';
-                inText.style.color = 'rgba(255,255,255,0.5)';
+                var iFull = indoorPct >= 100;
+                inText.innerHTML = iFull ? 'INDOOR — PENUH' : 'Indoor <span style="font-size:9px; color:#22c55e; margin-left:4px;">● Tersedia</span>';
+                inText.style.color = iFull ? '#ef4444' : 'rgba(255,255,255,0.5)';
 
-                // Status pill - Green
                 pill.style.display = 'flex';
                 pill.style.background = 'rgba(34,197,94,0.12)';
                 pill.style.border = '1px solid rgba(34,197,94,0.3)';
                 dot.style.background = '#22c55e';
                 dot.style.boxShadow = '0 0 8px #22c55e';
                 statusText.style.color = '#22c55e';
-                statusText.innerHTML = '<strong>42% Occupied</strong> &mdash; Masih lega, yuk merapat!';
+                statusText.innerHTML = '<strong>' + outdoorPct + '% Occupied</strong> &mdash; Masih lega, yuk merapat!';
             }
         }
+
+        // ===== SHOW FEEDBACK TOAST =====
+        function showReservationFeedback(area) {
+            var toast = document.getElementById('reservasiFeedbackToast');
+            var title = document.getElementById('feedbackTitle');
+            var sub = document.getElementById('feedbackSubtitle');
+            if (!toast) return;
+            title.textContent = 'Reservasi Area ' + area + ' Berhasil!';
+            sub.textContent = 'Kasir kami sedang menyiapkan tempatmu. Silakan tunggu konfirmasi.';
+            toast.style.transform = 'translateX(-50%) translateY(0)';
+            toast.style.opacity = '1';
+            setTimeout(function() {
+                toast.style.transform = 'translateX(-50%) translateY(-120px)';
+                toast.style.opacity = '0';
+            }, 4000);
+        }
+
+        // Run on load
+        document.addEventListener('DOMContentLoaded', function() {
+            initAreaToggles();
+        });
     </script>
 
     <!-- TESTIMONI -->

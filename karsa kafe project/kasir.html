@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karsa Kasir — Dashboard Reservasi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: { 50: '#fefdf8', 100: '#fdf6e3', 200: '#f5ead0', 300: '#e8d5a8' },
+                        wood: { 600: '#5d4037', 700: '#4a3728', 800: '#3e2723', 900: '#2c1a12', 950: '#1a100a' },
+                    },
+                    fontFamily: { display: ['Playfair Display', 'serif'], body: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #0f0a06; color: #e8d5a8; }
+        .glass-card {
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 1.5rem;
+        }
+        .glass-card:hover {
+            border-color: rgba(245,158,11,0.3);
+            box-shadow: 0 0 30px rgba(245,158,11,0.05);
+        }
+        @keyframes slideIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        .animate-slide { animation: slideIn 0.5s ease forwards; }
+        @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(245,158,11,0.4); } 70% { box-shadow: 0 0 0 10px rgba(245,158,11,0); } 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); } }
+        .pulse-ring { animation: pulse-ring 2s infinite; }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- HEADER -->
+    <header style="background:rgba(15,10,5,0.95); backdrop-filter:blur(20px); border-bottom:1px solid rgba(255,255,255,0.06);" class="sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-amber-500/20 rounded-xl flex items-center justify-center border border-amber-500/30">
+                    <span class="text-lg">☕</span>
+                </div>
+                <div>
+                    <h1 class="font-display text-xl font-bold text-white tracking-widest uppercase">KARSA <span class="text-amber-500">KASIR</span></h1>
+                    <p class="text-[10px] text-stone-500 tracking-[0.2em] uppercase">Dashboard Reservasi</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div id="liveIndicator" class="flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    <span class="text-xs font-bold text-green-500 uppercase tracking-wider">Live</span>
+                </div>
+                <a href="index.html" class="text-xs text-stone-500 hover:text-amber-500 transition uppercase tracking-wider font-bold">← Kembali</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- STATS BAR -->
+    <div class="max-w-7xl mx-auto px-6 py-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <!-- Total Reservasi -->
+            <div class="glass-card p-5">
+                <p class="text-[10px] text-stone-500 uppercase tracking-widest mb-2 font-bold">Total Reservasi</p>
+                <p id="statTotal" class="text-3xl font-black text-white">0</p>
+            </div>
+            <!-- Menunggu -->
+            <div class="glass-card p-5">
+                <p class="text-[10px] text-stone-500 uppercase tracking-widest mb-2 font-bold">Menunggu</p>
+                <p id="statMenunggu" class="text-3xl font-black text-amber-500">0</p>
+            </div>
+            <!-- Indoor -->
+            <div class="glass-card p-5">
+                <p class="text-[10px] text-stone-500 uppercase tracking-widest mb-2 font-bold">🏠 Indoor</p>
+                <div class="flex items-end gap-2">
+                    <p id="statIndoor" class="text-3xl font-black text-blue-400">0</p>
+                    <p id="statIndoorPct" class="text-xs text-stone-500 mb-1">/ 10 meja</p>
+                </div>
+            </div>
+            <!-- Outdoor -->
+            <div class="glass-card p-5">
+                <p class="text-[10px] text-stone-500 uppercase tracking-widest mb-2 font-bold">🌿 Outdoor</p>
+                <div class="flex items-end gap-2">
+                    <p id="statOutdoor" class="text-3xl font-black text-green-400">0</p>
+                    <p id="statOutdoorPct" class="text-xs text-stone-500 mb-1">/ 10 meja</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CAPACITY CONTROLS -->
+        <div class="glass-card p-5 mb-8">
+            <p class="text-xs text-stone-500 uppercase tracking-widest font-bold mb-4">⚙️ Kontrol Kapasitas (Simulasi)</p>
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <label class="text-xs font-bold text-blue-400 mb-1 block">Indoor Terpakai</label>
+                    <div class="flex items-center gap-3">
+                        <input type="range" id="indoorSlider" min="0" max="10" value="8" class="flex-1 accent-blue-500" oninput="updateCapacity()">
+                        <span id="indoorSliderVal" class="text-sm font-bold text-white w-8 text-center">8</span>
+                        <span class="text-xs text-stone-500">/10</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-green-400 mb-1 block">Outdoor Terpakai</label>
+                    <div class="flex items-center gap-3">
+                        <input type="range" id="outdoorSlider" min="0" max="10" value="4" class="flex-1 accent-green-500" oninput="updateCapacity()">
+                        <span id="outdoorSliderVal" class="text-sm font-bold text-white w-8 text-center">4</span>
+                        <span class="text-xs text-stone-500">/10</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESERVASI LIST -->
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="font-display text-2xl font-bold text-white">Pesanan Masuk</h2>
+            <button onclick="clearAllReservations()" class="text-xs text-red-400 hover:text-red-300 transition font-bold uppercase tracking-wider px-4 py-2 rounded-lg border border-red-400/20 hover:border-red-400/40">🗑️ Hapus Semua</button>
+        </div>
+
+        <div id="pesananList" class="grid gap-4 mb-12">
+            <p id="emptyState" class="text-center text-stone-600 py-20 text-sm italic">Belum ada reservasi masuk. Silakan tunggu...</p>
+        </div>
+    </div>
+
+    <script>
+        // ===== CAPACITY CONTROLS =====
+        function updateCapacity() {
+            const indoorUsed = parseInt(document.getElementById('indoorSlider').value);
+            const outdoorUsed = parseInt(document.getElementById('outdoorSlider').value);
+            document.getElementById('indoorSliderVal').textContent = indoorUsed;
+            document.getElementById('outdoorSliderVal').textContent = outdoorUsed;
+
+            localStorage.setItem('karsa_area_capacity', JSON.stringify({
+                indoor: { total: 10, used: indoorUsed },
+                outdoor: { total: 10, used: outdoorUsed }
+            }));
+        }
+
+        // ===== LOAD CAPACITY ON INIT =====
+        function loadCapacity() {
+            try {
+                const cap = JSON.parse(localStorage.getItem('karsa_area_capacity'));
+                if (cap) {
+                    document.getElementById('indoorSlider').value = cap.indoor.used;
+                    document.getElementById('indoorSliderVal').textContent = cap.indoor.used;
+                    document.getElementById('outdoorSlider').value = cap.outdoor.used;
+                    document.getElementById('outdoorSliderVal').textContent = cap.outdoor.used;
+                }
+            } catch(e) {}
+        }
+
+        // ===== RENDER PESANAN =====
+        function renderPesanan() {
+            const list = document.getElementById('pesananList');
+            const emptyState = document.getElementById('emptyState');
+            let pesanan = [];
+
+            try {
+                pesanan = JSON.parse(localStorage.getItem('karsa_pesanan_masuk')) || [];
+            } catch(e) { pesanan = []; }
+
+            // Update stats
+            document.getElementById('statTotal').textContent = pesanan.length;
+            document.getElementById('statMenunggu').textContent = pesanan.filter(p => p.status === 'menunggu').length;
+            
+            const indoorCount = pesanan.filter(p => p.area === 'Indoor' && p.status === 'menunggu').length;
+            const outdoorCount = pesanan.filter(p => p.area === 'Outdoor' && p.status === 'menunggu').length;
+            document.getElementById('statIndoor').textContent = indoorCount;
+            document.getElementById('statOutdoor').textContent = outdoorCount;
+
+            if (pesanan.length === 0) {
+                list.innerHTML = '';
+                if (emptyState) emptyState.style.display = 'block';
+                list.appendChild(emptyState);
+                return;
+            }
+
+            // Sort: menunggu first, then by time
+            pesanan.sort((a, b) => {
+                if (a.status === 'menunggu' && b.status !== 'menunggu') return -1;
+                if (a.status !== 'menunggu' && b.status === 'menunggu') return 1;
+                return b.id - a.id;
+            });
+
+            list.innerHTML = pesanan.map((p, i) => {
+                const isIndoor = p.area === 'Indoor';
+                const areaColor = isIndoor ? 'blue' : 'green';
+                const areaIcon = isIndoor ? '🏠' : '🌿';
+                const isWaiting = p.status === 'menunggu';
+                const borderClass = isWaiting ? `border-${areaColor}-500/30` : 'border-white/5';
+                const opacity = isWaiting ? '' : 'opacity-40';
+
+                return `
+                <div class="glass-card p-5 transition-all duration-300 animate-slide ${opacity}" style="animation-delay:${i * 80}ms; border-color: ${isWaiting ? (isIndoor ? 'rgba(59,130,246,0.3)' : 'rgba(34,197,94,0.3)') : 'rgba(255,255,255,0.05)'};">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-3">
+                                <!-- Area Tag -->
+                                <span style="background:${isIndoor ? 'rgba(59,130,246,0.15)' : 'rgba(34,197,94,0.15)'}; border:1px solid ${isIndoor ? 'rgba(59,130,246,0.3)' : 'rgba(34,197,94,0.3)'}; color:${isIndoor ? '#60a5fa' : '#4ade80'};" class="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
+                                    ${areaIcon} ${p.area}
+                                </span>
+                                <!-- Status Tag -->
+                                <span style="background:${isWaiting ? 'rgba(245,158,11,0.12)' : 'rgba(34,197,94,0.12)'}; color:${isWaiting ? '#f59e0b' : '#22c55e'};" class="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${isWaiting ? 'pulse-ring' : ''}">
+                                    ${isWaiting ? '⏳ Menunggu' : '✅ Selesai'}
+                                </span>
+                            </div>
+                            <h3 class="text-white font-bold text-lg">${p.nama}</h3>
+                            <div class="flex flex-wrap gap-x-6 gap-y-1 mt-2 text-xs text-stone-400">
+                                <span>👥 ${p.jumlah} orang</span>
+                                <span>📅 ${p.tanggal}</span>
+                                <span>🕐 ${p.jam}</span>
+                            </div>
+                            ${p.catatan && p.catatan !== '-' ? `<p class="mt-2 text-xs text-stone-500 italic">📝 "${p.catatan}"</p>` : ''}
+                            <p class="mt-2 text-[10px] text-stone-600">Masuk: ${p.waktuMasuk}</p>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            ${isWaiting ? `
+                                <button onclick="konfirmasiPesanan(${p.id})" class="px-4 py-2 bg-green-500/15 hover:bg-green-500/30 text-green-400 text-xs font-bold uppercase tracking-wider rounded-xl border border-green-500/20 hover:border-green-500/40 transition">
+                                    ✅ Konfirmasi
+                                </button>
+                                <button onclick="hapusPesanan(${p.id})" class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold uppercase tracking-wider rounded-xl border border-red-500/20 hover:border-red-500/30 transition">
+                                    ✕ Tolak
+                                </button>
+                            ` : `
+                                <button onclick="hapusPesanan(${p.id})" class="px-4 py-2 bg-white/5 hover:bg-white/10 text-stone-400 text-xs font-bold uppercase tracking-wider rounded-xl border border-white/10 transition">
+                                    🗑️ Hapus
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // ===== KONFIRMASI PESANAN =====
+        function konfirmasiPesanan(id) {
+            let pesanan = JSON.parse(localStorage.getItem('karsa_pesanan_masuk')) || [];
+            pesanan = pesanan.map(p => {
+                if (p.id === id) p.status = 'dikonfirmasi';
+                return p;
+            });
+            localStorage.setItem('karsa_pesanan_masuk', JSON.stringify(pesanan));
+            renderPesanan();
+        }
+
+        // ===== HAPUS PESANAN =====
+        function hapusPesanan(id) {
+            let pesanan = JSON.parse(localStorage.getItem('karsa_pesanan_masuk')) || [];
+            pesanan = pesanan.filter(p => p.id !== id);
+            localStorage.setItem('karsa_pesanan_masuk', JSON.stringify(pesanan));
+            renderPesanan();
+        }
+
+        // ===== CLEAR ALL =====
+        function clearAllReservations() {
+            if (confirm('Hapus semua data reservasi?')) {
+                localStorage.setItem('karsa_pesanan_masuk', JSON.stringify([]));
+                renderPesanan();
+            }
+        }
+
+        // ===== AUTO REFRESH EVERY 3s =====
+        setInterval(renderPesanan, 3000);
+
+        // ===== INIT =====
+        loadCapacity();
+        renderPesanan();
+    </script>
+</body>
+</html>

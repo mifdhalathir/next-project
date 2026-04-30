@@ -147,7 +147,6 @@ function initDatePicker() {
 function initForm() {
     const form = document.getElementById('reservasiForm');
     const btn = form ? form.querySelector('button[type="submit"]') : null;
-    const successToast = document.getElementById('successToast');
     
     if (form) {
         form.onsubmit = e => {
@@ -156,10 +155,7 @@ function initForm() {
             // Check Area selection first
             const selectedArea = form.querySelector('input[name="resArea"]:checked');
             if (!selectedArea) {
-                const areaContainer = form.querySelector('.area-toggle-container');
-                areaContainer.classList.add('shake', 'error-border');
                 alert('Pilih area dudukmu dulu, Ngab!');
-                setTimeout(() => areaContainer.classList.remove('shake', 'error-border'), 400);
                 return;
             }
 
@@ -196,26 +192,47 @@ function initForm() {
             const jam = document.getElementById('resJam').value;
             const catatan = document.getElementById('resCatatan').value;
             
-            if(successToast) {
-                successToast.classList.remove('opacity-0', '-translate-y-32');
-                successToast.classList.add('opacity-100', 'translate-y-0');
+            // ===== SIMPAN KE localStorage untuk KASIR DASHBOARD =====
+            const pesananBaru = {
+                id: Date.now(),
+                nama: nama,
+                jumlah: jumlah,
+                tanggal: tanggal,
+                jam: jam,
+                catatan: catatan || '-',
+                area: area,
+                status: 'menunggu', // menunggu | dikonfirmasi | selesai
+                waktuMasuk: new Date().toLocaleString('id-ID')
+            };
+
+            let pesananMasuk = [];
+            try {
+                pesananMasuk = JSON.parse(localStorage.getItem('karsa_pesanan_masuk')) || [];
+            } catch(err) { pesananMasuk = []; }
+            
+            pesananMasuk.push(pesananBaru);
+            localStorage.setItem('karsa_pesanan_masuk', JSON.stringify(pesananMasuk));
+            
+            // ===== FEEDBACK KE PELANGGAN =====
+            if (typeof showReservationFeedback === 'function') {
+                showReservationFeedback(area);
             }
             
             setTimeout(() => {
-                const message = `Halo Karsa Cafe, saya ${nama} ingin reservasi area ${area} untuk ${jumlah} orang pada tanggal ${tanggal} jam ${jam}. Catatan: ${catatan || '-'}`;
-                const waUrl = `https://wa.me/6281234567890?text=${encodeURIComponent(message)}`;
-                window.open(waUrl, '_blank');
-                
                 form.reset();
-                // Clear status pill
+                window._selectedArea = null;
+
+                // Reset area toggle visuals
                 const statusPill = document.getElementById('areaStatusPill');
-                if(statusPill) statusPill.classList.remove('visible');
+                if(statusPill) statusPill.style.display = 'none';
+                
+                const labelIn = document.getElementById('labelIndoor');
+                const labelOut = document.getElementById('labelOutdoor');
+                if (labelIn) { labelIn.style.background='transparent'; labelIn.style.border='1px solid transparent'; labelIn.style.boxShadow='none'; }
+                if (labelOut) { labelOut.style.background='transparent'; labelOut.style.border='1px solid transparent'; labelOut.style.boxShadow='none'; }
+                if (typeof initAreaToggles === 'function') initAreaToggles();
 
                 btn.textContent = originalText;
-                if(successToast) {
-                    successToast.classList.add('opacity-0', '-translate-y-32');
-                    successToast.classList.remove('opacity-100', 'translate-y-0');
-                }
             }, 1500);
         };
         
@@ -228,35 +245,8 @@ function initForm() {
     }
 }
 
-// ===== AREA SELECTION LOGIC =====
-function initAreaSelection() {
-    const areaInputs = document.querySelectorAll('input[name="resArea"]');
-    const statusPill = document.getElementById('areaStatusPill');
-    const statusDot = document.getElementById('areaStatusDot');
-    const statusText = document.getElementById('areaStatusText');
-
-    if (!areaInputs.length || !statusPill) return;
-
-    areaInputs.forEach(input => {
-        input.addEventListener('change', () => {
-            statusPill.classList.add('visible');
-            
-            if (input.value === 'Indoor') {
-                statusPill.style.background = 'rgba(245, 158, 11, 0.1)';
-                statusPill.style.border = '1px solid rgba(245, 158, 11, 0.2)';
-                statusDot.style.background = '#f59e0b';
-                statusText.style.color = '#f59e0b';
-                statusText.innerHTML = '<strong>80% Occupied</strong> - Area mulai terisi';
-            } else {
-                statusPill.style.background = 'rgba(34, 197, 94, 0.1)';
-                statusPill.style.border = '1px solid rgba(34, 197, 94, 0.2)';
-                statusDot.style.background = '#22c55e';
-                statusText.style.color = '#22c55e';
-                statusText.innerHTML = '<strong>42% Occupied</strong> - Masih lega';
-            }
-        });
-    });
-}
+// initAreaSelection is now handled by inline script in index.html
+function initAreaSelection() { /* noop - handled inline */ }
 
 // ===== BEFORE-AFTER SLIDER =====
 function initBeforeAfterSlider() {
