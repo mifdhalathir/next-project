@@ -38,7 +38,13 @@ export default function RootLayout({
       lang="id"
       className={`${playfairDisplay.variable} ${inter.variable}`}
     >
-      <body className="bg-cream-50 text-stone-800 min-h-screen">
+      <body className="bg-cream-50 text-stone-800 min-h-screen relative overflow-x-hidden">
+        {/* Aesthetic Background Elements */}
+        <div className="bg-noise"></div>
+        <div className="blob blob-1"></div>
+        <div className="blob blob-2"></div>
+        <div className="blob blob-3"></div>
+        
         <div className="scanning-line"></div>
         <NotificationHub />
         {children}
