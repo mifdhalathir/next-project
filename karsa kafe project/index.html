@@ -366,19 +366,23 @@
             </div>
             <form id="reservasiForm" class="glass-form rounded-2xl p-8 space-y-5 fade-in">
                 <div>
+                    <label class="block text-cream-200 text-sm mb-1.5 font-bold uppercase tracking-widest">Nama Lengkap</label>
+                    <input type="text" id="resNama" required placeholder="Masukkan nama Anda"
+                        class="w-full bg-white/10 border border-cream-200/20 text-white placeholder-stone-500 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition mb-6">
+                    
                     <label class="block text-cream-200 text-xs font-bold uppercase tracking-widest mb-3">Pilih Area Duduk</label>
                     <div class="area-toggle-container">
                         <label class="area-toggle-option">
                             <input type="radio" name="resArea" value="Indoor">
                             <div class="area-toggle-label indoor">
-                                <span class="text-lg mb-1">🏠</span>
+                                <span class="text-xl mb-1">🏠</span>
                                 <span>Indoor</span>
                             </div>
                         </label>
                         <label class="area-toggle-option">
                             <input type="radio" name="resArea" value="Outdoor">
                             <div class="area-toggle-label outdoor">
-                                <span class="text-lg mb-1">🌿</span>
+                                <span class="text-xl mb-1">🌿</span>
                                 <span>Outdoor</span>
                             </div>
                         </label>
@@ -387,7 +391,7 @@
                     <!-- Real-time Status Sync -->
                     <div id="areaStatusPill" class="area-status-pill">
                         <span id="areaStatusDot" class="w-2 h-2 rounded-full animate-pulse"></span>
-                        <span id="areaStatusText" class="tracking-wide">Pilih area untuk cek ketersediaan</span>
+                        <span id="areaStatusText" class="tracking-wide font-bold">Cek ketersediaan area...</span>
                     </div>
                 </div>
 
