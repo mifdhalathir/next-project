@@ -133,14 +133,44 @@ function initFadeIn() {
 
 // ===== DATE PICKER =====
 function initDatePicker() {
-    const dateInput = document.getElementById('resTanggal');
-    if (dateInput && typeof flatpickr !== 'undefined') {
+    function setupFlatpickr() {
+        const dateInput = document.getElementById('resTanggal');
+        if (!dateInput) return;
+
+        if (typeof flatpickr === 'undefined') {
+            // Retry after 300ms if flatpickr hasn't loaded yet
+            setTimeout(setupFlatpickr, 300);
+            return;
+        }
+
         flatpickr(dateInput, {
-            minDate: "today",
-            dateFormat: "Y-m-d",
-            disableMobile: "true"
+            minDate: 'today',
+            dateFormat: 'd-m-Y',
+            disableMobile: true,
+            locale: {
+                firstDayOfWeek: 1,
+                weekdays: {
+                    shorthand: ['Min','Sen','Sel','Rab','Kam','Jum','Sab'],
+                    longhand: ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu']
+                },
+                months: {
+                    shorthand: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
+                    longhand: ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']
+                }
+            },
+            onReady: function(selectedDates, dateStr, instance) {
+                // Style the flatpickr calendar to match dark theme
+                const cal = instance.calendarContainer;
+                if (cal) {
+                    cal.style.borderRadius = '16px';
+                    cal.style.border = '1px solid rgba(245,158,11,0.3)';
+                    cal.style.boxShadow = '0 20px 60px rgba(0,0,0,0.5)';
+                }
+            }
         });
     }
+
+    setupFlatpickr();
 }
 
 // ===== FORM & CONFETTI =====
