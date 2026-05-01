@@ -212,6 +212,9 @@ function initForm() {
             
             pesananMasuk.push(pesananBaru);
             localStorage.setItem('karsa_pesanan_masuk', JSON.stringify(pesananMasuk));
+
+            // ===== SAVE RESERVATION ID FOR STATUS TRACKER (Feature 5) =====
+            localStorage.setItem('karsa_my_reservation_id', String(pesananBaru.id));
             
             // ===== FEEDBACK KE PELANGGAN =====
             if (typeof showReservationFeedback === 'function') {
@@ -384,80 +387,104 @@ function triggerPageTransition(url) {
     }
 }
 
-// ===== CAPACITY LOGIC =====
+// ===== CAPACITY LOGIC (Feature 3 - real-time from reservation data) =====
 function initCapacityLogic() {
   const statusMeja = document.getElementById('statusMeja');
   if (!statusMeja) return; // Only run if on page with status meja
 
-  const indoorPercentage = Math.floor(Math.random() * 61) + 40; // 40% to 100%
-  const outdoorPercentage = Math.floor(Math.random() * 61) + 20; // 20% to 80%
-  
-  const indoorStatusEl = document.getElementById('indoorStatus');
-  const indoorBarEl = document.getElementById('indoorBar');
-  const indoorTextEl = document.getElementById('indoorText');
-  const indoorDot = document.getElementById('indoorDot');
-  
-  if (indoorStatusEl && indoorBarEl && indoorTextEl && indoorDot) {
-      indoorStatusEl.textContent = `${indoorPercentage}% Terisi`;
-      indoorBarEl.style.width = `${indoorPercentage}%`;
-      
-      if (indoorPercentage > 80) {
-          indoorTextEl.innerHTML = `Saat ini area Indoor sedang <strong>Sangat Rame</strong>`;
-          indoorBarEl.className = 'bg-red-500 h-3 rounded-full transition-all duration-1000';
-          indoorDot.className = 'indicator-dot bg-red-500';
-          indoorStatusEl.className = 'text-red-600 font-bold text-lg';
-      } else if (indoorPercentage > 50) {
-          indoorTextEl.innerHTML = `Saat ini area Indoor sedang <strong>Lumayan Rame</strong>`;
-          indoorBarEl.className = 'bg-amber-500 h-3 rounded-full transition-all duration-1000';
-          indoorDot.className = 'indicator-dot bg-amber-500';
-          indoorStatusEl.className = 'text-amber-600 font-bold text-lg';
-      } else {
-          indoorTextEl.innerHTML = `Saat ini area Indoor sedang <strong>Santai</strong>`;
-          indoorBarEl.className = 'bg-green-500 h-3 rounded-full transition-all duration-1000';
-          indoorDot.className = 'indicator-dot bg-green-500';
-          indoorStatusEl.className = 'text-green-600 font-bold text-lg';
-      }
-  }
-  
-  const outdoorStatusEl = document.getElementById('outdoorStatus');
-  const outdoorBarEl = document.getElementById('outdoorBar');
-  const outdoorTextEl = document.getElementById('outdoorText');
-  const outdoorDot = document.getElementById('outdoorDot');
-  
-  if (outdoorStatusEl && outdoorBarEl && outdoorTextEl && outdoorDot) {
-      outdoorStatusEl.textContent = `${outdoorPercentage}% Terisi`;
-      outdoorBarEl.style.width = `${outdoorPercentage}%`;
-      
-      if (outdoorPercentage > 80) {
-          outdoorTextEl.innerHTML = `Saat ini area Outdoor sedang <strong>Sangat Rame</strong>`;
-          outdoorBarEl.className = 'bg-red-500 h-3 rounded-full transition-all duration-1000';
-          outdoorDot.className = 'indicator-dot bg-red-500';
-          outdoorStatusEl.className = 'text-red-600 font-bold text-lg';
-      } else if (outdoorPercentage > 50) {
-          outdoorTextEl.innerHTML = `Saat ini area Outdoor sedang <strong>Lumayan Rame</strong>`;
-          outdoorBarEl.className = 'bg-amber-500 h-3 rounded-full transition-all duration-1000';
-          outdoorDot.className = 'indicator-dot bg-amber-500';
-          outdoorStatusEl.className = 'text-amber-600 font-bold text-lg';
-      } else {
-          outdoorTextEl.innerHTML = `Saat ini area Outdoor sedang <strong>Santai</strong>`;
-          outdoorBarEl.className = 'bg-green-500 h-3 rounded-full transition-all duration-1000';
-          outdoorDot.className = 'indicator-dot bg-green-500';
-          outdoorStatusEl.className = 'text-green-600 font-bold text-lg';
-      }
+  function getReservationCapacity() {
+    let pesanan = [];
+    try { pesanan = JSON.parse(localStorage.getItem('karsa_pesanan_masuk')) || []; } catch(e) {}
+    const activeIndoor = pesanan.filter(p => p.area === 'Indoor' && (p.status === 'menunggu' || p.status === 'dikonfirmasi')).length;
+    const activeOutdoor = pesanan.filter(p => p.area === 'Outdoor' && (p.status === 'menunggu' || p.status === 'dikonfirmasi')).length;
+    return { indoor: activeIndoor, outdoor: activeOutdoor };
   }
 
-  // Waitlist Logic
-  const waitlistIndicator = document.getElementById('waitlistIndicator');
-  const waitlistText = document.getElementById('waitlistText');
-  if (waitlistIndicator && waitlistText) {
-      if (indoorPercentage > 80 || outdoorPercentage > 80) {
-          waitlistText.textContent = 'Antrean saat ini sekitar 15 menit';
-          waitlistIndicator.className = 'mt-8 mx-auto max-w-md bg-red-100 border-l-4 border-red-500 p-4 rounded-xl text-red-800 text-center shadow-md transition-all duration-300';
+  function updateStatusMeja() {
+    const counts = getReservationCapacity();
+    const indoorMax = 10, outdoorMax = 5;
+    const indoorPct = Math.round((counts.indoor / indoorMax) * 100);
+    const outdoorPct = Math.round((counts.outdoor / outdoorMax) * 100);
+
+    // Sync capacity to localStorage so form toggles can read it
+    localStorage.setItem('karsa_area_capacity', JSON.stringify({
+      indoor: { total: indoorMax, used: counts.indoor },
+      outdoor: { total: outdoorMax, used: counts.outdoor }
+    }));
+
+    const indoorStatusEl = document.getElementById('indoorStatus');
+    const indoorBarEl = document.getElementById('indoorBar');
+    const indoorTextEl = document.getElementById('indoorText');
+    const indoorDot = document.getElementById('indoorDot');
+
+    if (indoorStatusEl && indoorBarEl && indoorTextEl && indoorDot) {
+      indoorStatusEl.textContent = `${counts.indoor}/${indoorMax} Meja Terpakai`;
+      indoorBarEl.style.width = `${Math.min(indoorPct, 100)}%`;
+
+      if (counts.indoor >= indoorMax) {
+        indoorTextEl.innerHTML = `Area Indoor <strong>FULL BOOKED</strong> — Semua meja terisi`;
+        indoorBarEl.className = 'bg-red-500 h-3 rounded-full transition-all duration-1000';
+        indoorDot.className = 'indicator-dot bg-red-500';
+        indoorStatusEl.className = 'text-red-600 font-bold text-lg';
+      } else if (indoorPct > 50) {
+        indoorTextEl.innerHTML = `Saat ini area Indoor sedang <strong>Lumayan Rame</strong>`;
+        indoorBarEl.className = 'bg-amber-500 h-3 rounded-full transition-all duration-1000';
+        indoorDot.className = 'indicator-dot bg-amber-500';
+        indoorStatusEl.className = 'text-amber-600 font-bold text-lg';
       } else {
-          waitlistText.textContent = 'Meja tersedia, langsung gas ke lokasi!';
-          waitlistIndicator.className = 'mt-8 mx-auto max-w-md bg-green-100 border-l-4 border-green-500 p-4 rounded-xl text-green-800 text-center shadow-md transition-all duration-300';
+        indoorTextEl.innerHTML = `Saat ini area Indoor sedang <strong>Santai</strong>`;
+        indoorBarEl.className = 'bg-green-500 h-3 rounded-full transition-all duration-1000';
+        indoorDot.className = 'indicator-dot bg-green-500';
+        indoorStatusEl.className = 'text-green-600 font-bold text-lg';
       }
+    }
+
+    const outdoorStatusEl = document.getElementById('outdoorStatus');
+    const outdoorBarEl = document.getElementById('outdoorBar');
+    const outdoorTextEl = document.getElementById('outdoorText');
+    const outdoorDot = document.getElementById('outdoorDot');
+
+    if (outdoorStatusEl && outdoorBarEl && outdoorTextEl && outdoorDot) {
+      outdoorStatusEl.textContent = `${counts.outdoor}/${outdoorMax} Meja Terpakai`;
+      outdoorBarEl.style.width = `${Math.min(outdoorPct, 100)}%`;
+
+      if (counts.outdoor >= outdoorMax) {
+        outdoorTextEl.innerHTML = `Area Outdoor <strong>FULL BOOKED</strong> — Semua meja terisi`;
+        outdoorBarEl.className = 'bg-red-500 h-3 rounded-full transition-all duration-1000';
+        outdoorDot.className = 'indicator-dot bg-red-500';
+        outdoorStatusEl.className = 'text-red-600 font-bold text-lg';
+      } else if (outdoorPct > 50) {
+        outdoorTextEl.innerHTML = `Saat ini area Outdoor sedang <strong>Lumayan Rame</strong>`;
+        outdoorBarEl.className = 'bg-amber-500 h-3 rounded-full transition-all duration-1000';
+        outdoorDot.className = 'indicator-dot bg-amber-500';
+        outdoorStatusEl.className = 'text-amber-600 font-bold text-lg';
+      } else {
+        outdoorTextEl.innerHTML = `Saat ini area Outdoor sedang <strong>Santai</strong>`;
+        outdoorBarEl.className = 'bg-green-500 h-3 rounded-full transition-all duration-1000';
+        outdoorDot.className = 'indicator-dot bg-green-500';
+        outdoorStatusEl.className = 'text-green-600 font-bold text-lg';
+      }
+    }
+
+    const waitlistIndicator = document.getElementById('waitlistIndicator');
+    const waitlistText = document.getElementById('waitlistText');
+    if (waitlistIndicator && waitlistText) {
+      if (counts.indoor >= indoorMax || counts.outdoor >= outdoorMax) {
+        waitlistText.textContent = 'Salah satu area penuh — pesan via reservasi!';
+        waitlistIndicator.className = 'mt-8 mx-auto max-w-md bg-red-100 border-l-4 border-red-500 p-4 rounded-xl text-red-800 text-center shadow-md transition-all duration-300';
+      } else {
+        waitlistText.textContent = 'Meja tersedia, langsung gas ke lokasi!';
+        waitlistIndicator.className = 'mt-8 mx-auto max-w-md bg-green-100 border-l-4 border-green-500 p-4 rounded-xl text-green-800 text-center shadow-md transition-all duration-300';
+      }
+    }
+
+    // Refresh area toggle state in case capacity changed
+    if (typeof initAreaToggles === 'function') initAreaToggles();
   }
+
+  updateStatusMeja();
+  // Poll every 5s for real-time updates from kasir actions
+  setInterval(updateStatusMeja, 5000);
 }
 
 // ===== AMBIENT SOUNDSCAPE & SOCIAL HIDING =====

@@ -87,29 +87,31 @@
                 <p class="text-[10px] text-stone-500 uppercase tracking-widest mb-2 font-bold">🌿 Outdoor</p>
                 <div class="flex items-end gap-2">
                     <p id="statOutdoor" class="text-3xl font-black text-green-400">0</p>
-                    <p id="statOutdoorPct" class="text-xs text-stone-500 mb-1">/ 10 meja</p>
+                    <p id="statOutdoorPct" class="text-xs text-stone-500 mb-1">/ 5 meja</p>
                 </div>
             </div>
         </div>
 
         <!-- CAPACITY CONTROLS -->
         <div class="glass-card p-5 mb-8">
-            <p class="text-xs text-stone-500 uppercase tracking-widest font-bold mb-4">⚙️ Kontrol Kapasitas (Simulasi)</p>
+            <p class="text-xs text-stone-500 uppercase tracking-widest font-bold mb-4">⚙️ Kapasitas Real-Time (dari Data Reservasi)</p>
             <div class="grid grid-cols-2 gap-6">
                 <div>
-                    <label class="text-xs font-bold text-blue-400 mb-1 block">Indoor Terpakai</label>
+                    <label class="text-xs font-bold text-amber-400 mb-1 block">🏠 Indoor</label>
                     <div class="flex items-center gap-3">
-                        <input type="range" id="indoorSlider" min="0" max="10" value="8" class="flex-1 accent-blue-500" oninput="updateCapacity()">
-                        <span id="indoorSliderVal" class="text-sm font-bold text-white w-8 text-center">8</span>
-                        <span class="text-xs text-stone-500">/10</span>
+                        <div class="flex-1 bg-stone-800 rounded-full h-3 overflow-hidden">
+                            <div id="indoorCapBar" class="h-3 bg-amber-500 rounded-full transition-all duration-700" style="width:0%"></div>
+                        </div>
+                        <span id="indoorCapLabel" class="text-sm font-bold text-white w-16 text-right">0 / 10</span>
                     </div>
                 </div>
                 <div>
-                    <label class="text-xs font-bold text-green-400 mb-1 block">Outdoor Terpakai</label>
+                    <label class="text-xs font-bold text-green-400 mb-1 block">🌿 Outdoor</label>
                     <div class="flex items-center gap-3">
-                        <input type="range" id="outdoorSlider" min="0" max="10" value="4" class="flex-1 accent-green-500" oninput="updateCapacity()">
-                        <span id="outdoorSliderVal" class="text-sm font-bold text-white w-8 text-center">4</span>
-                        <span class="text-xs text-stone-500">/10</span>
+                        <div class="flex-1 bg-stone-800 rounded-full h-3 overflow-hidden">
+                            <div id="outdoorCapBar" class="h-3 bg-green-500 rounded-full transition-all duration-700" style="width:0%"></div>
+                        </div>
+                        <span id="outdoorCapLabel" class="text-sm font-bold text-white w-16 text-right">0 / 5</span>
                     </div>
                 </div>
             </div>
@@ -127,32 +129,6 @@
     </div>
 
     <script>
-        // ===== CAPACITY CONTROLS =====
-        function updateCapacity() {
-            const indoorUsed = parseInt(document.getElementById('indoorSlider').value);
-            const outdoorUsed = parseInt(document.getElementById('outdoorSlider').value);
-            document.getElementById('indoorSliderVal').textContent = indoorUsed;
-            document.getElementById('outdoorSliderVal').textContent = outdoorUsed;
-
-            localStorage.setItem('karsa_area_capacity', JSON.stringify({
-                indoor: { total: 10, used: indoorUsed },
-                outdoor: { total: 10, used: outdoorUsed }
-            }));
-        }
-
-        // ===== LOAD CAPACITY ON INIT =====
-        function loadCapacity() {
-            try {
-                const cap = JSON.parse(localStorage.getItem('karsa_area_capacity'));
-                if (cap) {
-                    document.getElementById('indoorSlider').value = cap.indoor.used;
-                    document.getElementById('indoorSliderVal').textContent = cap.indoor.used;
-                    document.getElementById('outdoorSlider').value = cap.outdoor.used;
-                    document.getElementById('outdoorSliderVal').textContent = cap.outdoor.used;
-                }
-            } catch(e) {}
-        }
-
         // ===== RENDER PESANAN =====
         function renderPesanan() {
             const list = document.getElementById('pesananList');
@@ -219,6 +195,9 @@
                         </div>
                         <div class="flex flex-col gap-2">
                             ${isWaiting ? `
+                                <button onclick="siapkanMeja(${p.id})" class="px-4 py-2 bg-amber-500/15 hover:bg-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-wider rounded-xl border border-amber-500/20 hover:border-amber-500/40 transition">
+                                    🛎️ Siapkan Meja
+                                </button>
                                 <button onclick="konfirmasiPesanan(${p.id})" class="px-4 py-2 bg-green-500/15 hover:bg-green-500/30 text-green-400 text-xs font-bold uppercase tracking-wider rounded-xl border border-green-500/20 hover:border-green-500/40 transition">
                                     ✅ Konfirmasi
                                 </button>
@@ -236,6 +215,18 @@
             }).join('');
         }
 
+        // ===== SIAPKAN MEJA (Feature 5 - triggers customer notification) =====
+        function siapkanMeja(id) {
+            let pesanan = JSON.parse(localStorage.getItem('karsa_pesanan_masuk')) || [];
+            pesanan = pesanan.map(p => {
+                if (p.id === id) p.status = 'dikonfirmasi';
+                return p;
+            });
+            localStorage.setItem('karsa_pesanan_masuk', JSON.stringify(pesanan));
+            syncCapacityFromReservations(pesanan);
+            renderPesanan();
+        }
+
         // ===== KONFIRMASI PESANAN =====
         function konfirmasiPesanan(id) {
             let pesanan = JSON.parse(localStorage.getItem('karsa_pesanan_masuk')) || [];
@@ -244,6 +235,7 @@
                 return p;
             });
             localStorage.setItem('karsa_pesanan_masuk', JSON.stringify(pesanan));
+            syncCapacityFromReservations(pesanan);
             renderPesanan();
         }
 
@@ -252,13 +244,46 @@
             let pesanan = JSON.parse(localStorage.getItem('karsa_pesanan_masuk')) || [];
             pesanan = pesanan.filter(p => p.id !== id);
             localStorage.setItem('karsa_pesanan_masuk', JSON.stringify(pesanan));
+            syncCapacityFromReservations(pesanan);
             renderPesanan();
+        }
+
+        // ===== SYNC CAPACITY FROM RESERVATIONS (Feature 3) =====
+        function syncCapacityFromReservations(pesanan) {
+            const indoorMax = 10, outdoorMax = 5;
+            const activeIndoor = pesanan.filter(p => p.area === 'Indoor' && (p.status === 'menunggu' || p.status === 'dikonfirmasi')).length;
+            const activeOutdoor = pesanan.filter(p => p.area === 'Outdoor' && (p.status === 'menunggu' || p.status === 'dikonfirmasi')).length;
+
+            localStorage.setItem('karsa_area_capacity', JSON.stringify({
+                indoor: { total: indoorMax, used: activeIndoor },
+                outdoor: { total: outdoorMax, used: activeOutdoor }
+            }));
+
+            // Update capacity bars in UI
+            const indoorBar = document.getElementById('indoorCapBar');
+            const outdoorBar = document.getElementById('outdoorCapBar');
+            const indoorLabel = document.getElementById('indoorCapLabel');
+            const outdoorLabel = document.getElementById('outdoorCapLabel');
+
+            if (indoorBar) {
+                const pct = Math.min((activeIndoor / indoorMax) * 100, 100);
+                indoorBar.style.width = pct + '%';
+                indoorBar.style.background = activeIndoor >= indoorMax ? '#ef4444' : activeIndoor > 5 ? '#f59e0b' : '#22c55e';
+            }
+            if (outdoorBar) {
+                const pct = Math.min((activeOutdoor / outdoorMax) * 100, 100);
+                outdoorBar.style.width = pct + '%';
+                outdoorBar.style.background = activeOutdoor >= outdoorMax ? '#ef4444' : activeOutdoor > 2 ? '#f59e0b' : '#22c55e';
+            }
+            if (indoorLabel) indoorLabel.textContent = activeIndoor + ' / ' + indoorMax;
+            if (outdoorLabel) outdoorLabel.textContent = activeOutdoor + ' / ' + outdoorMax;
         }
 
         // ===== CLEAR ALL =====
         function clearAllReservations() {
             if (confirm('Hapus semua data reservasi?')) {
                 localStorage.setItem('karsa_pesanan_masuk', JSON.stringify([]));
+                syncCapacityFromReservations([]);
                 renderPesanan();
             }
         }
@@ -267,8 +292,12 @@
         setInterval(renderPesanan, 3000);
 
         // ===== INIT =====
-        loadCapacity();
-        renderPesanan();
+        (function() {
+            let pesanan = [];
+            try { pesanan = JSON.parse(localStorage.getItem('karsa_pesanan_masuk')) || []; } catch(e) {}
+            syncCapacityFromReservations(pesanan);
+            renderPesanan();
+        })();
     </script>
 </body>
 </html>
