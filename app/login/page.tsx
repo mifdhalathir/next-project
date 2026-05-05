@@ -76,7 +76,7 @@ export default function Login() {
                    <img 
                     src="/images/logo.png" 
                     alt="Karsa Kafe" 
-                    className="w-16 h-16 object-contain drop-shadow-[0_0_20px_rgba(245,158,11,0.6)]"
+                    className="w-20 h-20 object-contain brightness-0 invert drop-shadow-[0_0_20px_rgba(245,158,11,0.6)]"
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = 'none';
                       (e.target as HTMLImageElement).parentElement!.innerHTML = '<span class="text-amber-500 font-black text-2xl">K</span>';

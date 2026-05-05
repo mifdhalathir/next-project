@@ -88,7 +88,7 @@ export default function Navbar() {
                   src="/images/logo.png" 
                   alt="Karsa Kafe Logo" 
                   onError={() => setLogoError(true)}
-                  className="w-11 h-11 object-contain drop-shadow-2xl transform group-hover:scale-110 transition-transform duration-500" 
+                  className="w-14 h-14 object-contain brightness-0 invert drop-shadow-2xl transform group-hover:scale-110 transition-transform duration-500" 
                 />
               )}
               <span className="font-display text-xl font-black text-white tracking-[0.2em] uppercase hidden sm:block">

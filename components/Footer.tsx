@@ -24,7 +24,7 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-10 text-sm relative z-10">
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-3">
-            <img src="/images/logo.png" alt="Karsa Kafe Logo" className="w-12 h-12 object-contain" />
+            <img src="/images/logo.png" alt="Karsa Kafe Logo" className="w-14 h-14 object-contain brightness-0 invert" />
             <h3 className="font-display text-2xl font-black text-white tracking-widest uppercase">
               KARSA <span className="text-amber-500">KAFE</span>
             </h3>

@@ -134,7 +134,7 @@ export default function KasirPage() {
             <img 
               src="/images/logo.png" 
               alt="Karsa Kafe Logo" 
-              className="w-12 h-12 object-contain drop-shadow-[0_0_15px_rgba(245,158,11,0.3)]" 
+              className="w-14 h-14 object-contain brightness-0 invert drop-shadow-[0_0_15px_rgba(245,158,11,0.3)]" 
             />
             <h1 className="font-display text-4xl font-black tracking-tighter uppercase italic">
               KARSA <span className="text-amber-500">KASIR</span>
