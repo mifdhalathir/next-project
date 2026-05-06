@@ -532,24 +532,26 @@
 
             // Indoor status badge
             if (indoorFull) {
-                inText.textContent = 'Penuh';
+                inText.textContent = 'Indoor (Penuh)';
                 inText.style.color = '#ef4444';
                 labelIn.style.opacity = '0.4';
                 labelIn.style.cursor = 'not-allowed';
                 labelIn.onclick = function (e) { e.preventDefault(); };
             } else {
-                inText.innerHTML = 'Indoor <span style="font-size:9px; color:#22c55e; margin-left:4px;">● Tersedia</span>';
+                var indoorStatus = indoorPct > 50 ? 'Rame' : 'Sepi';
+                inText.innerHTML = 'Indoor <span style="font-size:9px; color:#22c55e; margin-left:4px; display:block; margin-top:2px;">(' + cap.indoor.used + '/' + cap.indoor.total + ' Meja) - ' + indoorStatus + '</span>';
             }
 
             // Outdoor status badge
             if (outdoorFull) {
-                outText.textContent = 'Penuh';
+                outText.textContent = 'Outdoor (Penuh)';
                 outText.style.color = '#ef4444';
                 labelOut.style.opacity = '0.4';
                 labelOut.style.cursor = 'not-allowed';
                 labelOut.onclick = function (e) { e.preventDefault(); };
             } else {
-                outText.innerHTML = 'Outdoor <span style="font-size:9px; color:#22c55e; margin-left:4px;">● Tersedia</span>';
+                var outdoorStatus = outdoorPct > 50 ? 'Rame' : 'Sepi';
+                outText.innerHTML = 'Outdoor <span style="font-size:9px; color:#22c55e; margin-left:4px; display:block; margin-top:2px;">(' + cap.outdoor.used + '/' + cap.outdoor.total + ' Meja) - ' + outdoorStatus + '</span>';
             }
         }
 
@@ -582,14 +584,15 @@
                 labelIn.style.background = '#f59e0b';
                 labelIn.style.border = '1px solid #d97706';
                 labelIn.style.boxShadow = '0 0 18px rgba(245,158,11,0.4)';
-                inText.innerHTML = 'Indoor <span style="font-size:9px; color:#fff;">● Dipilih</span>';
+                inText.innerHTML = 'Indoor <span style="font-size:9px; color:#fff; display:block; margin-top:2px;">(' + cap.indoor.used + '/' + cap.indoor.total + ' Meja) ● Dipilih</span>';
                 inText.style.color = '#fff';
 
                 labelOut.style.background = 'transparent';
                 labelOut.style.border = '1px solid transparent';
                 labelOut.style.boxShadow = 'none';
                 var oFull = outdoorPct >= 100;
-                outText.innerHTML = oFull ? 'Penuh' : 'Outdoor <span style="font-size:9px; color:#22c55e; margin-left:4px;">● Tersedia</span>';
+                var oStatus = outdoorPct > 50 ? 'Rame' : 'Sepi';
+                outText.innerHTML = oFull ? 'Outdoor (Penuh)' : 'Outdoor <span style="font-size:9px; color:#22c55e; margin-left:4px; display:block; margin-top:2px;">(' + cap.outdoor.used + '/' + cap.outdoor.total + ' Meja) - ' + oStatus + '</span>';
                 outText.style.color = oFull ? '#ef4444' : 'rgba(255,255,255,0.5)';
 
                 pill.style.display = 'flex';
@@ -603,14 +606,15 @@
                 labelOut.style.background = '#22c55e';
                 labelOut.style.border = '1px solid #16a34a';
                 labelOut.style.boxShadow = '0 0 18px rgba(34,197,94,0.4)';
-                outText.innerHTML = 'Outdoor <span style="font-size:9px; color:#fff;">● Dipilih</span>';
+                outText.innerHTML = 'Outdoor <span style="font-size:9px; color:#fff; display:block; margin-top:2px;">(' + cap.outdoor.used + '/' + cap.outdoor.total + ' Meja) ● Dipilih</span>';
                 outText.style.color = '#fff';
 
                 labelIn.style.background = 'transparent';
                 labelIn.style.border = '1px solid transparent';
                 labelIn.style.boxShadow = 'none';
                 var iFull = indoorPct >= 100;
-                inText.innerHTML = iFull ? 'Penuh' : 'Indoor <span style="font-size:9px; color:#22c55e; margin-left:4px;">● Tersedia</span>';
+                var iStatus = indoorPct > 50 ? 'Rame' : 'Sepi';
+                inText.innerHTML = iFull ? 'Indoor (Penuh)' : 'Indoor <span style="font-size:9px; color:#22c55e; margin-left:4px; display:block; margin-top:2px;">(' + cap.indoor.used + '/' + cap.indoor.total + ' Meja) - ' + iStatus + '</span>';
                 inText.style.color = iFull ? '#ef4444' : 'rgba(255,255,255,0.5)';
 
                 pill.style.display = 'flex';
