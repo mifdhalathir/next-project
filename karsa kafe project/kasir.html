@@ -150,12 +150,86 @@
             <button onclick="clearAllReservations()" class="text-xs text-red-400 hover:text-red-300 transition font-bold uppercase tracking-wider px-4 py-2 rounded-lg border border-red-400/20 hover:border-red-400/40">🗑️ Hapus Semua</button>
         </div>
 
+        <!-- WAITLIST SECTION -->
+        <div id="waitlistSection" class="mb-10 bg-amber-900/10 border border-amber-500/20 rounded-2xl p-6 hidden">
+            <h3 class="text-amber-500 font-bold mb-4 flex items-center gap-2"><span class="text-xl">📋</span> Daftar Tunggu (Waitlist)</h3>
+            <div id="waitlistGrid" class="grid gap-3"></div>
+        </div>
+
         <div id="pesananList" class="grid gap-4 mb-12">
             <p id="emptyState" class="text-center text-stone-600 py-20 text-sm italic">Belum ada reservasi masuk. Silakan tunggu...</p>
         </div>
     </div>
 
+    <!-- STAFF LOGIN MODAL -->
+    <div id="staffLogin" class="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center hidden backdrop-blur-sm">
+        <div class="bg-wood-800 p-8 rounded-2xl text-center border border-white/10 max-w-sm w-full mx-4">
+            <h3 class="text-white text-xl font-bold mb-2">Login Staf Kasir</h3>
+            <p class="text-stone-400 text-xs mb-6">Silakan masukkan namamu untuk mulai shift</p>
+            <input type="text" id="staffNameInput" placeholder="Nama Staf..." class="w-full bg-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 border border-white/10 mb-4 text-center">
+            <button onclick="loginStaff()" class="w-full bg-amber-600 hover:bg-amber-700 py-3 rounded-xl text-white font-bold tracking-widest uppercase transition">Mulai Shift</button>
+        </div>
+    </div>
+
     <script>
+        let currentStaff = localStorage.getItem('karsa_current_staff');
+        
+        // ===== STAFF LOGIN =====
+        function loginStaff() {
+            const name = document.getElementById('staffNameInput').value;
+            if (name) {
+                localStorage.setItem('karsa_current_staff', name);
+                currentStaff = name;
+                document.getElementById('staffLogin').classList.add('hidden');
+                renderPesanan();
+            }
+        }
+        
+        // Cek login saat load
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!currentStaff) {
+                document.getElementById('staffLogin').classList.remove('hidden');
+            }
+            renderWaitlist();
+        });
+
+        // ===== RENDER WAITLIST =====
+        function renderWaitlist() {
+            const wlSection = document.getElementById('waitlistSection');
+            const wlGrid = document.getElementById('waitlistGrid');
+            let wl = [];
+            try { wl = JSON.parse(localStorage.getItem('karsa_waitlist')) || []; } catch(e) {}
+            
+            if (wl.length === 0) {
+                if (wlSection) wlSection.classList.add('hidden');
+                return;
+            }
+            
+            if (wlSection) wlSection.classList.remove('hidden');
+            wlGrid.innerHTML = wl.map(w => `
+                <div class="bg-black/20 p-4 rounded-xl border border-amber-500/10 flex justify-between items-center">
+                    <div>
+                        <p class="text-white font-bold">${w.nama} <span class="text-xs text-stone-400 font-normal ml-2">(${w.jumlah} Org)</span></p>
+                        <p class="text-amber-500 text-xs mt-1">📱 ${w.wa || '-'}</p>
+                    </div>
+                    <button onclick="panggilWaitlist(${w.id})" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition">Panggil</button>
+                </div>
+            `).join('');
+        }
+        
+        // ===== PANGGIL WAITLIST =====
+        function panggilWaitlist(id) {
+            let wl = JSON.parse(localStorage.getItem('karsa_waitlist')) || [];
+            const wItem = wl.find(w => w.id === id);
+            if (wItem && wItem.wa) {
+                const text = `Halo Kak ${wItem.nama}! Meja di Kafe Karsa sudah tersedia. Yuk segera merapat ke kasir ya!`;
+                window.open(`https://wa.me/${wItem.wa}?text=${encodeURIComponent(text)}`, '_blank');
+            }
+            wl = wl.filter(w => w.id !== id);
+            localStorage.setItem('karsa_waitlist', JSON.stringify(wl));
+            renderWaitlist();
+        }
+
         // ===== RENDER PESANAN =====
         function renderPesanan() {
             const list = document.getElementById('pesananList');
@@ -248,6 +322,28 @@
             let totalDuit = 0;
             let itemCounts = {};
             
+            // Add Staff Tracker
+            let staffStats = {};
+            try { staffStats = JSON.parse(localStorage.getItem('karsa_staff_performance')) || {}; } catch(e) {}
+            
+            let staffHtml = '<h4 class="text-white font-bold text-sm mt-6 mb-2 border-t border-white/10 pt-4">🏆 Staff Terajin Hari Ini</h4><ul class="text-xs text-stone-400 space-y-1">';
+            for (let [staff, count] of Object.entries(staffStats)) {
+                staffHtml += `<li class="flex justify-between"><span>${staff}</span> <span class="text-amber-500 font-bold">${count} Pesanan</span></li>`;
+            }
+            staffHtml += '</ul>';
+            
+            // Find ringkasan div and append
+            const ringkasanDiv = document.querySelector('.lg\\:col-span-1 > div.glass-card');
+            if (ringkasanDiv && Object.keys(staffStats).length > 0) {
+                // remove old staff tracker if exists
+                const old = ringkasanDiv.querySelector('.staff-tracker');
+                if (old) old.remove();
+                
+                const d = document.createElement('div');
+                d.className = 'staff-tracker';
+                d.innerHTML = staffHtml;
+                ringkasanDiv.appendChild(d);
+            }
             selesai.forEach(p => {
                 if (p.totalHarga) totalDuit += p.totalHarga;
                 // Try to extract items from catatan if format is "Order dari Menu"
@@ -320,6 +416,14 @@
                 return p;
             });
             localStorage.setItem('karsa_pesanan_masuk', JSON.stringify(pesanan));
+            
+            // Log to staff performance
+            if (currentStaff) {
+                let staffStats = JSON.parse(localStorage.getItem('karsa_staff_performance')) || {};
+                staffStats[currentStaff] = (staffStats[currentStaff] || 0) + 1;
+                localStorage.setItem('karsa_staff_performance', JSON.stringify(staffStats));
+            }
+            
             syncCapacityFromReservations(pesanan);
             renderPesanan();
         }

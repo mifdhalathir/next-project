@@ -69,10 +69,34 @@ function initMenuFilter() {
         } else {
           card.style.opacity = '0';
           card.style.transform = 'scale(0.8)';
-          setTimeout(() => { card.style.display = 'none'; }, 300);
-        }
       });
     };
+  });
+}
+
+// ===== MOOD SELECTOR =====
+function setMood(mood) {
+  const cards = document.querySelectorAll('.menu-item');
+  let targetKeywords = [];
+  if (mood === 'Ngantuk') targetKeywords = ['Americano', 'Kopi Susu'];
+  else if (mood === 'Senang') targetKeywords = ['Matcha', 'Red Velvet'];
+  else if (mood === 'Sedih') targetKeywords = ['Red Velvet', 'Kopi Susu'];
+  else if (mood === 'Fokus') targetKeywords = ['Americano'];
+  
+  cards.forEach(card => {
+    const name = card.querySelector('h3').textContent;
+    let isMatch = targetKeywords.some(kw => name.includes(kw));
+    
+    card.style.opacity = '0';
+    card.style.transform = 'scale(0.8)';
+    setTimeout(() => {
+      if (isMatch || targetKeywords.length === 0) {
+        card.style.display = '';
+        setTimeout(() => { card.style.opacity = '1'; card.style.transform = 'scale(1)'; }, 50);
+      } else {
+        card.style.display = 'none';
+      }
+    }, 300);
   });
 }
 
@@ -182,9 +206,11 @@ function initForm() {
         form.onsubmit = e => {
             e.preventDefault();
             
-            // Check Area selection first
+            
+            // Check Area selection first, ONLY if Waitlist is NOT active
+            const isWaitlist = document.getElementById('submitResBtn') && document.getElementById('submitResBtn').textContent.includes('Tunggu');
             const selectedArea = form.querySelector('input[name="resArea"]:checked');
-            if (!selectedArea) {
+            if (!isWaitlist && !selectedArea) {
                 alert('Pilih area dudukmu dulu, Ngab!');
                 return;
             }
@@ -221,7 +247,28 @@ function initForm() {
             const tanggal = document.getElementById('resTanggal').value;
             const jam = document.getElementById('resJam').value;
             const catatan = document.getElementById('resCatatan').value;
+            const wa = document.getElementById('resWA') ? document.getElementById('resWA').value : '';
             
+            if (isWaitlist) {
+                const waitlistData = {
+                    id: Date.now(),
+                    nama: nama,
+                    jumlah: jumlah,
+                    wa: wa,
+                    waktuMasuk: new Date().toLocaleString('id-ID'),
+                    status: 'menunggu'
+                };
+                let wl = [];
+                try { wl = JSON.parse(localStorage.getItem('karsa_waitlist')) || []; } catch(e) {}
+                wl.push(waitlistData);
+                localStorage.setItem('karsa_waitlist', JSON.stringify(wl));
+                alert('Kamu berhasil masuk Daftar Tunggu. Kami akan hubungi via WA jika ada meja kosong!');
+                
+                form.reset();
+                btn.textContent = 'Masuk Daftar Tunggu';
+                return;
+            }
+
             // ===== SIMPAN KE localStorage untuk KASIR DASHBOARD =====
             const pesananBaru = {
                 id: Date.now(),
@@ -1017,3 +1064,14 @@ document.addEventListener('DOMContentLoaded', () => {
   initBeforeAfterSlider();
   initAOS();
 });
+
+// ===== SHARE ORDER =====
+function shareOrder() {
+    const cart = JSON.parse(localStorage.getItem('karsa_cart')) || [];
+    const table = localStorage.getItem('karsa_login_table') || '-';
+    if (cart.length === 0) return alert('Keranjang masih kosong!');
+    
+    const itemsText = cart.map(item => `${item.quantity}x ${item.name}`).join(', ');
+    const waText = `Baru aja pesen kopi di Kafe Karsa! Gue pesen ${itemsText} di Meja ${table}. Yuk nyusul! Cek di karsa-cafe.vercel.app`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(waText)}`, '_blank');
+}

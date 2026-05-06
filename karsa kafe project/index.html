@@ -176,6 +176,17 @@
                 <div class="w-16 h-0.5 bg-amber-700 mx-auto mt-4"></div>
             </div>
 
+            <!-- Mood Selector -->
+            <div id="moodSelector" class="text-center mb-8 fade-in">
+                <p class="text-sm text-stone-500 font-bold tracking-widest uppercase mb-4">Lagi ngerasa gimana hari ini?</p>
+                <div class="flex justify-center gap-4">
+                    <button onclick="setMood('Sedih')" class="mood-btn text-3xl hover:scale-110 transition bg-white shadow-sm p-4 rounded-full border border-stone-100" title="Sedih">😢</button>
+                    <button onclick="setMood('Ngantuk')" class="mood-btn text-3xl hover:scale-110 transition bg-white shadow-sm p-4 rounded-full border border-stone-100" title="Ngantuk">😴</button>
+                    <button onclick="setMood('Senang')" class="mood-btn text-3xl hover:scale-110 transition bg-white shadow-sm p-4 rounded-full border border-stone-100" title="Senang">😄</button>
+                    <button onclick="setMood('Fokus')" class="mood-btn text-3xl hover:scale-110 transition bg-white shadow-sm p-4 rounded-full border border-stone-100" title="Fokus">🤓</button>
+                </div>
+            </div>
+
             <div id="orderMemoryHeader" class="text-center mb-8 fade-in hidden">
                 <div class="inline-block bg-amber-100 border border-amber-200 px-6 py-3 rounded-xl">
                     <p class="text-amber-800 font-medium">Halo, <span id="omName" class="font-bold"></span>!</p>
@@ -436,7 +447,12 @@
                     <textarea id="resCatatan" rows="3" placeholder="Permintaan khusus..."
                         class="w-full bg-white/10 border border-cream-200/20 text-cream-100 placeholder-stone-400 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition resize-none"></textarea>
                 </div>
-                <button type="submit"
+                <div id="waField" style="display:none;" class="transition-all">
+                    <label class="block text-amber-400 text-sm mb-1.5 font-bold">No. WhatsApp (Untuk Daftar Tunggu)</label>
+                    <input type="tel" id="resWA" placeholder="08..."
+                        class="w-full bg-amber-500/10 border border-amber-500/50 text-amber-100 placeholder-stone-400 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-400 transition">
+                </div>
+                <button type="submit" id="submitResBtn"
                     class="w-full bg-amber-700 hover:bg-amber-800 text-white py-3 rounded-lg text-sm tracking-wider transition transform hover:scale-[1.02]">Kirim
                     Reservasi</button>
             </form>
@@ -552,6 +568,20 @@
             } else {
                 var outdoorStatus = outdoorPct > 50 ? 'Rame' : 'Sepi';
                 outText.innerHTML = 'Outdoor <span style="font-size:9px; color:#22c55e; margin-left:4px; display:block; margin-top:2px;">(' + cap.outdoor.used + '/' + cap.outdoor.total + ' Meja) - ' + outdoorStatus + '</span>';
+            }
+
+            // WAITLIST LOGIC
+            var waField = document.getElementById('waField');
+            var submitBtn = document.getElementById('submitResBtn');
+            var resWA = document.getElementById('resWA');
+            if (indoorFull && outdoorFull) {
+                if (waField) waField.style.display = 'block';
+                if (resWA) resWA.setAttribute('required', 'true');
+                if (submitBtn) submitBtn.textContent = 'Masuk Daftar Tunggu';
+            } else {
+                if (waField) waField.style.display = 'none';
+                if (resWA) resWA.removeAttribute('required');
+                if (submitBtn) submitBtn.textContent = 'Kirim Reservasi';
             }
         }
 
@@ -1292,12 +1322,17 @@
             </div>
 
             <!-- Receipt Actions -->
-            <div class="p-6 bg-wood-900/60 flex gap-3">
-                <button id="downloadReceiptBtn"
-                    class="flex-1 bg-white/10 hover:bg-white/20 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/10">Simpan
-                    Struk</button>
-                <button id="closeReceiptBtn"
-                    class="flex-1 bg-amber-700 hover:bg-amber-800 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-amber-900/20">Selesai</button>
+            <div class="p-6 bg-wood-900/60 flex flex-col gap-3">
+                <button onclick="shareOrder()" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg flex justify-center items-center gap-2">
+                    <span class="text-sm">📱</span> Share to WhatsApp
+                </button>
+                <div class="flex gap-3">
+                    <button id="downloadReceiptBtn"
+                        class="flex-1 bg-white/10 hover:bg-white/20 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/10">Simpan
+                        Struk</button>
+                    <button id="closeReceiptBtn"
+                        class="flex-1 bg-amber-700 hover:bg-amber-800 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-amber-900/20">Selesai</button>
+                </div>
             </div>
         </div>
     </div>
