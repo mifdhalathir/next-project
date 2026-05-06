@@ -12,10 +12,16 @@ export default function ReservationForm() {
   const dateRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     nama: "",
+    area: "",
     jumlah: "",
     tanggal: "",
     jam: "",
     catatan: "",
+  });
+  
+  const [capacity, setCapacity] = useState({
+    indoor: { total: 10, used: 8 },
+    outdoor: { total: 5, used: 2 }
   });
   const [errors, setErrors] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,7 +38,19 @@ export default function ReservationForm() {
         },
       });
     }
+
+    try {
+      const savedCap = localStorage.getItem('karsa_area_capacity');
+      if (savedCap) setCapacity(JSON.parse(savedCap));
+    } catch(e) {}
   }, []);
+
+  const getAreaStatus = (used: number, total: number) => {
+    const isFull = used >= total;
+    if (isFull) return "(Penuh)";
+    const pct = (used / total) * 100;
+    return `(${used}/${total} Meja) - ${pct > 50 ? 'Rame' : 'Sepi'}`;
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -43,6 +61,7 @@ export default function ReservationForm() {
     e.preventDefault();
     const newErrors: string[] = [];
     if (!formData.nama) newErrors.push("nama");
+    if (!formData.area) newErrors.push("area");
     if (!formData.jumlah) newErrors.push("jumlah");
     if (!formData.tanggal) newErrors.push("tanggal");
     if (!formData.jam) newErrors.push("jam");
@@ -67,10 +86,10 @@ export default function ReservationForm() {
         name: formData.nama,
         time: `${formData.tanggal} ${formData.jam}`,
         guests: parseInt(formData.jumlah),
-        notes: formData.catatan,
+        notes: `Area: ${formData.area}. ${formData.catatan}`,
       });
 
-      setFormData({ nama: "", jumlah: "", tanggal: "", jam: "", catatan: "" });
+      setFormData({ nama: "", area: "", jumlah: "", tanggal: "", jam: "", catatan: "" });
       setIsSubmitting(false);
       setTimeout(() => setShowSuccess(false), 5000);
     }, 1500);
@@ -112,6 +131,25 @@ export default function ReservationForm() {
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-cream-200 text-sm mb-1.5">Pilih Area</label>
+                <select
+                  name="area"
+                  value={formData.area}
+                  onChange={handleChange}
+                  className={`w-full bg-white/10 border text-cream-100 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition appearance-none ${
+                    errors.includes("area") ? "border-red-500 shake" : "border-cream-200/20"
+                  }`}
+                >
+                  <option value="" className="text-stone-800">Pilih Tempat</option>
+                  <option value="Indoor" disabled={capacity.indoor.used >= capacity.indoor.total} className="text-stone-800">
+                    Indoor {getAreaStatus(capacity.indoor.used, capacity.indoor.total)}
+                  </option>
+                  <option value="Outdoor" disabled={capacity.outdoor.used >= capacity.outdoor.total} className="text-stone-800">
+                    Outdoor {getAreaStatus(capacity.outdoor.used, capacity.outdoor.total)}
+                  </option>
+                </select>
+              </div>
               <div>
                 <label className="block text-cream-200 text-sm mb-1.5">Jumlah Orang</label>
                 <select
