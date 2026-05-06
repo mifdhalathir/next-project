@@ -37,11 +37,13 @@
 <body class="bg-cream-50 text-stone-800 overflow-hidden">
 
     <!-- Full-Page Loading Screen -->
-    <div id="loadingScreen" class="fixed inset-0 z-[999999] bg-wood-900 flex flex-col items-center justify-center transition-opacity duration-700">
+    <div id="loadingScreen"
+        class="fixed inset-0 z-[999999] bg-wood-900 flex flex-col items-center justify-center transition-opacity duration-700">
         <div class="relative w-24 h-24 mb-4 flex items-center justify-center">
             <!-- Coffee Cup Silhouette -->
             <svg class="w-16 h-16 text-amber-500 animate-pulse" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M2 21H20V19H2V21ZM20 8H18V5H20C20.55 5 21 5.45 21 6C21 6.55 20.55 7 20 7H20V8ZM16 15C16 16.66 14.66 18 13 18H7C5.34 18 4 16.66 4 15V3H16V15ZM18 3H18V3C19.66 3 21 4.34 21 6C21 7.66 19.66 9 18 9V9H16V3H18ZM11 5H9V14H11V5ZM15 5H13V14H15V5Z" />
+                <path
+                    d="M2 21H20V19H2V21ZM20 8H18V5H20C20.55 5 21 5.45 21 6C21 6.55 20.55 7 20 7H20V8ZM16 15C16 16.66 14.66 18 13 18H7C5.34 18 4 16.66 4 15V3H16V15ZM18 3H18V3C19.66 3 21 4.34 21 6C21 7.66 19.66 9 18 9V9H16V3H18ZM11 5H9V14H11V5ZM15 5H13V14H15V5Z" />
             </svg>
             <div class="absolute inset-0 border-4 border-amber-500/30 rounded-full animate-ping"></div>
         </div>
@@ -80,13 +82,16 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
             <a href="#" class="flex items-center gap-3 group">
                 <div id="logoContainer" class="w-14 h-14 flex items-center justify-center">
-                    <img src="../public/images/logo.png" alt="Logo" class="w-full h-full object-contain brightness-0 invert group-hover:scale-110 transition-transform duration-300" 
+                    <img src="../public/images/logo.png" alt="Logo"
+                        class="w-full h-full object-contain brightness-0 invert group-hover:scale-110 transition-transform duration-300"
                         onerror="this.style.display='none'; document.getElementById('logoFallback').classList.remove('hidden');">
-                    <div id="logoFallback" class="hidden w-14 h-14 bg-amber-500/20 rounded-lg flex items-center justify-center border border-amber-500/30">
+                    <div id="logoFallback"
+                        class="hidden w-14 h-14 bg-amber-500/20 rounded-lg flex items-center justify-center border border-amber-500/30">
                         <span>☕</span>
                     </div>
                 </div>
-                <span class="font-display text-2xl font-bold text-white tracking-widest uppercase">KARSA <span class="text-amber-500">CAFE</span></span>
+                <span class="font-display text-2xl font-bold text-white tracking-widest uppercase">KARSA <span
+                        class="text-amber-500">CAFE</span></span>
             </a>
             <div class="hidden md:flex items-center space-x-8">
                 <a href="#home" class="nav-link text-cream-100 hover:text-cream-300 text-sm tracking-wide">HOME</a>
@@ -99,10 +104,12 @@
                     title="Dark Mode"><span id="darkModeIcon">☀️</span></button>
                 <button id="navCartBtn" class="relative text-2xl text-cream-100 hover:scale-110 transition mr-2">
                     🛒
-                    <span id="navCartBadge" class="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full hidden">0</span>
+                    <span id="navCartBadge"
+                        class="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full hidden">0</span>
                 </button>
                 <a href="kasir.html"
-                    class="bg-white/10 hover:bg-white/20 text-cream-100 px-4 py-1.5 rounded text-sm transition border border-white/10">🖥️ Kasir</a>
+                    class="bg-white/10 hover:bg-white/20 text-cream-100 px-4 py-1.5 rounded text-sm transition border border-white/10">🖥️
+                    Kasir</a>
                 <a href="login.html"
                     class="bg-amber-700 hover:bg-amber-800 text-white px-4 py-1.5 rounded text-sm transition">Login</a>
             </div>
@@ -139,16 +146,19 @@
             <p class="blur-reveal text-cream-200 text-lg md:text-xl max-w-xl mx-auto mb-6"
                 style="animation-delay: 2.5s;">Tempat nugas, ngopi, dan diskusi paling nyaman untuk mahasiswa Air Tawar
                 dan sekitarnya.</p>
-            
+
             <!-- Queue Tracker -->
-            <div id="queueTracker" class="blur-reveal mb-8 inline-flex items-center gap-3 bg-white/5 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/10" style="animation-delay: 2.8s;">
+            <div id="queueTracker"
+                class="blur-reveal mb-8 inline-flex items-center gap-3 bg-white/5 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/10"
+                style="animation-delay: 2.8s;">
                 <span class="flex h-2 w-2">
                     <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-amber-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
                 </span>
-                <p id="queueText" class="text-xs font-bold text-cream-100 tracking-wider uppercase">Memuat antrean...</p>
+                <p id="queueText" class="text-xs font-bold text-cream-100 tracking-wider uppercase">Memuat antrean...
+                </p>
             </div>
-            
+
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <a href="#menu"
                     class="blur-reveal inline-block bg-amber-700 hover:bg-amber-800 text-white px-8 py-3 rounded-full text-sm tracking-wider transition transform hover:scale-105"
@@ -165,11 +175,12 @@
                 <h2 class="font-display text-3xl md:text-4xl font-bold text-wood-800">Menu Kami</h2>
                 <div class="w-16 h-0.5 bg-amber-700 mx-auto mt-4"></div>
             </div>
-            
+
             <div id="orderMemoryHeader" class="text-center mb-8 fade-in hidden">
                 <div class="inline-block bg-amber-100 border border-amber-200 px-6 py-3 rounded-xl">
                     <p class="text-amber-800 font-medium">Halo, <span id="omName" class="font-bold"></span>!</p>
-                    <p class="text-stone-600 text-sm mt-1">Memesan untuk Meja: <span id="omTable" class="font-bold text-wood-800"></span></p>
+                    <p class="text-stone-600 text-sm mt-1">Memesan untuk Meja: <span id="omTable"
+                            class="font-bold text-wood-800"></span></p>
                 </div>
             </div>
             <div class="flex flex-wrap justify-center gap-3 mb-10 fade-in">
@@ -188,8 +199,8 @@
             </div>
             <div class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
-                <div class="menu-item menu-card bg-white rounded-2xl overflow-hidden shadow-md" data-aos="fade-up" data-aos-duration="800"
-                    data-category="coffee">
+                <div class="menu-item menu-card bg-white rounded-2xl overflow-hidden shadow-md" data-aos="fade-up"
+                    data-aos-duration="800" data-category="coffee">
                     <div class="h-36 overflow-hidden"><img src="images/kopi-susu-karsa.png" alt="Kopi Susu Karsa"
                             class="w-full h-full object-cover hover:scale-110 transition duration-500"></div>
                     <div class="p-4">
@@ -197,13 +208,16 @@
                         <p class="text-stone-500 text-xs mt-1">Signature es kopi susu.</p>
                         <div class="mt-3 flex justify-between items-center">
                             <p class="text-amber-700 font-bold text-sm">Rp 18.000</p>
-                            <button type="button" class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow" data-name="Kopi Susu Karsa" data-price="18000" data-image="images/kopi-susu-karsa.png">Tambah ke Keranjang</button>
+                            <button type="button"
+                                class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
+                                data-name="Kopi Susu Karsa" data-price="18000"
+                                data-image="images/kopi-susu-karsa.png">Tambah ke Keranjang</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="menu-item menu-card bg-white rounded-2xl overflow-hidden shadow-md" data-aos="fade-up" data-aos-duration="800"
-                    data-category="coffee">
+                <div class="menu-item menu-card bg-white rounded-2xl overflow-hidden shadow-md" data-aos="fade-up"
+                    data-aos-duration="800" data-category="coffee">
                     <div class="h-36 overflow-hidden"><img src="images/kopi-susu-karsa.png" alt="Americano"
                             class="w-full h-full object-cover hover:scale-110 transition duration-500 grayscale-[0.2]">
                     </div>
@@ -212,13 +226,16 @@
                         <p class="text-stone-500 text-xs mt-1">Espresso dengan air es segar.</p>
                         <div class="mt-3 flex justify-between items-center">
                             <p class="text-amber-700 font-bold text-sm">Rp 15.000</p>
-                            <button type="button" class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow" data-name="Iced Americano" data-price="15000" data-image="images/kopi-susu-karsa.png">Tambah ke Keranjang</button>
+                            <button type="button"
+                                class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
+                                data-name="Iced Americano" data-price="15000"
+                                data-image="images/kopi-susu-karsa.png">Tambah ke Keranjang</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="menu-item menu-card bg-white rounded-2xl overflow-hidden shadow-md" data-aos="fade-up" data-aos-duration="800"
-                    data-category="non-coffee">
+                <div class="menu-item menu-card bg-white rounded-2xl overflow-hidden shadow-md" data-aos="fade-up"
+                    data-aos-duration="800" data-category="non-coffee">
                     <div class="h-36 overflow-hidden"><img src="images/matcha-latte.png" alt="Matcha Latte"
                             class="w-full h-full object-cover hover:scale-110 transition duration-500"></div>
                     <div class="p-4">
@@ -226,13 +243,16 @@
                         <p class="text-stone-500 text-xs mt-1">Matcha premium & susu creamy.</p>
                         <div class="mt-3 flex justify-between items-center">
                             <p class="text-amber-700 font-bold text-sm">Rp 22.000</p>
-                            <button type="button" class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow" data-name="Matcha Latte" data-price="22000" data-image="images/matcha-latte.png">Tambah ke Keranjang</button>
+                            <button type="button"
+                                class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
+                                data-name="Matcha Latte" data-price="22000" data-image="images/matcha-latte.png">Tambah
+                                ke Keranjang</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="menu-item menu-card bg-white rounded-2xl overflow-hidden shadow-md" data-aos="fade-up" data-aos-duration="800"
-                    data-category="non-coffee">
+                <div class="menu-item menu-card bg-white rounded-2xl overflow-hidden shadow-md" data-aos="fade-up"
+                    data-aos-duration="800" data-category="non-coffee">
                     <div class="h-36 overflow-hidden"><img src="images/matcha-latte.png" alt="Red Velvet"
                             class="w-full h-full object-cover hover:scale-110 transition duration-500 hue-rotate-180">
                     </div>
@@ -241,13 +261,16 @@
                         <p class="text-stone-500 text-xs mt-1">Cokelat red velvet yang manis.</p>
                         <div class="mt-3 flex justify-between items-center">
                             <p class="text-amber-700 font-bold text-sm">Rp 24.000</p>
-                            <button type="button" class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow" data-name="Red Velvet Latte" data-price="24000" data-image="images/matcha-latte.png">Tambah ke Keranjang</button>
+                            <button type="button"
+                                class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
+                                data-name="Red Velvet Latte" data-price="24000"
+                                data-image="images/matcha-latte.png">Tambah ke Keranjang</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="menu-item menu-card bg-white rounded-2xl overflow-hidden shadow-md" data-aos="fade-up" data-aos-duration="800"
-                    data-category="meals">
+                <div class="menu-item menu-card bg-white rounded-2xl overflow-hidden shadow-md" data-aos="fade-up"
+                    data-aos-duration="800" data-category="meals">
                     <div class="h-36 overflow-hidden"><img src="images/nasi-goreng-katsu.png" alt="Nasi Goreng Katsu"
                             class="w-full h-full object-cover hover:scale-110 transition duration-500"></div>
                     <div class="p-4">
@@ -255,13 +278,16 @@
                         <p class="text-stone-500 text-xs mt-1">Nasi goreng & chicken katsu.</p>
                         <div class="mt-3 flex justify-between items-center">
                             <p class="text-amber-700 font-bold text-sm">Rp 28.000</p>
-                            <button type="button" class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow" data-name="Nasi Goreng Katsu" data-price="28000" data-image="images/nasi-goreng-katsu.png">Tambah ke Keranjang</button>
+                            <button type="button"
+                                class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
+                                data-name="Nasi Goreng Katsu" data-price="28000"
+                                data-image="images/nasi-goreng-katsu.png">Tambah ke Keranjang</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="menu-item menu-card bg-white rounded-2xl overflow-hidden shadow-md" data-aos="fade-up" data-aos-duration="800"
-                    data-category="meals">
+                <div class="menu-item menu-card bg-white rounded-2xl overflow-hidden shadow-md" data-aos="fade-up"
+                    data-aos-duration="800" data-category="meals">
                     <div class="h-36 overflow-hidden"><img src="images/indomie-goreng.png" alt="Indomie Goreng Spesial"
                             class="w-full h-full object-cover hover:scale-110 transition duration-500"></div>
                     <div class="p-4">
@@ -269,13 +295,16 @@
                         <p class="text-stone-500 text-xs mt-1">Dengan telur & topping lengkap.</p>
                         <div class="mt-3 flex justify-between items-center">
                             <p class="text-amber-700 font-bold text-sm">Rp 15.000</p>
-                            <button type="button" class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow" data-name="Indomie Spesial" data-price="15000" data-image="images/indomie-goreng.png">Tambah ke Keranjang</button>
+                            <button type="button"
+                                class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
+                                data-name="Indomie Spesial" data-price="15000"
+                                data-image="images/indomie-goreng.png">Tambah ke Keranjang</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="menu-item menu-card bg-white rounded-2xl overflow-hidden shadow-md" data-aos="fade-up" data-aos-duration="800"
-                    data-category="meals">
+                <div class="menu-item menu-card bg-white rounded-2xl overflow-hidden shadow-md" data-aos="fade-up"
+                    data-aos-duration="800" data-category="meals">
                     <div class="h-36 overflow-hidden"><img src="images/mix-platter.png" alt="Mix Platter"
                             class="w-full h-full object-cover hover:scale-110 transition duration-500"></div>
                     <div class="p-4">
@@ -283,13 +312,16 @@
                         <p class="text-stone-500 text-xs mt-1">Kombinasi snack untuk berbagi.</p>
                         <div class="mt-3 flex justify-between items-center">
                             <p class="text-amber-700 font-bold text-sm">Rp 35.000</p>
-                            <button type="button" class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow" data-name="Mix Platter" data-price="35000" data-image="images/mix-platter.png">Tambah ke Keranjang</button>
+                            <button type="button"
+                                class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
+                                data-name="Mix Platter" data-price="35000" data-image="images/mix-platter.png">Tambah ke
+                                Keranjang</button>
                         </div>
                     </div>
                 </div>
 
-                <div
-                    class="menu-card bg-white rounded-2xl overflow-hidden shadow-md flex items-center justify-center" data-aos="fade-up" data-aos-duration="800">
+                <div class="menu-card bg-white rounded-2xl overflow-hidden shadow-md flex items-center justify-center"
+                    data-aos="fade-up" data-aos-duration="800">
                     <div class="text-center p-8">
                         <div class="w-16 h-16 mx-auto rounded-full bg-cream-100 flex items-center justify-center mb-4">
                             <span class="text-amber-700 text-3xl">+</span>
@@ -314,7 +346,8 @@
                 <h2 class="font-display text-3xl md:text-4xl font-bold text-cream-100">Reservasi Meja</h2>
                 <div class="w-16 h-0.5 bg-amber-500 mx-auto mt-4"></div>
             </div>
-            <form id="reservasiForm" class="glass-form rounded-2xl p-8 fade-in" style="display:flex; flex-direction:column; gap:20px;">
+            <form id="reservasiForm" class="glass-form rounded-2xl p-8 fade-in"
+                style="display:flex; flex-direction:column; gap:20px;">
 
                 <!-- Nama Lengkap -->
                 <div>
@@ -325,34 +358,50 @@
 
                 <!-- ===== PILIH AREA DUDUK (TOGGLE KECE) ===== -->
                 <div>
-                    <label style="display:block; color:#e2d5b4; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.15em; margin-bottom:12px;">🪑 Pilih Area Duduk</label>
-                    
+                    <label
+                        style="display:block; color:#e2d5b4; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.15em; margin-bottom:12px;">🪑
+                        Pilih Area Duduk</label>
+
                     <!-- Toggle Wrapper -->
-                    <div style="display:flex; gap:10px; background:rgba(255,255,255,0.06); padding:6px; border-radius:18px; border:1px solid rgba(255,255,255,0.12);">
-                        
+                    <div
+                        style="display:flex; gap:10px; background:rgba(255,255,255,0.06); padding:6px; border-radius:18px; border:1px solid rgba(255,255,255,0.12);">
+
                         <!-- Indoor -->
-                        <label id="labelIndoor" onclick="selectArea('Indoor')" style="flex:1; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px 8px; border-radius:14px; border:1px solid transparent; transition:all 0.35s ease; user-select:none;">
-                            <input type="radio" name="resArea" value="Indoor" style="position:absolute; opacity:0; width:0; height:0;">
+                        <label id="labelIndoor" onclick="selectArea('Indoor')"
+                            style="flex:1; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px 8px; border-radius:14px; border:1px solid transparent; transition:all 0.35s ease; user-select:none;">
+                            <input type="radio" name="resArea" value="Indoor"
+                                style="position:absolute; opacity:0; width:0; height:0;">
                             <span style="font-size:26px; line-height:1; margin-bottom:6px;">🏠</span>
-                            <span style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; color:rgba(255,255,255,0.5);" id="indoorText">Indoor</span>
+                            <span
+                                style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; color:rgba(255,255,255,0.5);"
+                                id="indoorText">Indoor</span>
                         </label>
 
                         <!-- Outdoor -->
-                        <label id="labelOutdoor" onclick="selectArea('Outdoor')" style="flex:1; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px 8px; border-radius:14px; border:1px solid transparent; transition:all 0.35s ease; user-select:none;">
-                            <input type="radio" name="resArea" value="Outdoor" style="position:absolute; opacity:0; width:0; height:0;">
+                        <label id="labelOutdoor" onclick="selectArea('Outdoor')"
+                            style="flex:1; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px 8px; border-radius:14px; border:1px solid transparent; transition:all 0.35s ease; user-select:none;">
+                            <input type="radio" name="resArea" value="Outdoor"
+                                style="position:absolute; opacity:0; width:0; height:0;">
                             <span style="font-size:26px; line-height:1; margin-bottom:6px;">🌿</span>
-                            <span style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; color:rgba(255,255,255,0.5);" id="outdoorText">Outdoor</span>
+                            <span
+                                style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; color:rgba(255,255,255,0.5);"
+                                id="outdoorText">Outdoor</span>
                         </label>
                     </div>
 
                     <!-- Status Pill -->
-                    <div id="areaStatusPill" style="display:none; margin-top:10px; padding:10px 16px; border-radius:12px; font-size:12px; font-weight:600; flex-direction:row; align-items:center; gap:8px;">
-                        <span id="areaStatusDot" style="width:8px; height:8px; min-width:8px; border-radius:50%; display:inline-block;"></span>
+                    <div id="areaStatusPill"
+                        style="display:none; margin-top:10px; padding:10px 16px; border-radius:12px; font-size:12px; font-weight:600; flex-direction:row; align-items:center; gap:8px;">
+                        <span id="areaStatusDot"
+                            style="width:8px; height:8px; min-width:8px; border-radius:50%; display:inline-block;"></span>
                         <span id="areaStatusText"></span>
                     </div>
 
                     <!-- ===== PETA MEJA BUTTON ===== -->
-                    <button type="button" onclick="openTableMap()" style="margin-top:12px; width:100%; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 16px; background:rgba(255,255,255,0.06); border:1px dashed rgba(255,255,255,0.2); border-radius:12px; color:rgba(255,255,255,0.7); font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; transition:all 0.3s ease;" onmouseover="this.style.background='rgba(245,158,11,0.1)'; this.style.borderColor='rgba(245,158,11,0.4)'; this.style.color='#f59e0b';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.borderColor='rgba(255,255,255,0.2)'; this.style.color='rgba(255,255,255,0.7)';">
+                    <button type="button" onclick="openTableMap()"
+                        style="margin-top:12px; width:100%; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 16px; background:rgba(255,255,255,0.06); border:1px dashed rgba(255,255,255,0.2); border-radius:12px; color:rgba(255,255,255,0.7); font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; transition:all 0.3s ease;"
+                        onmouseover="this.style.background='rgba(245,158,11,0.1)'; this.style.borderColor='rgba(245,158,11,0.4)'; this.style.color='#f59e0b';"
+                        onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.borderColor='rgba(255,255,255,0.2)'; this.style.color='rgba(255,255,255,0.7)';">
                         🗺️ <span>Lihat Peta Meja</span>
                     </button>
                 </div>
@@ -397,59 +446,70 @@
     </section>
 
     <!-- ===== STATUS RESERVASI PELANGGAN (Feature 5) ===== -->
-    <div id="statusReservasiWidget" style="display:none; position:fixed; bottom:110px; right:24px; z-index:55; max-width:280px; background:rgba(15,10,5,0.92); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.08); border-radius:20px; padding:16px 20px; box-shadow:0 20px 50px rgba(0,0,0,0.5);">
-        <p style="color:rgba(255,255,255,0.4); font-size:9px; text-transform:uppercase; letter-spacing:0.15em; font-weight:800; margin:0 0 8px 0;">📋 Status Reservasimu</p>
+    <div id="statusReservasiWidget"
+        style="display:none; position:fixed; bottom:110px; right:24px; z-index:55; max-width:280px; background:rgba(15,10,5,0.92); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.08); border-radius:20px; padding:16px 20px; box-shadow:0 20px 50px rgba(0,0,0,0.5);">
+        <p
+            style="color:rgba(255,255,255,0.4); font-size:9px; text-transform:uppercase; letter-spacing:0.15em; font-weight:800; margin:0 0 8px 0;">
+            📋 Status Reservasimu</p>
         <div id="reservasiStatusContent">
             <div id="statusMenunggu" style="display:flex; align-items:center; gap:10px;">
-                <span style="width:10px; height:10px; border-radius:50%; background:#f59e0b; box-shadow:0 0 8px #f59e0b; display:inline-block; animation:pulseStatus 1.5s infinite;"></span>
+                <span
+                    style="width:10px; height:10px; border-radius:50%; background:#f59e0b; box-shadow:0 0 8px #f59e0b; display:inline-block; animation:pulseStatus 1.5s infinite;"></span>
                 <p style="color:#f59e0b; font-size:12px; font-weight:700; margin:0;">Menunggu Konfirmasi</p>
             </div>
             <div id="statusSiap" style="display:none; flex-direction:column; gap:6px;">
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <span id="statusSiapDot" style="width:10px; height:10px; border-radius:50%; background:#22c55e; box-shadow:0 0 10px #22c55e; display:inline-block; animation:pulseStatus 1s infinite;"></span>
+                    <span id="statusSiapDot"
+                        style="width:10px; height:10px; border-radius:50%; background:#22c55e; box-shadow:0 0 10px #22c55e; display:inline-block; animation:pulseStatus 1s infinite;"></span>
                     <p style="color:#22c55e; font-size:12px; font-weight:800; margin:0;">Meja Siap!</p>
                 </div>
-                <p id="statusSiapArea" style="color:rgba(255,255,255,0.6); font-size:11px; margin:0 0 0 20px;">Silakan menuju area...</p>
+                <p id="statusSiapArea" style="color:rgba(255,255,255,0.6); font-size:11px; margin:0 0 0 20px;">Silakan
+                    menuju area...</p>
             </div>
         </div>
         <p id="statusNamaReservasi" style="color:rgba(255,255,255,0.3); font-size:10px; margin:8px 0 0 0;"></p>
-        <button onclick="document.getElementById('statusReservasiWidget').style.display='none'" style="position:absolute; top:10px; right:12px; background:transparent; border:none; color:rgba(255,255,255,0.3); font-size:16px; cursor:pointer; line-height:1;">&times;</button>
+        <button onclick="document.getElementById('statusReservasiWidget').style.display='none'"
+            style="position:absolute; top:10px; right:12px; background:transparent; border:none; color:rgba(255,255,255,0.3); font-size:16px; cursor:pointer; line-height:1;">&times;</button>
     </div>
 
     <!-- ===== RESERVASI FEEDBACK TOAST ===== -->
-    <div id="reservasiFeedbackToast" style="position:fixed; top:24px; left:50%; transform:translateX(-50%) translateY(-120px); z-index:9999; background:rgba(15,10,5,0.92); backdrop-filter:blur(20px); border:1px solid rgba(245,158,11,0.3); border-radius:20px; padding:20px 28px; display:flex; align-items:center; gap:14px; box-shadow:0 20px 60px rgba(0,0,0,0.6); transition:all 0.6s cubic-bezier(0.23,1,0.32,1); opacity:0; min-width:320px; max-width:480px;">
-        <div style="width:44px; height:44px; border-radius:14px; background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+    <div id="reservasiFeedbackToast"
+        style="position:fixed; top:24px; left:50%; transform:translateX(-50%) translateY(-120px); z-index:9999; background:rgba(15,10,5,0.92); backdrop-filter:blur(20px); border:1px solid rgba(245,158,11,0.3); border-radius:20px; padding:20px 28px; display:flex; align-items:center; gap:14px; box-shadow:0 20px 60px rgba(0,0,0,0.6); transition:all 0.6s cubic-bezier(0.23,1,0.32,1); opacity:0; min-width:320px; max-width:480px;">
+        <div
+            style="width:44px; height:44px; border-radius:14px; background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.3); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
             <span style="font-size:22px;">✅</span>
         </div>
         <div>
-            <p style="color:white; font-weight:800; font-size:14px; margin:0;" id="feedbackTitle">Reservasi Berhasil!</p>
-            <p style="color:rgba(255,255,255,0.6); font-size:11px; margin:4px 0 0 0;" id="feedbackSubtitle">Kasir kami sedang menyiapkan tempatmu.</p>
+            <p style="color:white; font-weight:800; font-size:14px; margin:0;" id="feedbackTitle">Reservasi Berhasil!
+            </p>
+            <p style="color:rgba(255,255,255,0.6); font-size:11px; margin:4px 0 0 0;" id="feedbackSubtitle">Kasir kami
+                sedang menyiapkan tempatmu.</p>
         </div>
     </div>
 
     <!-- ===== INLINE SCRIPT: AREA TOGGLE + RESERVASI SYSTEM ===== -->
     <script>
-        // ===== AREA CAPACITY SYSTEM =====
-        // Compute capacity from real reservation data on load
-        (function initCapacityData() {
-            if (!localStorage.getItem('karsa_pesanan_masuk')) {
-                localStorage.setItem('karsa_pesanan_masuk', JSON.stringify([]));
-            }
-            // Always derive capacity from real reservation counts
-            var pesanan = [];
-            try { pesanan = JSON.parse(localStorage.getItem('karsa_pesanan_masuk')) || []; } catch(e) {}
-            var indoorUsed = pesanan.filter(function(p) { return p.area === 'Indoor' && (p.status === 'menunggu' || p.status === 'dikonfirmasi'); }).length;
-            var outdoorUsed = pesanan.filter(function(p) { return p.area === 'Outdoor' && (p.status === 'menunggu' || p.status === 'dikonfirmasi'); }).length;
-            localStorage.setItem('karsa_area_capacity', JSON.stringify({
-                indoor: { total: 10, used: indoorUsed },
-                outdoor: { total: 5, used: outdoorUsed }
-            }));
-        })();
+            // ===== AREA CAPACITY SYSTEM =====
+            // Compute capacity from real reservation data on load
+            (function initCapacityData() {
+                if (!localStorage.getItem('karsa_pesanan_masuk')) {
+                    localStorage.setItem('karsa_pesanan_masuk', JSON.stringify([]));
+                }
+                // Always derive capacity from real reservation counts
+                var pesanan = [];
+                try { pesanan = JSON.parse(localStorage.getItem('karsa_pesanan_masuk')) || []; } catch (e) { }
+                var indoorUsed = pesanan.filter(function (p) { return p.area === 'Indoor' && (p.status === 'menunggu' || p.status === 'dikonfirmasi'); }).length;
+                var outdoorUsed = pesanan.filter(function (p) { return p.area === 'Outdoor' && (p.status === 'menunggu' || p.status === 'dikonfirmasi'); }).length;
+                localStorage.setItem('karsa_area_capacity', JSON.stringify({
+                    indoor: { total: 10, used: indoorUsed },
+                    outdoor: { total: 5, used: outdoorUsed }
+                }));
+            })();
 
         function getCapacity() {
             try {
                 return JSON.parse(localStorage.getItem('karsa_area_capacity'));
-            } catch(e) {
+            } catch (e) {
                 return { indoor: { total: 10, used: 8 }, outdoor: { total: 10, used: 4 } };
             }
         }
@@ -478,7 +538,7 @@
                 inText.style.color = '#ef4444';
                 labelIn.style.opacity = '0.4';
                 labelIn.style.cursor = 'not-allowed';
-                labelIn.onclick = function(e) { e.preventDefault(); };
+                labelIn.onclick = function (e) { e.preventDefault(); };
             } else {
                 inText.innerHTML = 'Indoor <span style="font-size:9px; color:#22c55e; margin-left:4px;">● Tersedia</span>';
             }
@@ -489,7 +549,7 @@
                 outText.style.color = '#ef4444';
                 labelOut.style.opacity = '0.4';
                 labelOut.style.cursor = 'not-allowed';
-                labelOut.onclick = function(e) { e.preventDefault(); };
+                labelOut.onclick = function (e) { e.preventDefault(); };
             } else {
                 outText.innerHTML = 'Outdoor <span style="font-size:9px; color:#22c55e; margin-left:4px;">● Tersedia</span>';
             }
@@ -515,7 +575,7 @@
 
             // Check the right radio input
             var radios = document.querySelectorAll('input[name="resArea"]');
-            radios.forEach(function(r) { r.checked = r.value === area; });
+            radios.forEach(function (r) { r.checked = r.value === area; });
 
             var indoorPct = Math.round((cap.indoor.used / cap.indoor.total) * 100);
             var outdoorPct = Math.round((cap.outdoor.used / cap.outdoor.total) * 100);
@@ -575,7 +635,7 @@
             sub.textContent = 'Kasir kami sedang menyiapkan tempatmu. Silakan tunggu konfirmasi.';
             toast.style.transform = 'translateX(-50%) translateY(0)';
             toast.style.opacity = '1';
-            setTimeout(function() {
+            setTimeout(function () {
                 toast.style.transform = 'translateX(-50%) translateY(-120px)';
                 toast.style.opacity = '0';
             }, 4000);
@@ -587,7 +647,7 @@
             if (modal) {
                 modal.style.display = 'flex';
                 renderTableMap();
-                setTimeout(function() { modal.style.opacity = '1'; }, 10);
+                setTimeout(function () { modal.style.opacity = '1'; }, 10);
             }
         }
 
@@ -595,14 +655,14 @@
             var modal = document.getElementById('tableMejaModal');
             if (modal) {
                 modal.style.opacity = '0';
-                setTimeout(function() { modal.style.display = 'none'; }, 300);
+                setTimeout(function () { modal.style.display = 'none'; }, 300);
             }
         }
 
         function renderTableMap() {
             var pesanan = [];
-            try { pesanan = JSON.parse(localStorage.getItem('karsa_pesanan_masuk')) || []; } catch(e) {}
-            var activePesanan = pesanan.filter(function(p) { return p.status === 'menunggu' || p.status === 'dikonfirmasi'; });
+            try { pesanan = JSON.parse(localStorage.getItem('karsa_pesanan_masuk')) || []; } catch (e) { }
+            var activePesanan = pesanan.filter(function (p) { return p.status === 'menunggu' || p.status === 'dikonfirmasi'; });
 
             // Indoor 10 tables, Outdoor 5 tables
             var cap = getCapacity();
@@ -636,13 +696,13 @@
         // ===== RESERVATION STATUS TRACKER (Feature 5) =====
         function checkReservationStatus() {
             var pesanan = [];
-            try { pesanan = JSON.parse(localStorage.getItem('karsa_pesanan_masuk')) || []; } catch(e) {}
+            try { pesanan = JSON.parse(localStorage.getItem('karsa_pesanan_masuk')) || []; } catch (e) { }
 
             // Check if there's a pending reservation for this session
             var savedId = localStorage.getItem('karsa_my_reservation_id');
             if (!savedId) return;
 
-            var myRes = pesanan.find(function(p) { return String(p.id) === String(savedId); });
+            var myRes = pesanan.find(function (p) { return String(p.id) === String(savedId); });
             if (!myRes) return;
 
             var widget = document.getElementById('statusReservasiWidget');
@@ -666,7 +726,7 @@
         }
 
         // Run on load
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             initAreaToggles();
             checkReservationStatus();
             setInterval(checkReservationStatus, 3000);
@@ -674,69 +734,118 @@
     </script>
 
     <!-- ===== PETA MEJA MODAL (Feature 4) ===== -->
-    <div id="tableMejaModal" onclick="if(event.target===this)closeTableMap()" style="display:none; opacity:0; position:fixed; inset:0; z-index:9000; background:rgba(0,0,0,0.7); backdrop-filter:blur(12px); align-items:center; justify-content:center; padding:20px; transition:opacity 0.3s;">
-        <div style="background:rgba(15,10,5,0.95); border:1px solid rgba(255,255,255,0.1); border-radius:28px; padding:32px; max-width:520px; width:100%; box-shadow:0 30px 80px rgba(0,0,0,0.7); position:relative;">
-            <button onclick="closeTableMap()" style="position:absolute; top:16px; right:20px; background:rgba(255,255,255,0.08); border:none; color:rgba(255,255,255,0.6); width:32px; height:32px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center;">&times;</button>
+    <div id="tableMejaModal" onclick="if(event.target===this)closeTableMap()"
+        style="display:none; opacity:0; position:fixed; inset:0; z-index:9000; background:rgba(0,0,0,0.7); backdrop-filter:blur(12px); align-items:center; justify-content:center; padding:20px; transition:opacity 0.3s;">
+        <div
+            style="background:rgba(15,10,5,0.95); border:1px solid rgba(255,255,255,0.1); border-radius:28px; padding:32px; max-width:520px; width:100%; box-shadow:0 30px 80px rgba(0,0,0,0.7); position:relative;">
+            <button onclick="closeTableMap()"
+                style="position:absolute; top:16px; right:20px; background:rgba(255,255,255,0.08); border:none; color:rgba(255,255,255,0.6); width:32px; height:32px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center;">&times;</button>
 
-            <p style="color:rgba(255,255,255,0.4); font-size:9px; text-transform:uppercase; letter-spacing:0.2em; font-weight:800; margin:0 0 4px 0;">Real-time</p>
-            <h3 style="color:white; font-size:20px; font-weight:800; margin:0 0 6px 0; font-family:'Playfair Display',serif;">Peta Meja Karsa</h3>
+            <p
+                style="color:rgba(255,255,255,0.4); font-size:9px; text-transform:uppercase; letter-spacing:0.2em; font-weight:800; margin:0 0 4px 0;">
+                Real-time</p>
+            <h3
+                style="color:white; font-size:20px; font-weight:800; margin:0 0 6px 0; font-family:'Playfair Display',serif;">
+                Peta Meja Karsa</h3>
 
             <!-- Legend -->
             <div style="display:flex; gap:16px; margin-bottom:24px;">
                 <div style="display:flex; align-items:center; gap:6px;">
-                    <span style="width:12px; height:12px; border-radius:4px; background:rgba(239,68,68,0.3); border:1px solid rgba(239,68,68,0.5); display:inline-block;"></span>
+                    <span
+                        style="width:12px; height:12px; border-radius:4px; background:rgba(239,68,68,0.3); border:1px solid rgba(239,68,68,0.5); display:inline-block;"></span>
                     <span style="color:rgba(255,255,255,0.5); font-size:10px; font-weight:700;">Dipesan</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:6px;">
-                    <span style="width:12px; height:12px; border-radius:4px; background:rgba(245,158,11,0.2); border:1px solid rgba(245,158,11,0.4); display:inline-block;"></span>
+                    <span
+                        style="width:12px; height:12px; border-radius:4px; background:rgba(245,158,11,0.2); border:1px solid rgba(245,158,11,0.4); display:inline-block;"></span>
                     <span style="color:rgba(255,255,255,0.5); font-size:10px; font-weight:700;">Tersedia (Indoor)</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:6px;">
-                    <span style="width:12px; height:12px; border-radius:4px; background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.35); display:inline-block;"></span>
-                    <span style="color:rgba(255,255,255,0.5); font-size:10px; font-weight:700;">Tersedia (Outdoor)</span>
+                    <span
+                        style="width:12px; height:12px; border-radius:4px; background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.35); display:inline-block;"></span>
+                    <span style="color:rgba(255,255,255,0.5); font-size:10px; font-weight:700;">Tersedia
+                        (Outdoor)</span>
                 </div>
             </div>
 
             <!-- Indoor Section -->
             <div style="margin-bottom:24px;">
-                <p style="color:#f59e0b; font-size:10px; text-transform:uppercase; letter-spacing:0.15em; font-weight:800; margin:0 0 12px 0;">🏠 Area Indoor — 10 Meja</p>
+                <p
+                    style="color:#f59e0b; font-size:10px; text-transform:uppercase; letter-spacing:0.15em; font-weight:800; margin:0 0 12px 0;">
+                    🏠 Area Indoor — 10 Meja</p>
                 <div id="indoorMejaGrid" style="display:grid; grid-template-columns:repeat(5,1fr); gap:8px;"></div>
             </div>
 
             <!-- Outdoor Section -->
             <div>
-                <p style="color:#22c55e; font-size:10px; text-transform:uppercase; letter-spacing:0.15em; font-weight:800; margin:0 0 12px 0;">🌿 Area Outdoor — 5 Meja</p>
+                <p
+                    style="color:#22c55e; font-size:10px; text-transform:uppercase; letter-spacing:0.15em; font-weight:800; margin:0 0 12px 0;">
+                    🌿 Area Outdoor — 5 Meja</p>
                 <div id="outdoorMejaGrid" style="display:grid; grid-template-columns:repeat(5,1fr); gap:8px;"></div>
             </div>
 
-            <p style="color:rgba(255,255,255,0.2); font-size:9px; text-align:center; margin:20px 0 0 0;">* Data diperbarui setiap saat oleh staff Karsa Cafe</p>
+            <p style="color:rgba(255,255,255,0.2); font-size:9px; text-align:center; margin:20px 0 0 0;">* Data
+                diperbarui setiap saat oleh staff Karsa Cafe</p>
         </div>
     </div>
 
     <style>
-    @keyframes pulseStatus {
-        0%, 100% { opacity:1; box-shadow: 0 0 6px currentColor; }
-        50% { opacity:0.5; box-shadow: 0 0 14px currentColor; }
-    }
+        @keyframes pulseStatus {
+
+            0%,
+            100% {
+                opacity: 1;
+                box-shadow: 0 0 6px currentColor;
+            }
+
+            50% {
+                opacity: 0.5;
+                box-shadow: 0 0 14px currentColor;
+            }
+        }
     </style>
 
     <!-- ETA Widget -->
-    <div id="etaWidget" class="fixed bottom-24 left-6 z-[60] bg-white dark:bg-wood-800 border border-amber-200 dark:border-wood-700 p-4 rounded-2xl shadow-2xl transform transition-transform duration-500 translate-y-32 opacity-0 flex items-center gap-4 hidden">
-        <div class="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-2xl animate-spin-slow" id="etaIcon">⏳</div>
+    <div id="etaWidget"
+        class="fixed bottom-24 left-6 z-[60] bg-white dark:bg-wood-800 border border-amber-200 dark:border-wood-700 p-4 rounded-2xl shadow-2xl transform transition-transform duration-500 translate-y-32 opacity-0 flex items-center gap-4 hidden">
+        <div class="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-2xl animate-spin-slow"
+            id="etaIcon">⏳</div>
         <div>
             <h4 class="font-bold text-wood-800 dark:text-cream-100 text-sm" id="etaTitle">Pesananmu sedang diracik</h4>
             <p id="etaCountdown" class="text-amber-700 dark:text-amber-500 font-black text-lg">10:00</p>
         </div>
     </div>
-    
+
     <style>
-    @keyframes pulse-fast {
-        0%, 100% { transform: scale(1); opacity: 1; color: #f59e0b; }
-        50% { transform: scale(1.05); opacity: 0.8; color: #d97706; }
-    }
-    .animate-pulse-fast { animation: pulse-fast 1s infinite; }
-    .animate-spin-slow { animation: spin 4s linear infinite; }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes pulse-fast {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+                color: #f59e0b;
+            }
+
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+                color: #d97706;
+            }
+        }
+
+        .animate-pulse-fast {
+            animation: pulse-fast 1s infinite;
+        }
+
+        .animate-spin-slow {
+            animation: spin 4s linear infinite;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 
     <!-- TESTIMONI -->
@@ -768,20 +877,29 @@
                 <h2 class="font-display text-3xl md:text-4xl font-bold text-cream-100">Karsa Transformation</h2>
                 <div class="w-16 h-0.5 bg-amber-500 mx-auto mt-4"></div>
             </div>
-            
-            <div class="relative w-full aspect-video rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] group" data-aos="zoom-in">
+
+            <div class="relative w-full aspect-video rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] group"
+                data-aos="zoom-in">
                 <!-- Night Image (Bottom/Background) -->
-                <img src="C:/Users/mifdh/.gemini/antigravity/brain/065e698e-0174-47c0-ba79-45076fb3994e/empty_cafe_interior_1776993460957.png" alt="Night Vibe" class="absolute inset-0 w-full h-full object-cover filter brightness-50 contrast-125 sepia-[.4] hue-rotate-[320deg]">
-                
+                <img src="C:/Users/mifdh/.gemini/antigravity/brain/065e698e-0174-47c0-ba79-45076fb3994e/empty_cafe_interior_1776993460957.png"
+                    alt="Night Vibe"
+                    class="absolute inset-0 w-full h-full object-cover filter brightness-50 contrast-125 sepia-[.4] hue-rotate-[320deg]">
+
                 <!-- Day Image (Top/Foreground) -->
-                <img src="C:/Users/mifdh/.gemini/antigravity/brain/065e698e-0174-47c0-ba79-45076fb3994e/empty_cafe_interior_1776993460957.png" alt="Day Vibe" class="absolute inset-0 w-full h-full object-cover" id="beforeAfterImg" style="clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);">
+                <img src="C:/Users/mifdh/.gemini/antigravity/brain/065e698e-0174-47c0-ba79-45076fb3994e/empty_cafe_interior_1776993460957.png"
+                    alt="Day Vibe" class="absolute inset-0 w-full h-full object-cover" id="beforeAfterImg"
+                    style="clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);">
 
                 <!-- Range Slider -->
-                <input type="range" min="0" max="100" value="50" class="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20 m-0 p-0 before-after-slider" id="beforeAfterSlider">
+                <input type="range" min="0" max="100" value="50"
+                    class="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20 m-0 p-0 before-after-slider"
+                    id="beforeAfterSlider">
 
                 <!-- Slider Handle -->
-                <div class="absolute inset-y-0 w-1 bg-white/80 left-[50%] -translate-x-1/2 pointer-events-none flex items-center justify-center z-10 transition-transform duration-75" id="beforeAfterHandle">
-                    <div class="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(245,158,11,0.5)] border-2 border-white text-white font-bold text-xs neon-glow">
+                <div class="absolute inset-y-0 w-1 bg-white/80 left-[50%] -translate-x-1/2 pointer-events-none flex items-center justify-center z-10 transition-transform duration-75"
+                    id="beforeAfterHandle">
+                    <div
+                        class="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(245,158,11,0.5)] border-2 border-white text-white font-bold text-xs neon-glow">
                         &lt;&gt;
                     </div>
                 </div>
@@ -916,13 +1034,16 @@
             <div>
                 <div class="flex items-center gap-3 mb-4">
                     <div class="w-14 h-14 flex items-center justify-center">
-                        <img src="../public/images/logo.png" alt="Logo" class="w-full h-full object-contain brightness-0 invert"
+                        <img src="../public/images/logo.png" alt="Logo"
+                            class="w-full h-full object-contain brightness-0 invert"
                             onerror="this.style.display='none'; document.getElementById('footerLogoFallback').classList.remove('hidden');">
-                        <div id="footerLogoFallback" class="hidden w-14 h-14 bg-white/10 rounded-lg flex items-center justify-center border border-white/20">
+                        <div id="footerLogoFallback"
+                            class="hidden w-14 h-14 bg-white/10 rounded-lg flex items-center justify-center border border-white/20">
                             <span>☕</span>
                         </div>
                     </div>
-                    <h3 class="font-display text-xl font-bold text-white tracking-widest">KARSA <span class="text-amber-500">CAFE</span></h3>
+                    <h3 class="font-display text-xl font-bold text-white tracking-widest">KARSA <span
+                            class="text-amber-500">CAFE</span></h3>
                 </div>
                 <p class="text-stone-400 leading-relaxed">Ruang inspirasi untuk berkarya, berdiskusi, dan menikmati kopi
                     terbaik di Air Tawar, Padang.</p>
@@ -1115,14 +1236,18 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="script.js"></script>
     <!-- Digital Receipt Modal -->
-    <div id="receiptModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/80 backdrop-blur-md p-4">
-        <div class="glass-receipt w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 flex flex-col relative animate-float">
+    <div id="receiptModal"
+        class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/80 backdrop-blur-md p-4">
+        <div
+            class="glass-receipt w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 flex flex-col relative animate-float">
             <!-- Receipt Header -->
             <div class="bg-amber-600/20 p-8 text-center border-b border-white/5">
-                <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-white/10">
+                <div
+                    class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-white/10">
                     <span class="text-3xl">☕</span>
                 </div>
-                <h3 class="font-display text-2xl font-bold text-white tracking-widest uppercase">KARSA <span class="text-amber-500">STRUK</span></h3>
+                <h3 class="font-display text-2xl font-bold text-white tracking-widest uppercase">KARSA <span
+                        class="text-amber-500">STRUK</span></h3>
                 <p class="text-stone-400 text-[10px] tracking-[0.3em] uppercase mt-1">Digital Receipt</p>
             </div>
 
@@ -1155,17 +1280,22 @@
                     <!-- Mock QR Code -->
                     <div class="flex flex-col items-center gap-3 py-4 bg-white/5 rounded-3xl border border-white/5">
                         <div class="w-24 h-24 bg-white p-2 rounded-xl">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=KARSA-CAFE-ORDER" alt="QR Code" class="w-full h-full">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=KARSA-CAFE-ORDER"
+                                alt="QR Code" class="w-full h-full">
                         </div>
-                        <p class="text-[8px] text-stone-500 uppercase tracking-widest font-bold">Scan untuk Status Pesanan</p>
+                        <p class="text-[8px] text-stone-500 uppercase tracking-widest font-bold">Scan untuk Status
+                            Pesanan</p>
                     </div>
                 </div>
             </div>
 
             <!-- Receipt Actions -->
             <div class="p-6 bg-wood-900/60 flex gap-3">
-                <button id="downloadReceiptBtn" class="flex-1 bg-white/10 hover:bg-white/20 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/10">Simpan Struk</button>
-                <button id="closeReceiptBtn" class="flex-1 bg-amber-700 hover:bg-amber-800 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-amber-900/20">Selesai</button>
+                <button id="downloadReceiptBtn"
+                    class="flex-1 bg-white/10 hover:bg-white/20 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/10">Simpan
+                    Struk</button>
+                <button id="closeReceiptBtn"
+                    class="flex-1 bg-amber-700 hover:bg-amber-800 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-amber-900/20">Selesai</button>
             </div>
         </div>
     </div>
