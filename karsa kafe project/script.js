@@ -343,8 +343,10 @@ function initLoginRedirect() {
 
 
 // ===== ORDER MEMORY (REMEMBER ME) =====
+// ===== ORDER MEMORY (REMEMBER ME) =====
 function initOrderMemory() {
   const savedName = localStorage.getItem('karsa_user_name');
+  const tableNum = localStorage.getItem('karsa_table_number');
   const userNameInput = document.getElementById('userName');
   const tableNumberSelect = document.getElementById('tableNumber');
   const personalGreeting = document.getElementById('personalGreeting');
@@ -361,6 +363,16 @@ function initOrderMemory() {
       personalGreeting.classList.remove('hidden');
       savedNameDisplay.textContent = savedName;
     }
+  }
+
+  // Feature 2: Auto-Sync Data for Menu Page Header
+  const header = document.getElementById('orderMemoryHeader');
+  if (header && savedName && tableNum) {
+      header.classList.remove('hidden');
+      const omName = document.getElementById('omName');
+      const omTable = document.getElementById('omTable');
+      if (omName) omName.textContent = savedName;
+      if (omTable) omTable.textContent = tableNum;
   }
 
   // Always reset table number for new session on the login page
@@ -543,29 +555,26 @@ function initAmbientSound() {
 }
 
 // ===== CART SIMULATION =====
+// ===== CART SIMULATION (Feature 1) =====
 function initCartSimulation() {
   const openCartBtn = document.getElementById('openCartBtn');
+  const navCartBtn = document.getElementById('navCartBtn');
   const closeCartBtn = document.getElementById('closeCartBtn');
   const cartModal = document.getElementById('cartModal');
-  const cartSidebar = document.getElementById('cartSidebar');
   
-  if (!openCartBtn || !cartModal) return;
+  if (!cartModal) return;
   
-  // Open modal
-  openCartBtn.onclick = () => {
+  const openModal = () => {
     cartModal.classList.remove('hidden');
-    // small delay to allow display:block to apply before opacity transition
-    setTimeout(() => {
-      cartModal.classList.add('show');
-    }, 10);
+    setTimeout(() => cartModal.classList.add('show'), 10);
   };
   
-  // Close modal
+  if (openCartBtn) openCartBtn.onclick = openModal;
+  if (navCartBtn) navCartBtn.onclick = openModal;
+  
   const closeModal = () => {
     cartModal.classList.remove('show');
-    setTimeout(() => {
-      cartModal.classList.add('hidden');
-    }, 300); // match transition duration
+    setTimeout(() => cartModal.classList.add('hidden'), 300);
   };
   
   if(closeCartBtn) closeCartBtn.onclick = closeModal;
@@ -573,68 +582,118 @@ function initCartSimulation() {
     if (e.target === cartModal) closeModal();
   };
   
-  // Cart Logic
   let cart = [];
+  try {
+      cart = JSON.parse(localStorage.getItem('karsa_cart')) || [];
+  } catch(e) { cart = []; }
+
   const cartItemsList = document.getElementById('cartItemsList');
   const cartTotalPrice = document.getElementById('cartTotalPrice');
   const cartBadge = document.getElementById('cartBadge');
+  const navCartBadge = document.getElementById('navCartBadge');
+  const budgetToast = document.getElementById('budgetToast');
+  const budgetTotal = document.getElementById('budgetTotal');
   
-  function updateCartUI() {
+  // Make sure updateCartUI is attached to window so other functions can call it
+  window.updateCartUI = function() {
+    localStorage.setItem('karsa_cart', JSON.stringify(cart));
+    
+    const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    
     if (cart.length === 0) {
-      cartItemsList.innerHTML = '<p class="text-stone-500 dark:text-stone-400 text-sm italic">Keranjang masih kosong.</p>';
-      cartBadge.classList.add('hidden');
-      cartTotalPrice.textContent = 'Rp 0';
+      if(cartItemsList) cartItemsList.innerHTML = '<p class="text-stone-500 dark:text-stone-400 text-sm italic">Keranjang masih kosong.</p>';
+      if(cartBadge) cartBadge.classList.add('hidden');
+      if(navCartBadge) navCartBadge.classList.add('hidden');
+      if(cartTotalPrice) cartTotalPrice.textContent = 'Rp 0';
+      if(budgetTotal) budgetTotal.textContent = 'Rp 0';
+      if(budgetToast) {
+          budgetToast.classList.add('opacity-0', 'translate-y-32');
+          budgetToast.classList.remove('opacity-100', 'translate-y-0');
+      }
       return;
     }
     
-    let total = 0;
-    cartItemsList.innerHTML = '';
+    if(cartItemsList) cartItemsList.innerHTML = '';
     
     cart.forEach((item, index) => {
-      total += item.price;
       const itemEl = document.createElement('div');
-      itemEl.className = 'flex justify-between items-center bg-cream-100 dark:bg-stone-800 p-3 rounded-lg';
+      itemEl.className = 'flex justify-between items-center bg-cream-100 dark:bg-stone-800 p-3 rounded-xl';
       itemEl.innerHTML = `
-        <span class="text-sm font-bold text-wood-800 dark:text-cream-100">${item.name}</span>
         <div class="flex items-center gap-3">
-            <span class="text-sm text-amber-700 font-semibold">Rp ${item.price.toLocaleString('id-ID')}</span>
-            <button class="remove-btn text-red-500 hover:text-red-700 font-bold" data-index="${index}">&times;</button>
+            <div class="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover">
+            </div>
+            <div>
+                <span class="text-sm font-bold text-wood-800 dark:text-cream-100 block">${item.name}</span>
+                <span class="text-xs text-amber-700 font-semibold">Rp ${item.price.toLocaleString('id-ID')}</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 bg-white dark:bg-wood-700 rounded-lg px-2 py-1 shadow-sm">
+            <button class="cart-min-btn text-amber-700 dark:text-amber-500 font-bold w-5 h-5 flex items-center justify-center rounded hover:bg-amber-100 dark:hover:bg-wood-600" data-index="${index}">-</button>
+            <span class="text-xs font-bold w-4 text-center dark:text-white">${item.qty}</span>
+            <button class="cart-plus-btn text-amber-700 dark:text-amber-500 font-bold w-5 h-5 flex items-center justify-center rounded hover:bg-amber-100 dark:hover:bg-wood-600" data-index="${index}">+</button>
         </div>
       `;
-      cartItemsList.appendChild(itemEl);
+      if(cartItemsList) cartItemsList.appendChild(itemEl);
     });
     
-    cartTotalPrice.textContent = `Rp ${total.toLocaleString('id-ID')}`;
-    cartBadge.textContent = cart.length;
-    cartBadge.classList.remove('hidden');
+    if(cartTotalPrice) cartTotalPrice.textContent = `Rp ${totalPrice.toLocaleString('id-ID')}`;
+    if(budgetTotal) budgetTotal.textContent = `Rp ${totalPrice.toLocaleString('id-ID')}`;
     
-    // Add remove listeners
-    document.querySelectorAll('.remove-btn').forEach(btn => {
+    if(cartBadge) { cartBadge.textContent = totalItems; cartBadge.classList.remove('hidden'); }
+    if(navCartBadge) { navCartBadge.textContent = totalItems; navCartBadge.classList.remove('hidden'); }
+    
+    if(budgetToast && totalItems > 0) {
+        budgetToast.classList.remove('opacity-0', 'translate-y-32');
+        budgetToast.classList.add('opacity-100', 'translate-y-0');
+    }
+    
+    // Attach +/- listeners
+    document.querySelectorAll('.cart-min-btn').forEach(btn => {
       btn.onclick = (e) => {
-        const idx = parseInt(e.target.dataset.index);
-        cart.splice(idx, 1);
-        updateCartUI();
+        const idx = parseInt(e.currentTarget.dataset.index);
+        if(cart[idx].qty > 1) cart[idx].qty--;
+        else cart.splice(idx, 1);
+        window.updateCartUI();
       };
     });
-  }
+    document.querySelectorAll('.cart-plus-btn').forEach(btn => {
+      btn.onclick = (e) => {
+        const idx = parseInt(e.currentTarget.dataset.index);
+        cart[idx].qty++;
+        window.updateCartUI();
+      };
+    });
+  };
   
-  // Add to cart buttons
-  document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+  // Initial load
+  window.updateCartUI();
+  
+  // Add to cart buttons on menu cards
+  document.querySelectorAll('.tambah-keranjang-btn').forEach(btn => {
     btn.onclick = () => {
       const name = btn.dataset.name;
       const price = parseInt(btn.dataset.price);
-      cart.push({ name, price });
-      updateCartUI();
+      const image = btn.dataset.image;
+      
+      const existing = cart.find(i => i.name === name);
+      if (existing) {
+          existing.qty++;
+      } else {
+          cart.push({ name, price, image, qty: 1 });
+      }
+      window.updateCartUI();
       
       // Feedback animation
       const originalText = btn.textContent;
       btn.textContent = 'Ditambahkan!';
-      btn.classList.replace('bg-amber-100', 'bg-green-100');
-      btn.classList.replace('text-amber-700', 'text-green-700');
+      btn.classList.replace('bg-amber-700', 'bg-green-600');
+      btn.classList.replace('hover:bg-amber-800', 'hover:bg-green-700');
       setTimeout(() => {
         btn.textContent = originalText;
-        btn.classList.replace('bg-green-100', 'bg-amber-100');
-        btn.classList.replace('text-green-700', 'text-amber-700');
+        btn.classList.replace('bg-green-600', 'bg-amber-700');
+        btn.classList.replace('hover:bg-green-700', 'hover:bg-amber-800');
       }, 1000);
     };
   });
@@ -691,93 +750,120 @@ function initLiveChat() {
 }
 
 // ===== MENU CALCULATOR & CHECKOUT =====
+// ===== MENU CALCULATOR & CHECKOUT & ETA (Feature 4) =====
 function initMenuCalculator() {
-    const minusBtns = document.querySelectorAll('.menu-min-btn');
-    const plusBtns = document.querySelectorAll('.menu-plus-btn');
-    const budgetToast = document.getElementById('budgetToast');
-    const budgetTotal = document.getElementById('budgetTotal');
     const checkoutBtn = document.getElementById('checkoutMenuBtn');
+    const finalCheckoutBtn = document.getElementById('finalCheckoutBtn');
     
-    if (!budgetToast || !budgetTotal || !checkoutBtn) return;
-
-    let cartItems = {};
-    let total = 0;
-
-    const updateCart = () => {
-        budgetTotal.textContent = `Rp ${total.toLocaleString('id-ID')}`;
-        if (total > 0) {
-            budgetToast.classList.remove('opacity-0', 'translate-y-32');
-            budgetToast.classList.add('opacity-100', 'translate-y-0');
-        } else {
-            budgetToast.classList.add('opacity-0', 'translate-y-32');
-            budgetToast.classList.remove('opacity-100', 'translate-y-0');
-        }
-    };
-
-    plusBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const name = btn.dataset.name;
-            const price = parseInt(btn.dataset.price);
-            const qtySpan = btn.previousElementSibling;
-            let qty = parseInt(qtySpan.textContent);
-            
-            qty++;
-            qtySpan.textContent = qty;
-            total += price;
-            
-            cartItems[name] = { price, qty };
-            updateCart();
-        });
-    });
-
-    minusBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const name = btn.dataset.name;
-            const price = parseInt(btn.dataset.price);
-            const qtySpan = btn.nextElementSibling;
-            let qty = parseInt(qtySpan.textContent);
-            
-            if (qty > 0) {
-                qty--;
-                qtySpan.textContent = qty;
-                total -= price;
-                
-                if (qty === 0) {
-                    delete cartItems[name];
-                } else {
-                    cartItems[name] = { price, qty };
-                }
-                updateCart();
-            }
-        });
-    });
-    
-    checkoutBtn.addEventListener('click', () => {
+    const handleCheckout = () => {
         if (!checkAuth()) return;
-        if (total === 0) return;
         
+        let cart = [];
+        try { cart = JSON.parse(localStorage.getItem('karsa_cart')) || []; } catch(e) {}
+        if (cart.length === 0) {
+            alert('Keranjang masih kosong, Ngab!');
+            return;
+        }
+
         const userName = localStorage.getItem('karsa_user_name');
         const tableNum = localStorage.getItem('karsa_table_number');
+        const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        const qtyTotal = cart.reduce((sum, item) => sum + item.qty, 0);
         
-        let msg = `Halo Karsa Cafe, saya ${userName} dari Meja ${tableNum} ingin memesan menu berikut:\n\n`;
-        for (const [name, item] of Object.entries(cartItems)) {
-            msg += `- ${name} (${item.qty}x) = Rp ${(item.price * item.qty).toLocaleString('id-ID')}\n`;
-        }
-        msg += `\n*Total: Rp ${total.toLocaleString('id-ID')}*`;
-        
-        const waUrl = `https://wa.me/6281234567890?text=${encodeURIComponent(msg)}`;
-        window.open(waUrl, '_blank');
-    });
+        // Simpan pesanan ke Kasir Dashboard
+        const pesananBaru = {
+            id: Date.now(),
+            nama: userName,
+            jumlah: qtyTotal,
+            tanggal: new Date().toLocaleDateString('id-ID'),
+            jam: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+            catatan: 'Order dari Menu (Meja ' + tableNum + ')',
+            area: 'Meja ' + tableNum, // Treat Meja as Area for simplicity or define properly
+            status: 'menunggu',
+            waktuMasuk: new Date().toLocaleString('id-ID'),
+            totalHarga: total
+        };
 
-    // Handle final checkout button in modal
-    const finalCheckoutBtn = document.getElementById('finalCheckoutBtn');
-    if (finalCheckoutBtn) {
-        finalCheckoutBtn.addEventListener('click', () => {
-            if (!checkAuth()) return;
-            // Similar logic for cart modal could be added here if needed, 
-            // but usually this would be handled by the cart simulation logic.
-            alert('Pesananmu sedang diproses, ' + localStorage.getItem('karsa_user_name') + '!');
-        });
+        let pesananMasuk = [];
+        try { pesananMasuk = JSON.parse(localStorage.getItem('karsa_pesanan_masuk')) || []; } catch(err) {}
+        pesananMasuk.push(pesananBaru);
+        localStorage.setItem('karsa_pesanan_masuk', JSON.stringify(pesananMasuk));
+
+        // Start ETA
+        localStorage.setItem('karsa_order_time', Date.now());
+        localStorage.setItem('karsa_order_status', 'processing');
+        
+        // Clear Cart
+        localStorage.setItem('karsa_cart', JSON.stringify([]));
+        if (window.updateCartUI) window.updateCartUI();
+        
+        // Close modal
+        const cartModal = document.getElementById('cartModal');
+        if (cartModal) {
+            cartModal.classList.remove('show');
+            setTimeout(() => cartModal.classList.add('hidden'), 300);
+        }
+        
+        // Show Success/ETA
+        alert(`Pesananmu senilai Rp ${total.toLocaleString('id-ID')} sedang diproses!`);
+        checkETA();
+    };
+
+    if (checkoutBtn) checkoutBtn.addEventListener('click', handleCheckout);
+    if (finalCheckoutBtn) finalCheckoutBtn.addEventListener('click', handleCheckout);
+    
+    // Check ETA on load
+    checkETA();
+    setInterval(checkETA, 1000);
+}
+
+function checkETA() {
+    const orderTime = localStorage.getItem('karsa_order_time');
+    const status = localStorage.getItem('karsa_order_status');
+    const etaWidget = document.getElementById('etaWidget');
+    const etaTitle = document.getElementById('etaTitle');
+    const etaCountdown = document.getElementById('etaCountdown');
+    const etaIcon = document.getElementById('etaIcon');
+    
+    if (!etaWidget || !orderTime || status !== 'processing') return;
+    
+    const waitTime = 10 * 60 * 1000; // 10 minutes
+    const elapsed = Date.now() - parseInt(orderTime);
+    const remaining = waitTime - elapsed;
+    
+    etaWidget.classList.remove('hidden');
+    // Allow display:flex to apply before transition
+    setTimeout(() => {
+        etaWidget.classList.remove('opacity-0', 'translate-y-32');
+        etaWidget.classList.add('opacity-100', 'translate-y-0');
+    }, 10);
+    
+    if (remaining > 0) {
+        const min = Math.floor(remaining / 60000);
+        const sec = Math.floor((remaining % 60000) / 1000);
+        if (etaCountdown) etaCountdown.textContent = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+        if (etaTitle) {
+            etaTitle.textContent = 'Pesananmu sedang diracik';
+            etaTitle.classList.remove('animate-pulse-fast', 'text-amber-500');
+        }
+        if (etaIcon) {
+            etaIcon.textContent = '⏳';
+            etaIcon.classList.add('animate-spin-slow');
+            etaIcon.classList.remove('bg-green-100', 'text-green-600');
+        }
+    } else {
+        if (etaCountdown) etaCountdown.textContent = 'SIAP!';
+        if (etaTitle) {
+            etaTitle.textContent = 'Pesanan Siap Diambil/Diantar!';
+            etaTitle.classList.add('animate-pulse-fast', 'text-amber-500');
+        }
+        if (etaIcon) {
+            etaIcon.textContent = '✅';
+            etaIcon.classList.remove('animate-spin-slow');
+            etaIcon.classList.add('bg-green-100', 'text-green-600');
+        }
+        // Change status to done after 10s so it hides later? 
+        // Let's just keep it showing until they dismiss it or we just leave it.
     }
 }
 

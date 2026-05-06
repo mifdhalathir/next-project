@@ -97,6 +97,10 @@
                 <button id="darkModeBtn"
                     class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition"
                     title="Dark Mode"><span id="darkModeIcon">☀️</span></button>
+                <button id="navCartBtn" class="relative text-2xl text-cream-100 hover:scale-110 transition mr-2">
+                    🛒
+                    <span id="navCartBadge" class="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full hidden">0</span>
+                </button>
                 <a href="kasir.html"
                     class="bg-white/10 hover:bg-white/20 text-cream-100 px-4 py-1.5 rounded text-sm transition border border-white/10">🖥️ Kasir</a>
                 <a href="login.html"
@@ -161,19 +165,26 @@
                 <h2 class="font-display text-3xl md:text-4xl font-bold text-wood-800">Menu Kami</h2>
                 <div class="w-16 h-0.5 bg-amber-700 mx-auto mt-4"></div>
             </div>
+            
+            <div id="orderMemoryHeader" class="text-center mb-8 fade-in hidden">
+                <div class="inline-block bg-amber-100 border border-amber-200 px-6 py-3 rounded-xl">
+                    <p class="text-amber-800 font-medium">Halo, <span id="omName" class="font-bold"></span>!</p>
+                    <p class="text-stone-600 text-sm mt-1">Memesan untuk Meja: <span id="omTable" class="font-bold text-wood-800"></span></p>
+                </div>
+            </div>
             <div class="flex flex-wrap justify-center gap-3 mb-10 fade-in">
                 <button
                     class="filter-btn active px-5 py-2 rounded-full border border-amber-700 text-amber-700 text-sm font-medium"
                     data-category="all">Semua</button>
                 <button
                     class="filter-btn px-5 py-2 rounded-full border border-amber-700 text-amber-700 text-sm font-medium"
-                    data-category="coffee">Coffee</button>
+                    data-category="coffee">Kopi</button>
                 <button
                     class="filter-btn px-5 py-2 rounded-full border border-amber-700 text-amber-700 text-sm font-medium"
-                    data-category="non-coffee">Non-Coffee</button>
+                    data-category="non-coffee">Non-Kopi</button>
                 <button
                     class="filter-btn px-5 py-2 rounded-full border border-amber-700 text-amber-700 text-sm font-medium"
-                    data-category="meals">Meals</button>
+                    data-category="meals">Makanan</button>
             </div>
             <div class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
@@ -186,16 +197,7 @@
                         <p class="text-stone-500 text-xs mt-1">Signature es kopi susu.</p>
                         <div class="mt-3 flex justify-between items-center">
                             <p class="text-amber-700 font-bold text-sm">Rp 18.000</p>
-                            <div
-                                class="flex items-center gap-2 bg-amber-100 dark:bg-amber-900/40 rounded-full px-2 py-1">
-                                <button type="button"
-                                    class="menu-min-btn w-6 h-6 rounded-full bg-white dark:bg-wood-800 text-amber-700 dark:text-amber-500 font-bold flex items-center justify-center hover:bg-amber-200 transition"
-                                    data-price="18000" data-name="Kopi Susu Karsa">-</button>
-                                <span class="menu-qty text-xs font-bold w-4 text-center">0</span>
-                                <button type="button"
-                                    class="menu-plus-btn w-6 h-6 rounded-full bg-white dark:bg-wood-800 text-amber-700 dark:text-amber-500 font-bold flex items-center justify-center hover:bg-amber-200 transition"
-                                    data-price="18000" data-name="Kopi Susu Karsa">+</button>
-                            </div>
+                            <button type="button" class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow" data-name="Kopi Susu Karsa" data-price="18000" data-image="images/kopi-susu-karsa.png">Tambah ke Keranjang</button>
                         </div>
                     </div>
                 </div>
@@ -210,16 +212,7 @@
                         <p class="text-stone-500 text-xs mt-1">Espresso dengan air es segar.</p>
                         <div class="mt-3 flex justify-between items-center">
                             <p class="text-amber-700 font-bold text-sm">Rp 15.000</p>
-                            <div
-                                class="flex items-center gap-2 bg-amber-100 dark:bg-amber-900/40 rounded-full px-2 py-1">
-                                <button type="button"
-                                    class="menu-min-btn w-6 h-6 rounded-full bg-white dark:bg-wood-800 text-amber-700 dark:text-amber-500 font-bold flex items-center justify-center hover:bg-amber-200 transition"
-                                    data-price="15000" data-name="Iced Americano">-</button>
-                                <span class="menu-qty text-xs font-bold w-4 text-center">0</span>
-                                <button type="button"
-                                    class="menu-plus-btn w-6 h-6 rounded-full bg-white dark:bg-wood-800 text-amber-700 dark:text-amber-500 font-bold flex items-center justify-center hover:bg-amber-200 transition"
-                                    data-price="15000" data-name="Iced Americano">+</button>
-                            </div>
+                            <button type="button" class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow" data-name="Iced Americano" data-price="15000" data-image="images/kopi-susu-karsa.png">Tambah ke Keranjang</button>
                         </div>
                     </div>
                 </div>
@@ -233,16 +226,7 @@
                         <p class="text-stone-500 text-xs mt-1">Matcha premium & susu creamy.</p>
                         <div class="mt-3 flex justify-between items-center">
                             <p class="text-amber-700 font-bold text-sm">Rp 22.000</p>
-                            <div
-                                class="flex items-center gap-2 bg-amber-100 dark:bg-amber-900/40 rounded-full px-2 py-1">
-                                <button type="button"
-                                    class="menu-min-btn w-6 h-6 rounded-full bg-white dark:bg-wood-800 text-amber-700 dark:text-amber-500 font-bold flex items-center justify-center hover:bg-amber-200 transition"
-                                    data-price="22000" data-name="Matcha Latte">-</button>
-                                <span class="menu-qty text-xs font-bold w-4 text-center">0</span>
-                                <button type="button"
-                                    class="menu-plus-btn w-6 h-6 rounded-full bg-white dark:bg-wood-800 text-amber-700 dark:text-amber-500 font-bold flex items-center justify-center hover:bg-amber-200 transition"
-                                    data-price="22000" data-name="Matcha Latte">+</button>
-                            </div>
+                            <button type="button" class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow" data-name="Matcha Latte" data-price="22000" data-image="images/matcha-latte.png">Tambah ke Keranjang</button>
                         </div>
                     </div>
                 </div>
@@ -257,16 +241,7 @@
                         <p class="text-stone-500 text-xs mt-1">Cokelat red velvet yang manis.</p>
                         <div class="mt-3 flex justify-between items-center">
                             <p class="text-amber-700 font-bold text-sm">Rp 24.000</p>
-                            <div
-                                class="flex items-center gap-2 bg-amber-100 dark:bg-amber-900/40 rounded-full px-2 py-1">
-                                <button type="button"
-                                    class="menu-min-btn w-6 h-6 rounded-full bg-white dark:bg-wood-800 text-amber-700 dark:text-amber-500 font-bold flex items-center justify-center hover:bg-amber-200 transition"
-                                    data-price="24000" data-name="Red Velvet Latte">-</button>
-                                <span class="menu-qty text-xs font-bold w-4 text-center">0</span>
-                                <button type="button"
-                                    class="menu-plus-btn w-6 h-6 rounded-full bg-white dark:bg-wood-800 text-amber-700 dark:text-amber-500 font-bold flex items-center justify-center hover:bg-amber-200 transition"
-                                    data-price="24000" data-name="Red Velvet Latte">+</button>
-                            </div>
+                            <button type="button" class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow" data-name="Red Velvet Latte" data-price="24000" data-image="images/matcha-latte.png">Tambah ke Keranjang</button>
                         </div>
                     </div>
                 </div>
@@ -280,16 +255,7 @@
                         <p class="text-stone-500 text-xs mt-1">Nasi goreng & chicken katsu.</p>
                         <div class="mt-3 flex justify-between items-center">
                             <p class="text-amber-700 font-bold text-sm">Rp 28.000</p>
-                            <div
-                                class="flex items-center gap-2 bg-amber-100 dark:bg-amber-900/40 rounded-full px-2 py-1">
-                                <button type="button"
-                                    class="menu-min-btn w-6 h-6 rounded-full bg-white dark:bg-wood-800 text-amber-700 dark:text-amber-500 font-bold flex items-center justify-center hover:bg-amber-200 transition"
-                                    data-price="28000" data-name="Nasi Goreng Katsu">-</button>
-                                <span class="menu-qty text-xs font-bold w-4 text-center">0</span>
-                                <button type="button"
-                                    class="menu-plus-btn w-6 h-6 rounded-full bg-white dark:bg-wood-800 text-amber-700 dark:text-amber-500 font-bold flex items-center justify-center hover:bg-amber-200 transition"
-                                    data-price="28000" data-name="Nasi Goreng Katsu">+</button>
-                            </div>
+                            <button type="button" class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow" data-name="Nasi Goreng Katsu" data-price="28000" data-image="images/nasi-goreng-katsu.png">Tambah ke Keranjang</button>
                         </div>
                     </div>
                 </div>
@@ -303,16 +269,7 @@
                         <p class="text-stone-500 text-xs mt-1">Dengan telur & topping lengkap.</p>
                         <div class="mt-3 flex justify-between items-center">
                             <p class="text-amber-700 font-bold text-sm">Rp 15.000</p>
-                            <div
-                                class="flex items-center gap-2 bg-amber-100 dark:bg-amber-900/40 rounded-full px-2 py-1">
-                                <button type="button"
-                                    class="menu-min-btn w-6 h-6 rounded-full bg-white dark:bg-wood-800 text-amber-700 dark:text-amber-500 font-bold flex items-center justify-center hover:bg-amber-200 transition"
-                                    data-price="15000" data-name="Indomie Spesial">-</button>
-                                <span class="menu-qty text-xs font-bold w-4 text-center">0</span>
-                                <button type="button"
-                                    class="menu-plus-btn w-6 h-6 rounded-full bg-white dark:bg-wood-800 text-amber-700 dark:text-amber-500 font-bold flex items-center justify-center hover:bg-amber-200 transition"
-                                    data-price="15000" data-name="Indomie Spesial">+</button>
-                            </div>
+                            <button type="button" class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow" data-name="Indomie Spesial" data-price="15000" data-image="images/indomie-goreng.png">Tambah ke Keranjang</button>
                         </div>
                     </div>
                 </div>
@@ -326,16 +283,7 @@
                         <p class="text-stone-500 text-xs mt-1">Kombinasi snack untuk berbagi.</p>
                         <div class="mt-3 flex justify-between items-center">
                             <p class="text-amber-700 font-bold text-sm">Rp 35.000</p>
-                            <div
-                                class="flex items-center gap-2 bg-amber-100 dark:bg-amber-900/40 rounded-full px-2 py-1">
-                                <button type="button"
-                                    class="menu-min-btn w-6 h-6 rounded-full bg-white dark:bg-wood-800 text-amber-700 dark:text-amber-500 font-bold flex items-center justify-center hover:bg-amber-200 transition"
-                                    data-price="35000" data-name="Mix Platter">-</button>
-                                <span class="menu-qty text-xs font-bold w-4 text-center">0</span>
-                                <button type="button"
-                                    class="menu-plus-btn w-6 h-6 rounded-full bg-white dark:bg-wood-800 text-amber-700 dark:text-amber-500 font-bold flex items-center justify-center hover:bg-amber-200 transition"
-                                    data-price="35000" data-name="Mix Platter">+</button>
-                            </div>
+                            <button type="button" class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow" data-name="Mix Platter" data-price="35000" data-image="images/mix-platter.png">Tambah ke Keranjang</button>
                         </div>
                     </div>
                 </div>
@@ -770,6 +718,25 @@
         0%, 100% { opacity:1; box-shadow: 0 0 6px currentColor; }
         50% { opacity:0.5; box-shadow: 0 0 14px currentColor; }
     }
+    </style>
+
+    <!-- ETA Widget -->
+    <div id="etaWidget" class="fixed bottom-24 left-6 z-[60] bg-white dark:bg-wood-800 border border-amber-200 dark:border-wood-700 p-4 rounded-2xl shadow-2xl transform transition-transform duration-500 translate-y-32 opacity-0 flex items-center gap-4 hidden">
+        <div class="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-2xl animate-spin-slow" id="etaIcon">⏳</div>
+        <div>
+            <h4 class="font-bold text-wood-800 dark:text-cream-100 text-sm" id="etaTitle">Pesananmu sedang diracik</h4>
+            <p id="etaCountdown" class="text-amber-700 dark:text-amber-500 font-black text-lg">10:00</p>
+        </div>
+    </div>
+    
+    <style>
+    @keyframes pulse-fast {
+        0%, 100% { transform: scale(1); opacity: 1; color: #f59e0b; }
+        50% { transform: scale(1.05); opacity: 0.8; color: #d97706; }
+    }
+    .animate-pulse-fast { animation: pulse-fast 1s infinite; }
+    .animate-spin-slow { animation: spin 4s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 
     <!-- TESTIMONI -->

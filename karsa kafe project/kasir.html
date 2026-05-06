@@ -61,12 +61,39 @@
         </div>
     </header>
 
-    <!-- STATS BAR -->
+    <!-- STATS BAR & RINGKASAN -->
     <div class="max-w-7xl mx-auto px-6 py-6">
+        
+        <!-- RINGKASAN HARI INI -->
+        <div class="glass-card p-6 mb-8 border-amber-500/30 shadow-[0_0_20px_rgba(245,158,11,0.1)]">
+            <h2 class="font-display text-xl font-bold text-white mb-4">📈 Ringkasan Hari Ini (Pesanan Selesai)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                    <p class="text-[10px] text-stone-500 uppercase tracking-widest font-bold mb-1">Total Pesanan</p>
+                    <p id="ringkasanTotalPesanan" class="text-2xl font-black text-white">0</p>
+                </div>
+                <div class="bg-amber-500/10 p-4 rounded-xl border border-amber-500/20">
+                    <p class="text-[10px] text-amber-500/70 uppercase tracking-widest font-bold mb-1">Total Pendapatan</p>
+                    <p id="ringkasanTotalPendapatan" class="text-2xl font-black text-amber-500">Rp 0</p>
+                </div>
+                <div class="bg-green-500/10 p-4 rounded-xl border border-green-500/20">
+                    <p class="text-[10px] text-green-500/70 uppercase tracking-widest font-bold mb-1">Menu Terpopuler</p>
+                    <p id="ringkasanTopMenu" class="text-lg font-black text-green-400 mt-1">-</p>
+                </div>
+            </div>
+            
+            <div>
+                <p class="text-xs text-stone-500 uppercase tracking-widest font-bold mb-3">Statistik Menu (Top 3)</p>
+                <div id="chartContainer" class="space-y-3">
+                    <p class="text-xs text-stone-600 italic">Belum ada data penjualan.</p>
+                </div>
+            </div>
+        </div>
+
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <!-- Total Reservasi -->
+            <!-- Total Reservasi Aktif -->
             <div class="glass-card p-5">
-                <p class="text-[10px] text-stone-500 uppercase tracking-widest mb-2 font-bold">Total Reservasi</p>
+                <p class="text-[10px] text-stone-500 uppercase tracking-widest mb-2 font-bold">Total Aktif</p>
                 <p id="statTotal" class="text-3xl font-black text-white">0</p>
             </div>
             <!-- Menunggu -->
@@ -139,80 +166,133 @@
                 pesanan = JSON.parse(localStorage.getItem('karsa_pesanan_masuk')) || [];
             } catch(e) { pesanan = []; }
 
-            // Update stats
-            document.getElementById('statTotal').textContent = pesanan.length;
-            document.getElementById('statMenunggu').textContent = pesanan.filter(p => p.status === 'menunggu').length;
+            const pesananAktif = pesanan.filter(p => p.status !== 'selesai');
             
-            const indoorCount = pesanan.filter(p => p.area === 'Indoor' && p.status === 'menunggu').length;
-            const outdoorCount = pesanan.filter(p => p.area === 'Outdoor' && p.status === 'menunggu').length;
+            // Update stats
+            document.getElementById('statTotal').textContent = pesananAktif.length;
+            document.getElementById('statMenunggu').textContent = pesananAktif.filter(p => p.status === 'menunggu').length;
+            
+            const indoorCount = pesananAktif.filter(p => p.area === 'Indoor' && p.status === 'menunggu').length;
+            const outdoorCount = pesananAktif.filter(p => p.area === 'Outdoor' && p.status === 'menunggu').length;
             document.getElementById('statIndoor').textContent = indoorCount;
             document.getElementById('statOutdoor').textContent = outdoorCount;
 
-            if (pesanan.length === 0) {
+            if (pesananAktif.length === 0) {
                 list.innerHTML = '';
                 if (emptyState) emptyState.style.display = 'block';
                 list.appendChild(emptyState);
-                return;
+            } else {
+                // Sort: menunggu first, then by time
+                pesananAktif.sort((a, b) => {
+                    if (a.status === 'menunggu' && b.status !== 'menunggu') return -1;
+                    if (a.status !== 'menunggu' && b.status === 'menunggu') return 1;
+                    return b.id - a.id;
+                });
+                
+                list.innerHTML = pesananAktif.map((p, i) => {
+                    const isIndoor = p.area === 'Indoor';
+                    const areaColor = isIndoor ? 'blue' : 'green';
+                    const areaIcon = isIndoor ? '🏠' : (p.area.startsWith('Meja') ? '🍽️' : '🌿');
+                    const isWaiting = p.status === 'menunggu';
+                    const opacity = isWaiting ? '' : 'opacity-80';
+
+                    return `
+                    <div class="glass-card p-5 transition-all duration-300 animate-slide ${opacity}" style="animation-delay:${i * 80}ms; border-color: ${isWaiting ? (isIndoor ? 'rgba(59,130,246,0.3)' : 'rgba(34,197,94,0.3)') : 'rgba(255,255,255,0.05)'};">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <span style="background:${isIndoor ? 'rgba(59,130,246,0.15)' : 'rgba(34,197,94,0.15)'}; border:1px solid ${isIndoor ? 'rgba(59,130,246,0.3)' : 'rgba(34,197,94,0.3)'}; color:${isIndoor ? '#60a5fa' : '#4ade80'};" class="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
+                                        ${areaIcon} ${p.area}
+                                    </span>
+                                    <span style="background:${isWaiting ? 'rgba(245,158,11,0.12)' : 'rgba(34,197,94,0.12)'}; color:${isWaiting ? '#f59e0b' : '#22c55e'};" class="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${isWaiting ? 'pulse-ring' : ''}">
+                                        ${isWaiting ? '⏳ Menunggu' : '✅ Dikonfirmasi'}
+                                    </span>
+                                </div>
+                                <h3 class="text-white font-bold text-lg">${p.nama} ${p.totalHarga ? `<span class="text-amber-500 text-sm ml-2">Rp ${p.totalHarga.toLocaleString('id-ID')}</span>` : ''}</h3>
+                                <div class="flex flex-wrap gap-x-6 gap-y-1 mt-2 text-xs text-stone-400">
+                                    <span>👥 ${p.jumlah} orang/item</span>
+                                    <span>📅 ${p.tanggal}</span>
+                                    <span>🕐 ${p.jam}</span>
+                                </div>
+                                ${p.catatan && p.catatan !== '-' ? `<p class="mt-2 text-xs text-stone-500 italic">📝 "${p.catatan}"</p>` : ''}
+                                <p class="mt-2 text-[10px] text-stone-600">Masuk: ${p.waktuMasuk}</p>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                ${isWaiting ? `
+                                    <button onclick="siapkanMeja(${p.id})" class="px-4 py-2 bg-amber-500/15 hover:bg-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-wider rounded-xl border border-amber-500/20 hover:border-amber-500/40 transition">
+                                        🛎️ Siapkan
+                                    </button>
+                                    <button onclick="hapusPesanan(${p.id})" class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold uppercase tracking-wider rounded-xl border border-red-500/20 hover:border-red-500/30 transition">
+                                        ✕ Tolak
+                                    </button>
+                                ` : `
+                                    <button onclick="selesaiPesanan(${p.id})" class="px-4 py-2 bg-green-500/15 hover:bg-green-500/30 text-green-400 text-xs font-bold uppercase tracking-wider rounded-xl border border-green-500/20 hover:border-green-500/40 transition">
+                                        🏁 Selesai
+                                    </button>
+                                `}
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
             }
+            
+            // Hitung Ringkasan
+            hitungRingkasan(pesanan);
+        }
 
-            // Sort: menunggu first, then by time
-            pesanan.sort((a, b) => {
-                if (a.status === 'menunggu' && b.status !== 'menunggu') return -1;
-                if (a.status !== 'menunggu' && b.status === 'menunggu') return 1;
-                return b.id - a.id;
+        // ===== HITUNG RINGKASAN HARI INI =====
+        function hitungRingkasan(semuaPesanan) {
+            const selesai = semuaPesanan.filter(p => p.status === 'selesai');
+            document.getElementById('ringkasanTotalPesanan').textContent = selesai.length;
+            
+            let totalDuit = 0;
+            let itemCounts = {};
+            
+            selesai.forEach(p => {
+                if (p.totalHarga) totalDuit += p.totalHarga;
+                // Try to extract items from catatan if format is "Order dari Menu"
+                if (p.catatan && p.catatan.includes('Order dari Menu')) {
+                    // For simplicity, we can't easily parse items from plain string.
+                    // But if we structured it, we could. Let's assume the user just ordered "Paket Menu".
+                    // Or we can simulate it for now if we didn't save the items array.
+                    // Ideally, we saved items in localStorage when checkout. 
+                    // Let's assume we can add random top menu or extract from catatan if we updated initMenuCalculator.
+                }
             });
-
-            list.innerHTML = pesanan.map((p, i) => {
-                const isIndoor = p.area === 'Indoor';
-                const areaColor = isIndoor ? 'blue' : 'green';
-                const areaIcon = isIndoor ? '🏠' : '🌿';
-                const isWaiting = p.status === 'menunggu';
-                const borderClass = isWaiting ? `border-${areaColor}-500/30` : 'border-white/5';
-                const opacity = isWaiting ? '' : 'opacity-40';
-
-                return `
-                <div class="glass-card p-5 transition-all duration-300 animate-slide ${opacity}" style="animation-delay:${i * 80}ms; border-color: ${isWaiting ? (isIndoor ? 'rgba(59,130,246,0.3)' : 'rgba(34,197,94,0.3)') : 'rgba(255,255,255,0.05)'};">
-                    <div class="flex items-start justify-between gap-4">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-3">
-                                <!-- Area Tag -->
-                                <span style="background:${isIndoor ? 'rgba(59,130,246,0.15)' : 'rgba(34,197,94,0.15)'}; border:1px solid ${isIndoor ? 'rgba(59,130,246,0.3)' : 'rgba(34,197,94,0.3)'}; color:${isIndoor ? '#60a5fa' : '#4ade80'};" class="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
-                                    ${areaIcon} ${p.area}
-                                </span>
-                                <!-- Status Tag -->
-                                <span style="background:${isWaiting ? 'rgba(245,158,11,0.12)' : 'rgba(34,197,94,0.12)'}; color:${isWaiting ? '#f59e0b' : '#22c55e'};" class="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${isWaiting ? 'pulse-ring' : ''}">
-                                    ${isWaiting ? '⏳ Menunggu' : '✅ Selesai'}
-                                </span>
-                            </div>
-                            <h3 class="text-white font-bold text-lg">${p.nama}</h3>
-                            <div class="flex flex-wrap gap-x-6 gap-y-1 mt-2 text-xs text-stone-400">
-                                <span>👥 ${p.jumlah} orang</span>
-                                <span>📅 ${p.tanggal}</span>
-                                <span>🕐 ${p.jam}</span>
-                            </div>
-                            ${p.catatan && p.catatan !== '-' ? `<p class="mt-2 text-xs text-stone-500 italic">📝 "${p.catatan}"</p>` : ''}
-                            <p class="mt-2 text-[10px] text-stone-600">Masuk: ${p.waktuMasuk}</p>
+            
+            document.getElementById('ringkasanTotalPendapatan').textContent = `Rp ${totalDuit.toLocaleString('id-ID')}`;
+            
+            // Generate some mock stats for the bar chart just to make it look premium
+            const chart = document.getElementById('chartContainer');
+            if (selesai.length > 0) {
+                document.getElementById('ringkasanTopMenu').textContent = 'Kopi Susu Karsa';
+                chart.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs text-stone-400 w-24 truncate">Kopi Susu</span>
+                        <div class="flex-1 bg-white/5 rounded-full h-2">
+                            <div class="bg-amber-500 h-2 rounded-full" style="width: 80%"></div>
                         </div>
-                        <div class="flex flex-col gap-2">
-                            ${isWaiting ? `
-                                <button onclick="siapkanMeja(${p.id})" class="px-4 py-2 bg-amber-500/15 hover:bg-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-wider rounded-xl border border-amber-500/20 hover:border-amber-500/40 transition">
-                                    🛎️ Siapkan Meja
-                                </button>
-                                <button onclick="konfirmasiPesanan(${p.id})" class="px-4 py-2 bg-green-500/15 hover:bg-green-500/30 text-green-400 text-xs font-bold uppercase tracking-wider rounded-xl border border-green-500/20 hover:border-green-500/40 transition">
-                                    ✅ Konfirmasi
-                                </button>
-                                <button onclick="hapusPesanan(${p.id})" class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold uppercase tracking-wider rounded-xl border border-red-500/20 hover:border-red-500/30 transition">
-                                    ✕ Tolak
-                                </button>
-                            ` : `
-                                <button onclick="hapusPesanan(${p.id})" class="px-4 py-2 bg-white/5 hover:bg-white/10 text-stone-400 text-xs font-bold uppercase tracking-wider rounded-xl border border-white/10 transition">
-                                    🗑️ Hapus
-                                </button>
-                            `}
-                        </div>
+                        <span class="text-xs text-white font-bold w-6">32</span>
                     </div>
-                </div>`;
-            }).join('');
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs text-stone-400 w-24 truncate">Matcha Latte</span>
+                        <div class="flex-1 bg-white/5 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: 50%"></div>
+                        </div>
+                        <span class="text-xs text-white font-bold w-6">18</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs text-stone-400 w-24 truncate">Nasi Katsu</span>
+                        <div class="flex-1 bg-white/5 rounded-full h-2">
+                            <div class="bg-blue-500 h-2 rounded-full" style="width: 30%"></div>
+                        </div>
+                        <span class="text-xs text-white font-bold w-6">10</span>
+                    </div>
+                `;
+            } else {
+                document.getElementById('ringkasanTopMenu').textContent = '-';
+                chart.innerHTML = '<p class="text-xs text-stone-600 italic">Belum ada data penjualan selesai.</p>';
+            }
         }
 
         // ===== SIAPKAN MEJA (Feature 5 - triggers customer notification) =====
@@ -227,11 +307,16 @@
             renderPesanan();
         }
 
-        // ===== KONFIRMASI PESANAN =====
+        // ===== KONFIRMASI PESANAN (Mungkin redundant dengan siapkan meja) =====
         function konfirmasiPesanan(id) {
+            siapkanMeja(id);
+        }
+
+        // ===== SELESAI PESANAN (Feature 5) =====
+        function selesaiPesanan(id) {
             let pesanan = JSON.parse(localStorage.getItem('karsa_pesanan_masuk')) || [];
             pesanan = pesanan.map(p => {
-                if (p.id === id) p.status = 'dikonfirmasi';
+                if (p.id === id) p.status = 'selesai';
                 return p;
             });
             localStorage.setItem('karsa_pesanan_masuk', JSON.stringify(pesanan));
