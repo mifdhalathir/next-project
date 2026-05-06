@@ -211,7 +211,7 @@
                             <button type="button"
                                 class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
                                 data-name="Kopi Susu Karsa" data-price="18000"
-                                data-image="images/kopi-susu-karsa.png">Tambah ke Keranjang</button>
+                                data-image="images/kopi-susu-karsa.png">Tambah</button>
                         </div>
                     </div>
                 </div>
@@ -229,7 +229,7 @@
                             <button type="button"
                                 class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
                                 data-name="Iced Americano" data-price="15000"
-                                data-image="images/kopi-susu-karsa.png">Tambah ke Keranjang</button>
+                                data-image="images/kopi-susu-karsa.png">Tambah</button>
                         </div>
                     </div>
                 </div>
@@ -245,8 +245,7 @@
                             <p class="text-amber-700 font-bold text-sm">Rp 22.000</p>
                             <button type="button"
                                 class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
-                                data-name="Matcha Latte" data-price="22000" data-image="images/matcha-latte.png">Tambah
-                                ke Keranjang</button>
+                                data-name="Matcha Latte" data-price="22000" data-image="images/matcha-latte.png">Tambah</button>
                         </div>
                     </div>
                 </div>
@@ -264,7 +263,7 @@
                             <button type="button"
                                 class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
                                 data-name="Red Velvet Latte" data-price="24000"
-                                data-image="images/matcha-latte.png">Tambah ke Keranjang</button>
+                                data-image="images/matcha-latte.png">Tambah</button>
                         </div>
                     </div>
                 </div>
@@ -281,7 +280,7 @@
                             <button type="button"
                                 class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
                                 data-name="Nasi Goreng Katsu" data-price="28000"
-                                data-image="images/nasi-goreng-katsu.png">Tambah ke Keranjang</button>
+                                data-image="images/nasi-goreng-katsu.png">Tambah</button>
                         </div>
                     </div>
                 </div>
@@ -298,7 +297,7 @@
                             <button type="button"
                                 class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
                                 data-name="Indomie Spesial" data-price="15000"
-                                data-image="images/indomie-goreng.png">Tambah ke Keranjang</button>
+                                data-image="images/indomie-goreng.png">Tambah</button>
                         </div>
                     </div>
                 </div>
@@ -314,8 +313,7 @@
                             <p class="text-amber-700 font-bold text-sm">Rp 35.000</p>
                             <button type="button"
                                 class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
-                                data-name="Mix Platter" data-price="35000" data-image="images/mix-platter.png">Tambah ke
-                                Keranjang</button>
+                                data-name="Mix Platter" data-price="35000" data-image="images/mix-platter.png">Tambah</button>
                         </div>
                     </div>
                 </div>
@@ -534,7 +532,7 @@
 
             // Indoor status badge
             if (indoorFull) {
-                inText.textContent = 'INDOOR — PENUH';
+                inText.textContent = 'Penuh';
                 inText.style.color = '#ef4444';
                 labelIn.style.opacity = '0.4';
                 labelIn.style.cursor = 'not-allowed';
@@ -545,7 +543,7 @@
 
             // Outdoor status badge
             if (outdoorFull) {
-                outText.textContent = 'OUTDOOR — PENUH';
+                outText.textContent = 'Penuh';
                 outText.style.color = '#ef4444';
                 labelOut.style.opacity = '0.4';
                 labelOut.style.cursor = 'not-allowed';
@@ -581,17 +579,17 @@
             var outdoorPct = Math.round((cap.outdoor.used / cap.outdoor.total) * 100);
 
             if (area === 'Indoor') {
-                labelIn.style.background = 'rgba(245,158,11,0.15)';
-                labelIn.style.border = '1px solid rgba(245,158,11,0.6)';
-                labelIn.style.boxShadow = '0 0 18px rgba(245,158,11,0.2)';
-                inText.innerHTML = 'Indoor <span style="font-size:9px; color:#f59e0b;">● Dipilih</span>';
-                inText.style.color = '#f59e0b';
+                labelIn.style.background = '#f59e0b';
+                labelIn.style.border = '1px solid #d97706';
+                labelIn.style.boxShadow = '0 0 18px rgba(245,158,11,0.4)';
+                inText.innerHTML = 'Indoor <span style="font-size:9px; color:#fff;">● Dipilih</span>';
+                inText.style.color = '#fff';
 
                 labelOut.style.background = 'transparent';
                 labelOut.style.border = '1px solid transparent';
                 labelOut.style.boxShadow = 'none';
                 var oFull = outdoorPct >= 100;
-                outText.innerHTML = oFull ? 'OUTDOOR — PENUH' : 'Outdoor <span style="font-size:9px; color:#22c55e; margin-left:4px;">● Tersedia</span>';
+                outText.innerHTML = oFull ? 'Penuh' : 'Outdoor <span style="font-size:9px; color:#22c55e; margin-left:4px;">● Tersedia</span>';
                 outText.style.color = oFull ? '#ef4444' : 'rgba(255,255,255,0.5)';
 
                 pill.style.display = 'flex';
@@ -602,17 +600,17 @@
                 statusText.style.color = '#f59e0b';
                 statusText.innerHTML = '<strong>' + indoorPct + '% Occupied</strong> &mdash; Area mulai terisi';
             } else {
-                labelOut.style.background = 'rgba(34,197,94,0.15)';
-                labelOut.style.border = '1px solid rgba(34,197,94,0.6)';
-                labelOut.style.boxShadow = '0 0 18px rgba(34,197,94,0.2)';
-                outText.innerHTML = 'Outdoor <span style="font-size:9px; color:#22c55e;">● Dipilih</span>';
-                outText.style.color = '#22c55e';
+                labelOut.style.background = '#22c55e';
+                labelOut.style.border = '1px solid #16a34a';
+                labelOut.style.boxShadow = '0 0 18px rgba(34,197,94,0.4)';
+                outText.innerHTML = 'Outdoor <span style="font-size:9px; color:#fff;">● Dipilih</span>';
+                outText.style.color = '#fff';
 
                 labelIn.style.background = 'transparent';
                 labelIn.style.border = '1px solid transparent';
                 labelIn.style.boxShadow = 'none';
                 var iFull = indoorPct >= 100;
-                inText.innerHTML = iFull ? 'INDOOR — PENUH' : 'Indoor <span style="font-size:9px; color:#22c55e; margin-left:4px;">● Tersedia</span>';
+                inText.innerHTML = iFull ? 'Penuh' : 'Indoor <span style="font-size:9px; color:#22c55e; margin-left:4px;">● Tersedia</span>';
                 inText.style.color = iFull ? '#ef4444' : 'rgba(255,255,255,0.5)';
 
                 pill.style.display = 'flex';
