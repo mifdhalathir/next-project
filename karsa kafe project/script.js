@@ -839,6 +839,8 @@ function initMenuCalculator() {
         // Start ETA
         localStorage.setItem('karsa_order_time', Date.now());
         localStorage.setItem('karsa_order_status', 'processing');
+        localStorage.setItem('karsa_last_order_id', String(pesananBaru.id));
+        localStorage.setItem('karsa_order_stage', '0');
         
         // Clear Cart
         localStorage.setItem('karsa_cart', JSON.stringify([]));
@@ -863,6 +865,200 @@ function initMenuCalculator() {
     checkETA();
     setInterval(checkETA, 1000);
 }
+
+// ===== LIVE CLOCK & CAFE STATUS (Feature 3) =====
+function initLiveClock() {
+    const clockEl = document.getElementById('liveClockDisplay');
+    const dotEl = document.getElementById('cafeStatusDot');
+    const labelEl = document.getElementById('cafeStatusLabel');
+    if (!clockEl) return;
+
+    function updateClock() {
+        const now = new Date();
+        const h = now.getHours();
+        const m = now.getMinutes();
+        const s = now.getSeconds();
+        clockEl.textContent = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+
+        const isOpen = h >= 8 && h < 22;
+        if (isOpen) {
+            dotEl.className = 'w-2 h-2 rounded-full bg-green-400 animate-pulse';
+            labelEl.textContent = 'Open Now';
+            labelEl.className = 'text-green-400 text-[10px] font-black uppercase tracking-widest';
+            // Re-enable order buttons
+            document.querySelectorAll('.tambah-keranjang-btn, #checkoutMenuBtn, #finalCheckoutBtn').forEach(btn => {
+                btn.disabled = false;
+                btn.style.opacity = '';
+                btn.style.cursor = '';
+            });
+        } else {
+            dotEl.className = 'w-2 h-2 rounded-full bg-red-400';
+            dotEl.classList.add('closed');
+            labelEl.textContent = 'Closed';
+            labelEl.className = 'text-red-400 text-[10px] font-black uppercase tracking-widest closed';
+            // Disable order buttons
+            document.querySelectorAll('.tambah-keranjang-btn, #checkoutMenuBtn, #finalCheckoutBtn').forEach(btn => {
+                btn.disabled = true;
+                btn.style.opacity = '0.4';
+                btn.style.cursor = 'not-allowed';
+                btn.title = 'Kafe sedang tutup (08:00 - 22:00)';
+            });
+        }
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+}
+
+// ===== SEARCH BAR GLOBAL (Feature 4) =====
+function initSearchBar() {
+    const searchInput = document.getElementById('menuSearchBar');
+    const noResult = document.getElementById('searchNoResult');
+    if (!searchInput) return;
+
+    searchInput.addEventListener('input', () => {
+        const q = searchInput.value.trim().toLowerCase();
+        const cards = document.querySelectorAll('.menu-item');
+        let found = 0;
+
+        cards.forEach(card => {
+            const name = card.querySelector('h3')?.textContent.toLowerCase() || '';
+            const desc = card.querySelector('p')?.textContent.toLowerCase() || '';
+            const match = !q || name.includes(q) || desc.includes(q);
+            if (match) {
+                card.style.display = '';
+                card.style.opacity = '1';
+                card.style.transform = 'scale(1)';
+                found++;
+            } else {
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.85)';
+                setTimeout(() => { if (!name.includes(searchInput.value.trim().toLowerCase())) card.style.display = 'none'; }, 250);
+            }
+        });
+
+        if (noResult) noResult.classList.toggle('hidden', found > 0 || !q);
+    });
+}
+
+// ===== RATING MODAL (Feature 2) =====
+function initRatingModal() {
+    let selectedRating = 0;
+    const modal = document.getElementById('ratingModal');
+    const stars = document.querySelectorAll('.rating-star');
+    const feedbackBox = document.getElementById('ratingFeedbackBox');
+    const thankMsg = document.getElementById('ratingThankMsg');
+    const submitBtn = document.getElementById('submitRatingBtn');
+    const closeReceiptBtn = document.getElementById('closeReceiptBtn');
+
+    if (!modal) return;
+
+    // Clicking "Selesai" on receipt opens rating modal
+    if (closeReceiptBtn) {
+        closeReceiptBtn.addEventListener('click', () => {
+            // Close receipt
+            const receiptModal = document.getElementById('receiptModal');
+            if (receiptModal) {
+                receiptModal.classList.add('hidden');
+                receiptModal.classList.remove('flex');
+            }
+            // Reset rating UI
+            selectedRating = 0;
+            stars.forEach(s => s.textContent = '\u2606');
+            if (feedbackBox) feedbackBox.classList.add('hidden');
+            if (thankMsg) thankMsg.classList.add('hidden');
+            if (document.getElementById('ratingFeedbackText')) document.getElementById('ratingFeedbackText').value = '';
+            // Show rating modal
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        });
+    }
+
+    // Star hover & click
+    stars.forEach(star => {
+        star.addEventListener('mouseover', () => {
+            const val = parseInt(star.dataset.val);
+            stars.forEach((s, i) => { s.textContent = i < val ? '\u2605' : '\u2606'; });
+        });
+        star.addEventListener('mouseleave', () => {
+            stars.forEach((s, i) => { s.textContent = i < selectedRating ? '\u2605' : '\u2606'; });
+        });
+        star.addEventListener('click', () => {
+            selectedRating = parseInt(star.dataset.val);
+            stars.forEach((s, i) => { s.textContent = i < selectedRating ? '\u2605' : '\u2606'; });
+            // Conditional display
+            if (selectedRating <= 3) {
+                if (feedbackBox) feedbackBox.classList.remove('hidden');
+                if (thankMsg) thankMsg.classList.add('hidden');
+            } else {
+                if (feedbackBox) feedbackBox.classList.add('hidden');
+                if (thankMsg) thankMsg.classList.remove('hidden');
+            }
+        });
+    });
+
+    // Submit rating
+    if (submitBtn) {
+        submitBtn.addEventListener('click', () => {
+            if (!selectedRating) { alert('Tap bintang dulu ya!'); return; }
+            const feedback = document.getElementById('ratingFeedbackText')?.value || '';
+            // Save to localStorage
+            let ratings = [];
+            try { ratings = JSON.parse(localStorage.getItem('karsa_ratings')) || []; } catch(e) {}
+            ratings.push({ rating: selectedRating, feedback, waktu: new Date().toLocaleString('id-ID') });
+            localStorage.setItem('karsa_ratings', JSON.stringify(ratings));
+            // Close modal
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            // Show thank you toast
+            const toastEl = document.createElement('div');
+            toastEl.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:9999;background:#16a34a;color:#fff;padding:14px 28px;border-radius:14px;font-weight:800;font-size:13px;box-shadow:0 8px 30px rgba(0,0,0,0.3);animation:slideIn 0.4s ease;';
+            toastEl.textContent = selectedRating >= 4 ? '\u2B50 Terima kasih atas bintang ' + selectedRating + '-mu!' : '\uD83D\uDC4D Masukan kamu dicatat! Terima kasih.';
+            document.body.appendChild(toastEl);
+            setTimeout(() => toastEl.remove(), 3500);
+        });
+    }
+}
+
+// ===== ORDER PROGRESS BAR (Feature 5) =====
+function initOrderProgress() {
+    function renderProgress() {
+        const widget = document.getElementById('orderProgressWidget');
+        if (!widget) return;
+        const stage = parseInt(localStorage.getItem('karsa_order_stage') || '0');
+        const orderId = localStorage.getItem('karsa_last_order_id');
+        if (!orderId) return;
+
+        widget.classList.remove('hidden');
+
+        const dots = [document.querySelector('#pstep0 .prog-dot'), document.querySelector('#pstep1 .prog-dot'), document.querySelector('#pstep2 .prog-dot')];
+        const labels = [document.querySelector('#pstep0 .prog-label'), document.querySelector('#pstep1 .prog-label'), document.querySelector('#pstep2 .prog-label')];
+        const line1 = document.getElementById('progLine1');
+        const line2 = document.getElementById('progLine2');
+        const statusText = document.getElementById('progressStatusText');
+        const messages = ['Pesanan Diterima \u2705', 'Sedang Diracik \u2615', 'Siap Diantar! \uD83C\uDF89'];
+
+        dots.forEach((dot, i) => {
+            if (!dot) return;
+            dot.className = 'prog-dot';
+            if (i < stage) dot.classList.add('done');
+            else if (i === stage) dot.classList.add('active');
+        });
+        labels.forEach((lbl, i) => {
+            if (!lbl) return;
+            lbl.className = 'prog-label';
+            if (i < stage) lbl.classList.add('done');
+            else if (i === stage) lbl.classList.add('active');
+        });
+        if (line1) line1.className = 'prog-line' + (stage >= 1 ? ' active' : '');
+        if (line2) line2.className = 'prog-line' + (stage >= 2 ? ' active' : '');
+        if (statusText) statusText.textContent = messages[Math.min(stage, 2)];
+    }
+
+    renderProgress();
+    setInterval(renderProgress, 2000);
+}
+
 
 function checkETA() {
     const orderTime = localStorage.getItem('karsa_order_time');
@@ -1063,6 +1259,11 @@ document.addEventListener('DOMContentLoaded', () => {
   initDatePicker();
   initBeforeAfterSlider();
   initAOS();
+  // ===== NEW FEATURES =====
+  initLiveClock();
+  initSearchBar();
+  initRatingModal();
+  initOrderProgress();
 });
 
 // ===== SHARE ORDER =====

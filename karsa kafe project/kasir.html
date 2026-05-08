@@ -88,6 +88,18 @@
                     <p class="text-xs text-stone-600 italic">Belum ada data penjualan.</p>
                 </div>
             </div>
+            
+            <!-- RATING SUMMARY -->
+            <div id="ratingSummaryCard" class="mt-6 p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
+                <p class="text-[10px] text-amber-500/70 uppercase tracking-widest font-bold mb-2">⭐ Rata-rata Kepuasan Pelanggan</p>
+                <div class="flex items-center gap-3">
+                    <p id="avgRatingDisplay" class="text-3xl font-black text-amber-400">-</p>
+                    <div>
+                        <p id="avgRatingStars" class="text-amber-400 text-lg">☆☆☆☆☆</p>
+                        <p id="avgRatingCount" class="text-stone-500 text-xs">0 rating masuk</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -300,6 +312,9 @@
                                         ✕ Tolak
                                     </button>
                                 ` : `
+                                    <button onclick="prosesPesanan(${p.id})" class="px-4 py-2 bg-blue-500/15 hover:bg-blue-500/30 text-blue-400 text-xs font-bold uppercase tracking-wider rounded-xl border border-blue-500/20 hover:border-blue-500/40 transition">
+                                        🔥 Proses
+                                    </button>
                                     <button onclick="selesaiPesanan(${p.id})" class="px-4 py-2 bg-green-500/15 hover:bg-green-500/30 text-green-400 text-xs font-bold uppercase tracking-wider rounded-xl border border-green-500/20 hover:border-green-500/40 transition">
                                         🏁 Selesai
                                     </button>
@@ -399,6 +414,8 @@
                 return p;
             });
             localStorage.setItem('karsa_pesanan_masuk', JSON.stringify(pesanan));
+            // Advance progress to stage 1 (Sedang Diracik)
+            localStorage.setItem('karsa_order_stage', '1');
             syncCapacityFromReservations(pesanan);
             renderPesanan();
         }
@@ -406,6 +423,13 @@
         // ===== KONFIRMASI PESANAN (Mungkin redundant dengan siapkan meja) =====
         function konfirmasiPesanan(id) {
             siapkanMeja(id);
+        }
+
+        // ===== PROSES PESANAN (advances to stage 2) =====
+        function prosesPesanan(id) {
+            localStorage.setItem('karsa_order_stage', '2');
+            // Brief visual feedback
+            renderPesanan();
         }
 
         // ===== SELESAI PESANAN (Feature 5) =====
@@ -416,6 +440,7 @@
                 return p;
             });
             localStorage.setItem('karsa_pesanan_masuk', JSON.stringify(pesanan));
+            localStorage.setItem('karsa_order_stage', '2');
             
             // Log to staff performance
             if (currentStaff) {
@@ -479,6 +504,28 @@
 
         // ===== AUTO REFRESH EVERY 3s =====
         setInterval(renderPesanan, 3000);
+
+        // ===== RATING SUMMARY =====
+        function updateRatingSummary() {
+            let ratings = [];
+            try { ratings = JSON.parse(localStorage.getItem('karsa_ratings')) || []; } catch(e) {}
+            const avgEl = document.getElementById('avgRatingDisplay');
+            const starsEl = document.getElementById('avgRatingStars');
+            const countEl = document.getElementById('avgRatingCount');
+            if (!avgEl) return;
+            if (ratings.length === 0) {
+                avgEl.textContent = '-';
+                if (starsEl) starsEl.textContent = '☆☆☆☆☆';
+                if (countEl) countEl.textContent = '0 rating masuk';
+                return;
+            }
+            const avg = ratings.reduce((s, r) => s + r.rating, 0) / ratings.length;
+            avgEl.textContent = avg.toFixed(1);
+            if (starsEl) starsEl.textContent = '★'.repeat(Math.round(avg)) + '☆'.repeat(5 - Math.round(avg));
+            if (countEl) countEl.textContent = ratings.length + ' rating masuk';
+        }
+        updateRatingSummary();
+        setInterval(updateRatingSummary, 5000);
 
         // ===== INIT =====
         (function() {
