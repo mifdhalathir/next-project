@@ -59,8 +59,6 @@ function initMenuFilter() {
       const cat = btn.dataset.category;
       cards.forEach(card => {
         if (cat === 'all' || card.dataset.category === cat) {
-          card.style.opacity = '0';
-          card.style.transform = 'scale(0.8)';
           card.style.display = '';
           setTimeout(() => {
             card.style.opacity = '1';
@@ -69,6 +67,8 @@ function initMenuFilter() {
         } else {
           card.style.opacity = '0';
           card.style.transform = 'scale(0.8)';
+          setTimeout(() => { card.style.display = 'none'; }, 300);
+        }
       });
     };
   });
@@ -82,15 +82,17 @@ function setMood(mood) {
   else if (mood === 'Senang') targetKeywords = ['Matcha', 'Red Velvet'];
   else if (mood === 'Sedih') targetKeywords = ['Red Velvet', 'Kopi Susu'];
   else if (mood === 'Fokus') targetKeywords = ['Americano'];
-  
+
   cards.forEach(card => {
-    const name = card.querySelector('h3').textContent;
-    let isMatch = targetKeywords.some(kw => name.includes(kw));
-    
+    const nameEl = card.querySelector('h3');
+    if (!nameEl) return;
+    const name = nameEl.textContent;
+    const isMatch = targetKeywords.length === 0 || targetKeywords.some(kw => name.includes(kw));
+
     card.style.opacity = '0';
     card.style.transform = 'scale(0.8)';
     setTimeout(() => {
-      if (isMatch || targetKeywords.length === 0) {
+      if (isMatch) {
         card.style.display = '';
         setTimeout(() => { card.style.opacity = '1'; card.style.transform = 'scale(1)'; }, 50);
       } else {
@@ -744,6 +746,28 @@ function initCartSimulation() {
       }, 1000);
     };
   });
+
+  // Add-to-cart buttons inside the SIDEBAR (different class: add-to-cart-btn)
+  document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+    btn.onclick = () => {
+      const name = btn.dataset.name;
+      const price = parseInt(btn.dataset.price);
+      const image = btn.dataset.image || '';
+      const existing = cart.find(i => i.name === name);
+      if (existing) existing.qty++;
+      else cart.push({ name, price, image, qty: 1 });
+      window.updateCartUI();
+      const orig = btn.textContent;
+      btn.textContent = 'Ditambahkan!';
+      btn.classList.replace('bg-amber-100', 'bg-green-100');
+      btn.classList.replace('text-amber-700', 'text-green-700');
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.classList.replace('bg-green-100', 'bg-amber-100');
+        btn.classList.replace('text-green-700', 'text-amber-700');
+      }, 1000);
+    };
+  });
 }
 
 // ===== SMART GREETING =====
@@ -853,8 +877,29 @@ function initMenuCalculator() {
             setTimeout(() => cartModal.classList.add('hidden'), 300);
         }
         
-        // Show Success/ETA
-        alert(`Pesananmu senilai Rp ${total.toLocaleString('id-ID')} sedang diproses!`);
+        // Show Receipt Modal
+        const receiptModal = document.getElementById('receiptModal');
+        if (receiptModal) {
+            const receiptTable = document.getElementById('receiptTable');
+            const receiptTime = document.getElementById('receiptTime');
+            const receiptItems = document.getElementById('receiptItems');
+            const receiptTotal = document.getElementById('receiptTotal');
+            if (receiptTable) receiptTable.textContent = 'Meja ' + tableNum;
+            if (receiptTime) receiptTime.textContent = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            if (receiptItems) {
+                receiptItems.innerHTML = cart.map(item =>
+                    `<div class="flex justify-between items-center text-sm">
+                        <span class="text-stone-300">${item.qty}x ${item.name}</span>
+                        <span class="text-amber-400 font-bold">Rp ${(item.price * item.qty).toLocaleString('id-ID')}</span>
+                    </div>`
+                ).join('');
+            }
+            if (receiptTotal) receiptTotal.textContent = 'Rp ' + total.toLocaleString('id-ID');
+            receiptModal.classList.remove('hidden');
+            receiptModal.classList.add('flex');
+        } else {
+            alert('Pesananmu senilai Rp ' + total.toLocaleString('id-ID') + ' sedang diproses!');
+        }
         checkETA();
     };
 
@@ -880,28 +925,28 @@ function initLiveClock() {
         const s = now.getSeconds();
         clockEl.textContent = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
 
-        const isOpen = h >= 8 && h < 22;
+        const isOpen = h >= 8 && (h < 24); // Open 08:00 - 00:00 (midnight)
         if (isOpen) {
             dotEl.className = 'w-2 h-2 rounded-full bg-green-400 animate-pulse';
             labelEl.textContent = 'Open Now';
             labelEl.className = 'text-green-400 text-[10px] font-black uppercase tracking-widest';
-            // Re-enable order buttons
-            document.querySelectorAll('.tambah-keranjang-btn, #checkoutMenuBtn, #finalCheckoutBtn').forEach(btn => {
+            // Re-enable checkout buttons only
+            document.querySelectorAll('#checkoutMenuBtn, #finalCheckoutBtn').forEach(btn => {
                 btn.disabled = false;
                 btn.style.opacity = '';
                 btn.style.cursor = '';
+                btn.title = '';
             });
         } else {
-            dotEl.className = 'w-2 h-2 rounded-full bg-red-400';
-            dotEl.classList.add('closed');
+            dotEl.className = 'w-2 h-2 rounded-full bg-red-400 animate-pulse';
             labelEl.textContent = 'Closed';
-            labelEl.className = 'text-red-400 text-[10px] font-black uppercase tracking-widest closed';
-            // Disable order buttons
-            document.querySelectorAll('.tambah-keranjang-btn, #checkoutMenuBtn, #finalCheckoutBtn').forEach(btn => {
+            labelEl.className = 'text-red-400 text-[10px] font-black uppercase tracking-widest';
+            // Disable only CHECKOUT buttons (not Tambah — let customers browse)
+            document.querySelectorAll('#checkoutMenuBtn, #finalCheckoutBtn').forEach(btn => {
                 btn.disabled = true;
-                btn.style.opacity = '0.4';
+                btn.style.opacity = '0.45';
                 btn.style.cursor = 'not-allowed';
-                btn.title = 'Kafe sedang tutup (08:00 - 22:00)';
+                btn.title = 'Kafe tutup. Buka pukul 08:00 WIB';
             });
         }
     }
@@ -933,7 +978,17 @@ function initSearchBar() {
             } else {
                 card.style.opacity = '0';
                 card.style.transform = 'scale(0.85)';
-                setTimeout(() => { if (!name.includes(searchInput.value.trim().toLowerCase())) card.style.display = 'none'; }, 250);
+                // Use closure-safe snapshot of query
+                const capturedQ = q;
+                setTimeout(() => {
+                    // Only hide if the card still doesn't match current query
+                    const currentQ = searchInput.value.trim().toLowerCase();
+                    const currentName = card.querySelector('h3')?.textContent.toLowerCase() || '';
+                    const currentDesc = card.querySelector('p')?.textContent.toLowerCase() || '';
+                    if (!currentName.includes(currentQ) && !currentDesc.includes(currentQ)) {
+                        card.style.display = 'none';
+                    }
+                }, 280);
             }
         });
 
