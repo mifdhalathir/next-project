@@ -100,6 +100,20 @@
                     </div>
                 </div>
             </div>
+
+            <!-- ===== PEAK HOUR ANALYTICS (Feature 4) ===== -->
+            <div class="mt-6 p-5 rounded-xl border border-blue-500/20 bg-blue-500/5">
+                <p class="text-[10px] text-blue-400/70 uppercase tracking-widest font-bold mb-3">📊 Analitik Jam Sibuk</p>
+                <div id="peakHourChart" class="flex items-end gap-1 h-32"></div>
+                <div class="flex justify-between mt-2">
+                    <span class="text-[9px] text-stone-600">00:00</span>
+                    <span class="text-[9px] text-stone-600">06:00</span>
+                    <span class="text-[9px] text-stone-600">12:00</span>
+                    <span class="text-[9px] text-stone-600">18:00</span>
+                    <span class="text-[9px] text-stone-600">23:00</span>
+                </div>
+                <p id="peakHourSummary" class="text-xs text-stone-400 mt-3">Belum ada data pesanan.</p>
+            </div>
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -166,6 +180,21 @@
         <div id="waitlistSection" class="mb-10 bg-amber-900/10 border border-amber-500/20 rounded-2xl p-6 hidden">
             <h3 class="text-amber-500 font-bold mb-4 flex items-center gap-2"><span class="text-xl">📋</span> Daftar Tunggu (Waitlist)</h3>
             <div id="waitlistGrid" class="grid gap-3"></div>
+        </div>
+
+        <!-- ===== WAITER CALL NOTIFICATIONS (Feature 5) ===== -->
+        <div id="waiterCallSection" class="mb-10 bg-purple-900/10 border border-purple-500/20 rounded-2xl p-6 hidden">
+            <h3 class="text-purple-400 font-bold mb-4 flex items-center gap-2"><span class="text-xl">🔔</span> Panggilan Pelayan</h3>
+            <div id="waiterCallGrid" class="grid gap-3"></div>
+        </div>
+
+        <!-- ===== STOCK MANAGEMENT (Feature 2) ===== -->
+        <div class="glass-card p-5 mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <p class="text-xs text-stone-500 uppercase tracking-widest font-bold">📦 Manajemen Stok Menu</p>
+                <button onclick="resetStock()" class="text-[10px] text-amber-400 hover:text-amber-300 font-bold uppercase tracking-wider px-3 py-1 rounded-lg border border-amber-500/20 hover:border-amber-500/40 transition">🔄 Reset Stok</button>
+            </div>
+            <div id="stockGrid" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
         </div>
 
         <div id="pesananList" class="grid gap-4 mb-12">
@@ -317,6 +346,9 @@
                                     </button>
                                     <button onclick="selesaiPesanan(${p.id})" class="px-4 py-2 bg-green-500/15 hover:bg-green-500/30 text-green-400 text-xs font-bold uppercase tracking-wider rounded-xl border border-green-500/20 hover:border-green-500/40 transition">
                                         🏁 Selesai
+                                    </button>
+                                    <button onclick="mejaKosong(${p.id})" class="px-4 py-2 bg-stone-500/15 hover:bg-stone-500/30 text-stone-400 text-xs font-bold uppercase tracking-wider rounded-xl border border-stone-500/20 hover:border-stone-500/40 transition" title="Pelanggan sudah pulang, bersihkan data meja">
+                                        🚪 Meja Kosong
                                     </button>
                                 `}
                             </div>
@@ -533,7 +565,139 @@
             try { pesanan = JSON.parse(localStorage.getItem('karsa_pesanan_masuk')) || []; } catch(e) {}
             syncCapacityFromReservations(pesanan);
             renderPesanan();
+            renderPeakHourChart();
+            renderWaiterCalls();
+            renderStockGrid();
         })();
+
+        // ===== PEAK HOUR ANALYTICS CHART (Feature 4) =====
+        function renderPeakHourChart() {
+            let peakData = {};
+            try { peakData = JSON.parse(localStorage.getItem('karsa_peak_hours')) || {}; } catch(e) {}
+            const chart = document.getElementById('peakHourChart');
+            const summary = document.getElementById('peakHourSummary');
+            if (!chart) return;
+            const maxVal = Math.max(...Object.values(peakData), 1);
+            let peakHour = -1, peakCount = 0;
+            chart.innerHTML = '';
+            for (let h = 0; h < 24; h++) {
+                const count = peakData[h] || 0;
+                if (count > peakCount) { peakCount = count; peakHour = h; }
+                const pct = Math.max((count / maxVal) * 100, 2);
+                const isHigh = count > maxVal * 0.7;
+                const bar = document.createElement('div');
+                bar.style.cssText = 'flex:1; background:' + (isHigh ? 'linear-gradient(to top,#f59e0b,#ef4444)' : 'rgba(59,130,246,0.4)') + '; height:' + pct + '%; border-radius:4px 4px 0 0; transition:height 0.6s; position:relative; cursor:pointer; min-height:2px;';
+                bar.title = String(h).padStart(2,'0') + ':00 — ' + count + ' pesanan';
+                chart.appendChild(bar);
+            }
+            if (summary) {
+                if (peakHour >= 0 && peakCount > 0) {
+                    summary.innerHTML = '🔥 Jam tersibuk: <strong class="text-amber-400">' + String(peakHour).padStart(2,'0') + ':00</strong> dengan <strong class="text-white">' + peakCount + ' pesanan</strong>. Siapkan barista ekstra!';
+                } else {
+                    summary.textContent = 'Belum ada data pesanan.';
+                }
+            }
+        }
+        setInterval(renderPeakHourChart, 5000);
+
+        // ===== WAITER CALL NOTIFICATIONS (Feature 5) =====
+        function renderWaiterCalls() {
+            const section = document.getElementById('waiterCallSection');
+            const grid = document.getElementById('waiterCallGrid');
+            if (!section || !grid) return;
+            let calls = [];
+            try { calls = JSON.parse(localStorage.getItem('karsa_waiter_calls')) || []; } catch(e) {}
+            const activeCalls = calls.filter(c => c.status === 'aktif');
+            if (activeCalls.length === 0) { section.classList.add('hidden'); return; }
+            section.classList.remove('hidden');
+            // Play ding sound for new calls
+            if (activeCalls.length > (window._lastCallCount || 0)) {
+                try {
+                    const audio = new Audio('https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3?filename=service-bell-ring-14610.mp3');
+                    audio.volume = 0.6;
+                    audio.play().catch(e => {});
+                } catch(e) {}
+            }
+            window._lastCallCount = activeCalls.length;
+            grid.innerHTML = activeCalls.map(c => `
+                <div class="bg-purple-900/30 p-4 rounded-xl border border-purple-500/20 flex justify-between items-center animate-slide">
+                    <div>
+                        <p class="text-white font-bold">🔔 Meja ${c.meja} <span class="text-xs text-purple-400 font-normal ml-2">(${c.nama})</span></p>
+                        <p class="text-purple-300 text-sm mt-1 font-semibold">Meminta: ${c.layanan}</p>
+                        <p class="text-stone-500 text-[10px] mt-1">${c.waktu}</p>
+                    </div>
+                    <button onclick="dismissWaiterCall(${c.id})" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition">✅ Selesai</button>
+                </div>
+            `).join('');
+        }
+        function dismissWaiterCall(id) {
+            let calls = JSON.parse(localStorage.getItem('karsa_waiter_calls')) || [];
+            calls = calls.map(c => { if (c.id === id) c.status = 'selesai'; return c; });
+            localStorage.setItem('karsa_waiter_calls', JSON.stringify(calls));
+            renderWaiterCalls();
+        }
+        setInterval(renderWaiterCalls, 3000);
+
+        // ===== STOCK MANAGEMENT GRID =====
+        function renderStockGrid() {
+            const grid = document.getElementById('stockGrid');
+            if (!grid) return;
+            let inv = {};
+            try { inv = JSON.parse(localStorage.getItem('karsa_inventory')) || {}; } catch(e) {}
+            if (Object.keys(inv).length === 0) { grid.innerHTML = '<p class="text-xs text-stone-600 italic">Belum ada data stok.</p>'; return; }
+            grid.innerHTML = Object.entries(inv).map(([name, stock]) => {
+                const color = stock <= 0 ? 'red' : stock <= 3 ? 'amber' : 'green';
+                return `
+                <div class="bg-${color}-500/10 border border-${color}-500/20 p-3 rounded-xl">
+                    <p class="text-white text-sm font-bold truncate">${name}</p>
+                    <div class="flex items-center justify-between mt-2">
+                        <span class="text-${color}-400 text-lg font-black">${stock}</span>
+                        <div class="flex gap-1">
+                            <button onclick="adjustStock('${name}', -1)" class="w-7 h-7 rounded-lg bg-red-500/20 text-red-400 text-sm font-bold hover:bg-red-500/40 transition">-</button>
+                            <button onclick="adjustStock('${name}', 1)" class="w-7 h-7 rounded-lg bg-green-500/20 text-green-400 text-sm font-bold hover:bg-green-500/40 transition">+</button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+        function adjustStock(name, delta) {
+            let inv = {};
+            try { inv = JSON.parse(localStorage.getItem('karsa_inventory')) || {}; } catch(e) {}
+            if (inv[name] !== undefined) { inv[name] = Math.max(0, inv[name] + delta); }
+            localStorage.setItem('karsa_inventory', JSON.stringify(inv));
+            renderStockGrid();
+        }
+        function resetStock() {
+            if (!confirm('Reset semua stok ke default?')) return;
+            const defaultStock = {'Kopi Susu Karsa':20,'Iced Americano':15,'Matcha Latte':12,'Red Velvet Latte':10,'Nasi Goreng Katsu':8,'Indomie Spesial':15,'Mix Platter':6};
+            localStorage.setItem('karsa_inventory', JSON.stringify(defaultStock));
+            renderStockGrid();
+        }
+        setInterval(renderStockGrid, 5000);
+
+        // ===== AUTO-CLOSE SESSION / MEJA KOSONG (Feature 8) =====
+        function mejaKosong(id) {
+            if (!confirm('Tandai pelanggan sudah pulang? Semua data sesi meja ini akan dihapus.')) return;
+            let pesanan = JSON.parse(localStorage.getItem('karsa_pesanan_masuk')) || [];
+            const p = pesanan.find(x => x.id === id);
+            if (!p) return;
+            // Remove order
+            pesanan = pesanan.filter(x => x.id !== id);
+            localStorage.setItem('karsa_pesanan_masuk', JSON.stringify(pesanan));
+            // Log to staff performance
+            if (currentStaff) {
+                let staffStats = JSON.parse(localStorage.getItem('karsa_staff_performance')) || {};
+                staffStats[currentStaff] = (staffStats[currentStaff] || 0) + 1;
+                localStorage.setItem('karsa_staff_performance', JSON.stringify(staffStats));
+            }
+            syncCapacityFromReservations(pesanan);
+            renderPesanan();
+        }
     </script>
+
+    <!-- Ding Sound for Waiter Calls -->
+    <audio id="dingSound" preload="auto">
+        <source src="https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3?filename=service-bell-ring-14610.mp3" type="audio/mpeg">
+    </audio>
 </body>
 </html>

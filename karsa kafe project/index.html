@@ -101,10 +101,13 @@
                 <a href="#kontak" class="nav-link text-cream-100 hover:text-cream-300 text-sm tracking-wide">KONTAK</a>
 
                 <!-- ===== LIVE CLOCK WIDGET ===== -->
-                <div id="liveClockWidget" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 border border-white/10 backdrop-blur-md">
+                <div id="liveClockWidget"
+                    class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 border border-white/10 backdrop-blur-md">
                     <div id="cafeStatusDot" class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                    <span id="liveClockDisplay" class="text-cream-100 text-xs font-bold tracking-wider font-mono">00:00</span>
-                    <span id="cafeStatusLabel" class="text-green-400 text-[10px] font-black uppercase tracking-widest">Open</span>
+                    <span id="liveClockDisplay"
+                        class="text-cream-100 text-xs font-bold tracking-wider font-mono">00:00</span>
+                    <span id="cafeStatusLabel"
+                        class="text-green-400 text-[10px] font-black uppercase tracking-widest">Open</span>
                 </div>
 
                 <button id="darkModeBtn"
@@ -175,6 +178,21 @@
         </div>
     </section>
 
+    <!-- ===== DAILY SPECIALS FLIP CARD (Feature 7) ===== -->
+    <section id="dailySpecials" class="py-16 px-4 bg-cream-100 dark:bg-wood-900">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-10 fade-in" data-aos="fade-up">
+                <p class="text-amber-700 tracking-[.3em] text-xs uppercase mb-2">🔥 Hari Ini</p>
+                <h2 class="font-display text-3xl md:text-4xl font-bold text-wood-800 dark:text-cream-100">Menu Spesial
+                </h2>
+                <div class="w-16 h-0.5 bg-amber-700 mx-auto mt-4"></div>
+                <p class="text-stone-500 dark:text-stone-400 text-sm mt-3">Tap kartu untuk lihat detail bahan & promo!
+                </p>
+            </div>
+            <div id="dailySpecialsContainer" class="fade-in" data-aos="zoom-in"></div>
+        </div>
+    </section>
+
     <!-- MENU -->
     <section id="menu" class="py-20 px-4 bg-cream-50">
         <div class="max-w-6xl mx-auto">
@@ -193,50 +211,62 @@
                 </div>
                 <div class="grid sm:grid-cols-3 gap-6">
                     <!-- Card 1 -->
-                    <div class="barista-rec-card relative rounded-2xl overflow-hidden" data-aos="fade-up" data-aos-delay="0">
+                    <div class="barista-rec-card relative rounded-2xl overflow-hidden" data-aos="fade-up"
+                        data-aos-delay="0">
                         <span class="best-seller-ribbon">Best Seller</span>
                         <div class="h-44 overflow-hidden">
-                            <img src="images/kopi-susu-karsa.png" alt="Kopi Susu Karsa" class="w-full h-full object-cover hover:scale-110 transition duration-500">
+                            <img src="images/kopi-susu-karsa.png" alt="Kopi Susu Karsa"
+                                class="w-full h-full object-cover hover:scale-110 transition duration-500">
                         </div>
                         <div class="p-5 bg-white">
                             <h4 class="font-display text-base font-bold text-wood-800">Kopi Susu Karsa</h4>
                             <p class="text-stone-500 text-xs mt-1">Signature es kopi susu, andalan semua kalangan.</p>
                             <div class="mt-4 flex justify-between items-center">
                                 <p class="text-amber-700 font-black text-sm">Rp 18.000</p>
-                                <button class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
-                                    data-name="Kopi Susu Karsa" data-price="18000" data-image="images/kopi-susu-karsa.png">Tambah</button>
+                                <button
+                                    class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
+                                    data-name="Kopi Susu Karsa" data-price="18000"
+                                    data-image="images/kopi-susu-karsa.png">Tambah</button>
                             </div>
                         </div>
                     </div>
                     <!-- Card 2 -->
-                    <div class="barista-rec-card relative rounded-2xl overflow-hidden" data-aos="fade-up" data-aos-delay="100">
+                    <div class="barista-rec-card relative rounded-2xl overflow-hidden" data-aos="fade-up"
+                        data-aos-delay="100">
                         <span class="best-seller-ribbon">Best Seller</span>
                         <div class="h-44 overflow-hidden">
-                            <img src="images/kopi-susu-karsa.png" alt="Iced Americano" class="w-full h-full object-cover hover:scale-110 transition duration-500 grayscale-[0.2]">
+                            <img src="images/kopi-susu-karsa.png" alt="Iced Americano"
+                                class="w-full h-full object-cover hover:scale-110 transition duration-500 grayscale-[0.2]">
                         </div>
                         <div class="p-5 bg-white">
                             <h4 class="font-display text-base font-bold text-wood-800">Iced Americano</h4>
                             <p class="text-stone-500 text-xs mt-1">Espresso dengan air es segar, cocok buat fokus.</p>
                             <div class="mt-4 flex justify-between items-center">
                                 <p class="text-amber-700 font-black text-sm">Rp 15.000</p>
-                                <button class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
-                                    data-name="Iced Americano" data-price="15000" data-image="images/kopi-susu-karsa.png">Tambah</button>
+                                <button
+                                    class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
+                                    data-name="Iced Americano" data-price="15000"
+                                    data-image="images/kopi-susu-karsa.png">Tambah</button>
                             </div>
                         </div>
                     </div>
                     <!-- Card 3 -->
-                    <div class="barista-rec-card relative rounded-2xl overflow-hidden" data-aos="fade-up" data-aos-delay="200">
+                    <div class="barista-rec-card relative rounded-2xl overflow-hidden" data-aos="fade-up"
+                        data-aos-delay="200">
                         <span class="best-seller-ribbon">Best Seller</span>
                         <div class="h-44 overflow-hidden">
-                            <img src="images/matcha-latte.png" alt="Matcha Latte" class="w-full h-full object-cover hover:scale-110 transition duration-500">
+                            <img src="images/matcha-latte.png" alt="Matcha Latte"
+                                class="w-full h-full object-cover hover:scale-110 transition duration-500">
                         </div>
                         <div class="p-5 bg-white">
                             <h4 class="font-display text-base font-bold text-wood-800">Matcha Latte</h4>
                             <p class="text-stone-500 text-xs mt-1">Matcha premium dengan susu segar yang creamy.</p>
                             <div class="mt-4 flex justify-between items-center">
                                 <p class="text-amber-700 font-black text-sm">Rp 22.000</p>
-                                <button class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
-                                    data-name="Matcha Latte" data-price="22000" data-image="images/matcha-latte.png">Tambah</button>
+                                <button
+                                    class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
+                                    data-name="Matcha Latte" data-price="22000"
+                                    data-image="images/matcha-latte.png">Tambah</button>
                             </div>
                         </div>
                     </div>
@@ -245,12 +275,21 @@
 
             <!-- Mood Selector -->
             <div id="moodSelector" class="text-center mb-8 fade-in">
-                <p class="text-sm text-stone-500 font-bold tracking-widest uppercase mb-4">Lagi ngerasa gimana hari ini?</p>
+                <p class="text-sm text-stone-500 font-bold tracking-widest uppercase mb-4">Lagi ngerasa gimana hari ini?
+                </p>
                 <div class="flex justify-center gap-4">
-                    <button onclick="setMood('Sedih')" class="mood-btn text-3xl hover:scale-110 transition bg-white shadow-sm p-4 rounded-full border border-stone-100" title="Sedih">😢</button>
-                    <button onclick="setMood('Ngantuk')" class="mood-btn text-3xl hover:scale-110 transition bg-white shadow-sm p-4 rounded-full border border-stone-100" title="Ngantuk">😴</button>
-                    <button onclick="setMood('Senang')" class="mood-btn text-3xl hover:scale-110 transition bg-white shadow-sm p-4 rounded-full border border-stone-100" title="Senang">😄</button>
-                    <button onclick="setMood('Fokus')" class="mood-btn text-3xl hover:scale-110 transition bg-white shadow-sm p-4 rounded-full border border-stone-100" title="Fokus">🤓</button>
+                    <button onclick="setMood('Sedih')"
+                        class="mood-btn text-3xl hover:scale-110 transition bg-white shadow-sm p-4 rounded-full border border-stone-100"
+                        title="Sedih">😢</button>
+                    <button onclick="setMood('Ngantuk')"
+                        class="mood-btn text-3xl hover:scale-110 transition bg-white shadow-sm p-4 rounded-full border border-stone-100"
+                        title="Ngantuk">😴</button>
+                    <button onclick="setMood('Senang')"
+                        class="mood-btn text-3xl hover:scale-110 transition bg-white shadow-sm p-4 rounded-full border border-stone-100"
+                        title="Senang">😄</button>
+                    <button onclick="setMood('Fokus')"
+                        class="mood-btn text-3xl hover:scale-110 transition bg-white shadow-sm p-4 rounded-full border border-stone-100"
+                        title="Fokus">🤓</button>
                 </div>
             </div>
 
@@ -268,7 +307,8 @@
                     <input type="text" id="menuSearchBar" placeholder="Cari menu kopi, makanan..."
                         class="w-full pl-11 pr-5 py-3 rounded-full border-2 border-amber-200 bg-white text-stone-700 text-sm placeholder-stone-400 focus:outline-none focus:border-amber-500 shadow-sm transition">
                 </div>
-                <p id="searchNoResult" class="text-center text-stone-400 text-sm mt-4 hidden">😔 Menu tidak ditemukan. Coba kata kunci lain.</p>
+                <p id="searchNoResult" class="text-center text-stone-400 text-sm mt-4 hidden">😔 Menu tidak ditemukan.
+                    Coba kata kunci lain.</p>
             </div>
 
             <div class="flex flex-wrap justify-center gap-3 mb-10 fade-in">
@@ -333,7 +373,8 @@
                             <p class="text-amber-700 font-bold text-sm">Rp 22.000</p>
                             <button type="button"
                                 class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
-                                data-name="Matcha Latte" data-price="22000" data-image="images/matcha-latte.png">Tambah</button>
+                                data-name="Matcha Latte" data-price="22000"
+                                data-image="images/matcha-latte.png">Tambah</button>
                         </div>
                     </div>
                 </div>
@@ -401,7 +442,8 @@
                             <p class="text-amber-700 font-bold text-sm">Rp 35.000</p>
                             <button type="button"
                                 class="tambah-keranjang-btn bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
-                                data-name="Mix Platter" data-price="35000" data-image="images/mix-platter.png">Tambah</button>
+                                data-name="Mix Platter" data-price="35000"
+                                data-image="images/mix-platter.png">Tambah</button>
                         </div>
                     </div>
                 </div>
@@ -525,7 +567,8 @@
                         class="w-full bg-white/10 border border-cream-200/20 text-cream-100 placeholder-stone-400 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition resize-none"></textarea>
                 </div>
                 <div id="waField" style="display:none;" class="transition-all">
-                    <label class="block text-amber-400 text-sm mb-1.5 font-bold">No. WhatsApp (Untuk Daftar Tunggu)</label>
+                    <label class="block text-amber-400 text-sm mb-1.5 font-bold">No. WhatsApp (Untuk Daftar
+                        Tunggu)</label>
                     <input type="tel" id="resWA" placeholder="08..."
                         class="w-full bg-amber-500/10 border border-amber-500/50 text-amber-100 placeholder-stone-400 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-400 transition">
                 </div>
@@ -1264,6 +1307,31 @@
         </div>
     </div>
 
+    <!-- ===== DIGITAL WAITER CALL (Feature 5) ===== -->
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-3">
+        <div id="waiterCallPopup"
+            class="hidden bg-white dark:bg-wood-800 p-4 rounded-xl shadow-2xl border border-stone-200 dark:border-wood-700 w-56 transform origin-bottom transition-all duration-300 scale-0 mb-2">
+            <p class="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-3">🔔 Panggil
+                Pelayan</p>
+            <div class="space-y-2">
+                <button
+                    class="waiter-call-option w-full text-left px-4 py-2.5 text-sm bg-amber-50 dark:bg-wood-700 hover:bg-amber-100 dark:hover:bg-wood-600 text-amber-800 dark:text-amber-400 rounded-lg transition font-medium"
+                    data-service="Minta Menu">📋 Minta Menu</button>
+                <button
+                    class="waiter-call-option w-full text-left px-4 py-2.5 text-sm bg-amber-50 dark:bg-wood-700 hover:bg-amber-100 dark:hover:bg-wood-600 text-amber-800 dark:text-amber-400 rounded-lg transition font-medium"
+                    data-service="Pesan Tambahan">➕ Pesan Tambahan</button>
+                <button
+                    class="waiter-call-option w-full text-left px-4 py-2.5 text-sm bg-amber-50 dark:bg-wood-700 hover:bg-amber-100 dark:hover:bg-wood-600 text-amber-800 dark:text-amber-400 rounded-lg transition font-medium"
+                    data-service="Minta Bill">🧾 Minta Bill</button>
+            </div>
+        </div>
+        <button id="waiterCallBtn"
+            class="w-14 h-14 bg-gradient-to-br from-amber-500 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-white rounded-full flex items-center justify-center shadow-xl transition-all hover:scale-110 text-2xl hover:shadow-amber-500/30 hover:shadow-2xl"
+            title="Panggil Pelayan">
+            🔔
+        </button>
+    </div>
+
     <!-- Order from Table (FAB) -->
     <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
         <button id="openCartBtn"
@@ -1333,6 +1401,52 @@
                     <span class="text-stone-500 dark:text-stone-400">Total Pembayaran:</span>
                     <span id="cartTotalPrice" class="font-bold text-xl text-amber-700">Rp 0</span>
                 </div>
+
+                <!-- ===== PAYMENT METHOD PICKER (Feature 6) ===== -->
+                <div id="paymentMethodPicker" class="mb-4">
+                    <p class="text-[10px] text-stone-400 dark:text-stone-500 uppercase tracking-widest font-bold mb-2">
+                        💳 Metode Pembayaran</p>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button
+                            class="payment-option payment-active flex flex-col items-center gap-1 p-3 rounded-xl border border-amber-200 dark:border-wood-700 bg-amber-50 dark:bg-wood-900 text-xs font-bold text-stone-600 dark:text-cream-200 transition hover:border-amber-500"
+                            data-method="tunai">
+                            <span class="text-xl">💵</span>Tunai
+                        </button>
+                        <button
+                            class="payment-option flex flex-col items-center gap-1 p-3 rounded-xl border border-stone-200 dark:border-wood-700 bg-white dark:bg-wood-900 text-xs font-bold text-stone-600 dark:text-cream-200 transition hover:border-amber-500"
+                            data-method="qris">
+                            <span class="text-xl">📱</span>QRIS
+                        </button>
+                        <button
+                            class="payment-option flex flex-col items-center gap-1 p-3 rounded-xl border border-stone-200 dark:border-wood-700 bg-white dark:bg-wood-900 text-xs font-bold text-stone-600 dark:text-cream-200 transition hover:border-amber-500"
+                            data-method="transfer">
+                            <span class="text-xl">🏦</span>Transfer
+                        </button>
+                    </div>
+                    <!-- Tunai Panel -->
+                    <div id="tunaiPanel"
+                        class="mt-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl text-xs text-green-700 dark:text-green-400 font-medium">
+                        💵 Silakan menuju kasir dan tunjukkan nomor pesananmu.
+                    </div>
+                    <!-- QRIS Panel -->
+                    <div id="qrisPanel"
+                        class="mt-3 p-4 bg-white dark:bg-wood-900 border border-amber-200 dark:border-wood-700 rounded-xl text-center hidden">
+                        <p class="text-xs text-stone-500 dark:text-stone-400 font-bold mb-3 uppercase tracking-wider">
+                            Scan QRIS</p>
+                        <div class="w-32 h-32 mx-auto bg-white p-2 rounded-xl border">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=KARSA-CAFE-QRIS-PAY"
+                                alt="QRIS" class="w-full h-full">
+                        </div>
+                        <p class="text-[10px] text-stone-400 mt-2">Gunakan e-wallet / m-banking</p>
+                    </div>
+                    <!-- Transfer Panel -->
+                    <div id="transferPanel"
+                        class="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl text-xs text-blue-700 dark:text-blue-400 font-medium hidden">
+                        🏦 Transfer ke: <strong>BCA 1234567890</strong> a.n. Karsa Cafe<br>
+                        <span class="text-[10px] text-blue-500">Kirim bukti transfer ke kasir setelah bayar.</span>
+                    </div>
+                </div>
+
                 <button id="finalCheckoutBtn"
                     class="w-full bg-amber-700 hover:bg-amber-800 text-white py-3 rounded-lg font-bold tracking-wider transition">Pesan
                     Sekarang</button>
@@ -1400,13 +1514,15 @@
 
             <!-- Receipt Actions -->
             <div class="p-6 bg-wood-900/60 flex flex-col gap-3">
-                <button onclick="shareOrder()" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg flex justify-center items-center gap-2">
+                <button onclick="shareOrder()"
+                    class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg flex justify-center items-center gap-2">
                     <span class="text-sm">📱</span> Share to WhatsApp
                 </button>
                 <div class="flex gap-3">
                     <button id="downloadReceiptBtn"
-                        class="flex-1 bg-white/10 hover:bg-white/20 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/10">Simpan
-                        Struk</button>
+                        class="flex-1 bg-white/10 hover:bg-white/20 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/10">📄
+                        Unduh
+                        Nota PDF</button>
                     <button id="closeReceiptBtn"
                         class="flex-1 bg-amber-700 hover:bg-amber-800 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-amber-900/20">Selesai</button>
                 </div>
@@ -1415,38 +1531,56 @@
     </div>
 
     <!-- ===== RATING MODAL ===== -->
-    <div id="ratingModal" class="fixed inset-0 z-[300] hidden items-center justify-center bg-black/80 backdrop-blur-md p-4">
-        <div class="w-full max-w-xs rounded-3xl overflow-hidden shadow-2xl" style="background:rgba(20,12,5,0.97); border:1px solid rgba(245,158,11,0.25);">
+    <div id="ratingModal"
+        class="fixed inset-0 z-[300] hidden items-center justify-center bg-black/80 backdrop-blur-md p-4">
+        <div class="w-full max-w-xs rounded-3xl overflow-hidden shadow-2xl"
+            style="background:rgba(20,12,5,0.97); border:1px solid rgba(245,158,11,0.25);">
             <div class="p-8 text-center">
-                <div class="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center text-3xl" style="background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3);">⭐</div>
+                <div class="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center text-3xl"
+                    style="background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3);">⭐</div>
                 <h3 class="font-display text-xl font-bold text-white mb-1">Bagaimana Pesananmu?</h3>
                 <p class="text-stone-400 text-xs mb-6">Tap bintang untuk memberi rating</p>
                 <!-- Stars -->
                 <div id="ratingStars" class="flex justify-center gap-3 mb-6">
-                    <span class="rating-star text-4xl cursor-pointer transition-transform hover:scale-125" data-val="1">☆</span>
-                    <span class="rating-star text-4xl cursor-pointer transition-transform hover:scale-125" data-val="2">☆</span>
-                    <span class="rating-star text-4xl cursor-pointer transition-transform hover:scale-125" data-val="3">☆</span>
-                    <span class="rating-star text-4xl cursor-pointer transition-transform hover:scale-125" data-val="4">☆</span>
-                    <span class="rating-star text-4xl cursor-pointer transition-transform hover:scale-125" data-val="5">☆</span>
+                    <span class="rating-star text-4xl cursor-pointer transition-transform hover:scale-125"
+                        data-val="1">☆</span>
+                    <span class="rating-star text-4xl cursor-pointer transition-transform hover:scale-125"
+                        data-val="2">☆</span>
+                    <span class="rating-star text-4xl cursor-pointer transition-transform hover:scale-125"
+                        data-val="3">☆</span>
+                    <span class="rating-star text-4xl cursor-pointer transition-transform hover:scale-125"
+                        data-val="4">☆</span>
+                    <span class="rating-star text-4xl cursor-pointer transition-transform hover:scale-125"
+                        data-val="5">☆</span>
                 </div>
                 <!-- Feedback area (conditionally shown) -->
                 <div id="ratingFeedbackBox" class="hidden mb-4">
                     <textarea id="ratingFeedbackText" rows="3" placeholder="Apa yang bisa kami tingkatkan?"
                         class="w-full bg-white/10 border border-amber-500/30 text-cream-100 placeholder-stone-500 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 resize-none transition"></textarea>
                 </div>
-                <div id="ratingThankMsg" class="hidden mb-4 py-3 px-4 rounded-xl text-sm font-bold text-green-400" style="background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.2);">🎉 Terima kasih! Senang melayani Anda.</div>
-                <button id="submitRatingBtn" class="w-full py-3 rounded-xl font-black text-sm uppercase tracking-widest transition" style="background:#b45309; color:#fff;">Kirim Rating</button>
-                <button onclick="document.getElementById('ratingModal').classList.add('hidden'); document.getElementById('ratingModal').classList.remove('flex');" class="mt-3 text-xs text-stone-500 hover:text-stone-300 transition block mx-auto">Lewati</button>
+                <div id="ratingThankMsg" class="hidden mb-4 py-3 px-4 rounded-xl text-sm font-bold text-green-400"
+                    style="background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.2);">🎉 Terima kasih!
+                    Senang melayani Anda.</div>
+                <button id="submitRatingBtn"
+                    class="w-full py-3 rounded-xl font-black text-sm uppercase tracking-widest transition"
+                    style="background:#b45309; color:#fff;">Kirim Rating</button>
+                <button
+                    onclick="document.getElementById('ratingModal').classList.add('hidden'); document.getElementById('ratingModal').classList.remove('flex');"
+                    class="mt-3 text-xs text-stone-500 hover:text-stone-300 transition block mx-auto">Lewati</button>
             </div>
         </div>
     </div>
 
     <!-- ===== ORDER PROGRESS BAR WIDGET ===== -->
     <div id="orderProgressWidget" class="fixed bottom-24 right-24 z-[58] hidden" style="min-width:260px;">
-        <div style="background:rgba(15,10,5,0.96); backdrop-filter:blur(20px); border:1px solid rgba(245,158,11,0.25); border-radius:20px; padding:18px 20px; box-shadow:0 20px 60px rgba(0,0,0,0.6);">
+        <div
+            style="background:rgba(15,10,5,0.96); backdrop-filter:blur(20px); border:1px solid rgba(245,158,11,0.25); border-radius:20px; padding:18px 20px; box-shadow:0 20px 60px rgba(0,0,0,0.6);">
             <div class="flex justify-between items-center mb-3">
-                <p style="color:rgba(255,255,255,0.4); font-size:9px; text-transform:uppercase; letter-spacing:0.18em; font-weight:800; margin:0;">🔥 Status Pesanan</p>
-                <button onclick="document.getElementById('orderProgressWidget').classList.add('hidden')" style="background:transparent; border:none; color:rgba(255,255,255,0.3); font-size:16px; cursor:pointer; line-height:1;">×</button>
+                <p
+                    style="color:rgba(255,255,255,0.4); font-size:9px; text-transform:uppercase; letter-spacing:0.18em; font-weight:800; margin:0;">
+                    🔥 Status Pesanan</p>
+                <button onclick="document.getElementById('orderProgressWidget').classList.add('hidden')"
+                    style="background:transparent; border:none; color:rgba(255,255,255,0.3); font-size:16px; cursor:pointer; line-height:1;">×</button>
             </div>
             <!-- Steps -->
             <div class="flex items-center gap-1" id="progressStepsRow">
@@ -1465,83 +1599,121 @@
                     <p class="prog-label">Siap</p>
                 </div>
             </div>
-            <p id="progressStatusText" class="text-center mt-3" style="color:#f59e0b; font-size:11px; font-weight:700; margin:0;">Pesanan Diterima ✅</p>
+            <p id="progressStatusText" class="text-center mt-3"
+                style="color:#f59e0b; font-size:11px; font-weight:700; margin:0;">Pesanan Diterima ✅</p>
         </div>
     </div>
 
     <style>
-    /* ===== BARISTA REC CARDS ===== */
-    .barista-rec-card {
-        box-shadow: 0 0 0 2px rgba(245,158,11,0.5), 0 8px 32px rgba(245,158,11,0.18);
-        animation: floatCard 3s ease-in-out infinite;
-        transition: box-shadow 0.3s, transform 0.3s;
-    }
-    .barista-rec-card:hover {
-        box-shadow: 0 0 0 3px rgba(245,158,11,0.9), 0 12px 40px rgba(245,158,11,0.35);
-    }
-    .barista-rec-card:nth-child(2) { animation-delay: 0.5s; }
-    .barista-rec-card:nth-child(3) { animation-delay: 1s; }
-    @keyframes floatCard {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-8px); }
-    }
-    .best-seller-ribbon {
-        position: absolute;
-        top: 14px;
-        right: -10px;
-        background: linear-gradient(135deg, #d97706, #b45309);
-        color: #fff;
-        font-size: 9px;
-        font-weight: 900;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        padding: 4px 18px 4px 12px;
-        transform: rotate(20deg);
-        z-index: 10;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-        border-radius: 4px 0 0 4px;
-    }
-    /* ===== PROGRESS BAR STEPS ===== */
-    .prog-dot {
-        width: 14px; height: 14px;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.15);
-        border: 2px solid rgba(255,255,255,0.2);
-        margin: 0 auto 4px;
-        transition: all 0.5s;
-    }
-    .prog-dot.active {
-        background: #f59e0b;
-        border-color: #f59e0b;
-        box-shadow: 0 0 10px rgba(245,158,11,0.6);
-    }
-    .prog-dot.done {
-        background: #22c55e;
-        border-color: #22c55e;
-        box-shadow: 0 0 8px rgba(34,197,94,0.5);
-    }
-    .prog-label {
-        font-size: 8px;
-        color: rgba(255,255,255,0.35);
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        font-weight: 800;
-        margin: 0;
-        transition: color 0.4s;
-    }
-    .prog-label.active { color: #f59e0b; }
-    .prog-label.done { color: #22c55e; }
-    .prog-line {
-        flex: 1;
-        height: 2px;
-        background: rgba(255,255,255,0.1);
-        border-radius: 2px;
-        transition: background 0.6s;
-    }
-    .prog-line.active { background: linear-gradient(90deg, #f59e0b, #22c55e); }
-    /* ===== CAFE STATUS DOT ===== */
-    #cafeStatusDot.closed { background: #ef4444; }
-    #cafeStatusLabel.closed { color: #ef4444; }
+        /* ===== BARISTA REC CARDS ===== */
+        .barista-rec-card {
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.5), 0 8px 32px rgba(245, 158, 11, 0.18);
+            animation: floatCard 3s ease-in-out infinite;
+            transition: box-shadow 0.3s, transform 0.3s;
+        }
+
+        .barista-rec-card:hover {
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.9), 0 12px 40px rgba(245, 158, 11, 0.35);
+        }
+
+        .barista-rec-card:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
+        .barista-rec-card:nth-child(3) {
+            animation-delay: 1s;
+        }
+
+        @keyframes floatCard {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        .best-seller-ribbon {
+            position: absolute;
+            top: 14px;
+            right: -10px;
+            background: linear-gradient(135deg, #d97706, #b45309);
+            color: #fff;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 4px 18px 4px 12px;
+            transform: rotate(20deg);
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+            border-radius: 4px 0 0 4px;
+        }
+
+        /* ===== PROGRESS BAR STEPS ===== */
+        .prog-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            margin: 0 auto 4px;
+            transition: all 0.5s;
+        }
+
+        .prog-dot.active {
+            background: #f59e0b;
+            border-color: #f59e0b;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+        }
+
+        .prog-dot.done {
+            background: #22c55e;
+            border-color: #22c55e;
+            box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+        }
+
+        .prog-label {
+            font-size: 8px;
+            color: rgba(255, 255, 255, 0.35);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: 800;
+            margin: 0;
+            transition: color 0.4s;
+        }
+
+        .prog-label.active {
+            color: #f59e0b;
+        }
+
+        .prog-label.done {
+            color: #22c55e;
+        }
+
+        .prog-line {
+            flex: 1;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            transition: background 0.6s;
+        }
+
+        .prog-line.active {
+            background: linear-gradient(90deg, #f59e0b, #22c55e);
+        }
+
+        /* ===== CAFE STATUS DOT ===== */
+        #cafeStatusDot.closed {
+            background: #ef4444;
+        }
+
+        #cafeStatusLabel.closed {
+            color: #ef4444;
+        }
     </style>
 </body>
 

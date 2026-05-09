@@ -217,6 +217,9 @@ function initForm() {
                 return;
             }
 
+            // ===== ANTI-DOUBLE BOOKING CHECK (Feature 1) =====
+            if (window._checkDoubleBooking && !window._checkDoubleBooking()) return;
+
             const inputs = form.querySelectorAll('input[required], select[required]');
             let isValid = true;
             
@@ -242,6 +245,9 @@ function initForm() {
             
             const originalText = btn.textContent;
             btn.textContent = 'Memproses...';
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
             
             const area = selectedArea.value;
             const nama = document.getElementById('resNama').value;
@@ -315,6 +321,9 @@ function initForm() {
                 if (typeof initAreaToggles === 'function') initAreaToggles();
 
                 btn.textContent = originalText;
+                btn.disabled = false;
+                btn.style.opacity = '';
+                btn.style.cursor = '';
             }, 1500);
         };
         
@@ -828,6 +837,8 @@ function initMenuCalculator() {
     
     const handleCheckout = () => {
         if (!checkAuth()) return;
+        // ===== ANTI-DOUBLE BOOKING (Feature 1) =====
+        if (window._checkDoubleBooking && !window._checkDoubleBooking()) return;
         
         let cart = [];
         try { cart = JSON.parse(localStorage.getItem('karsa_cart')) || []; } catch(e) {}
@@ -835,6 +846,10 @@ function initMenuCalculator() {
             alert('Keranjang masih kosong, Ngab!');
             return;
         }
+        // Disable checkout buttons immediately
+        document.querySelectorAll('#checkoutMenuBtn, #finalCheckoutBtn').forEach(b => {
+            b.disabled = true; b.textContent = 'Memproses...'; b.style.opacity='0.5';
+        });
 
         const userName = localStorage.getItem('karsa_user_name');
         const tableNum = localStorage.getItem('karsa_table_number');
@@ -866,6 +881,10 @@ function initMenuCalculator() {
         localStorage.setItem('karsa_last_order_id', String(pesananBaru.id));
         localStorage.setItem('karsa_order_stage', '0');
         
+        // ===== REDUCE STOCK (Feature 2) =====
+        cart.forEach(item => { if (window.reduceStock) window.reduceStock(item.name, item.qty); });
+        // ===== LOG PEAK HOUR (Feature 4) =====
+        if (typeof logPeakHour === 'function') logPeakHour();
         // Clear Cart
         localStorage.setItem('karsa_cart', JSON.stringify([]));
         if (window.updateCartUI) window.updateCartUI();
@@ -1314,11 +1333,18 @@ document.addEventListener('DOMContentLoaded', () => {
   initDatePicker();
   initBeforeAfterSlider();
   initAOS();
-  // ===== NEW FEATURES =====
+  // ===== PREVIOUS FEATURES =====
   initLiveClock();
   initSearchBar();
   initRatingModal();
   initOrderProgress();
+  // ===== 8 NEW FEATURES =====
+  initInventory();
+  initAntiDoubleBooking();
+  initDownloadPDF();
+  initWaiterCall();
+  initPaymentPicker();
+  initDailySpecials();
 });
 
 // ===== SHARE ORDER =====
@@ -1330,4 +1356,287 @@ function shareOrder() {
     const itemsText = cart.map(item => `${item.quantity}x ${item.name}`).join(', ');
     const waText = `Baru aja pesen kopi di Kafe Karsa! Gue pesen ${itemsText} di Meja ${table}. Yuk nyusul! Cek di karsa-cafe.vercel.app`;
     window.open(`https://wa.me/?text=${encodeURIComponent(waText)}`, '_blank');
+}
+
+// ===== FEATURE 1: INVENTORY / SMART STOCK SYSTEM =====
+function initInventory() {
+    // Default stock per menu item
+    const defaultStock = {
+        'Kopi Susu Karsa': 20, 'Iced Americano': 15, 'Matcha Latte': 12,
+        'Red Velvet Latte': 10, 'Nasi Goreng Katsu': 8, 'Indomie Spesial': 15,
+        'Mix Platter': 6
+    };
+    if (!localStorage.getItem('karsa_inventory')) {
+        localStorage.setItem('karsa_inventory', JSON.stringify(defaultStock));
+    }
+    window.updateStockUI = function() {
+        let inv = {};
+        try { inv = JSON.parse(localStorage.getItem('karsa_inventory')) || {}; } catch(e) {}
+        document.querySelectorAll('.menu-item').forEach(card => {
+            const nameEl = card.querySelector('h3');
+            if (!nameEl) return;
+            const name = nameEl.textContent.trim();
+            const stock = inv[name];
+            if (stock === undefined) return;
+            const imgEl = card.querySelector('img');
+            const btn = card.querySelector('.tambah-keranjang-btn');
+            // Remove old badges
+            card.querySelectorAll('.stock-badge').forEach(b => b.remove());
+            if (stock <= 0) {
+                // SOLD OUT
+                if (imgEl) imgEl.style.filter = 'grayscale(100%)';
+                if (btn) { btn.disabled = true; btn.textContent = 'Sold Out'; btn.style.opacity = '0.4'; btn.style.cursor = 'not-allowed'; }
+                const badge = document.createElement('div');
+                badge.className = 'stock-badge';
+                badge.style.cssText = 'position:absolute;top:10px;left:10px;background:#ef4444;color:#fff;font-size:10px;font-weight:900;padding:4px 12px;border-radius:8px;z-index:5;text-transform:uppercase;letter-spacing:0.1em;';
+                badge.textContent = 'Sold Out';
+                card.style.position = 'relative';
+                card.appendChild(badge);
+            } else if (stock <= 3) {
+                // LOW STOCK
+                if (imgEl) imgEl.style.filter = '';
+                if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = ''; }
+                const badge = document.createElement('div');
+                badge.className = 'stock-badge';
+                badge.style.cssText = 'position:absolute;top:10px;left:10px;background:#f59e0b;color:#fff;font-size:10px;font-weight:900;padding:4px 12px;border-radius:8px;z-index:5;text-transform:uppercase;letter-spacing:0.1em;animation:pulse 1.5s infinite;';
+                badge.textContent = 'Stok Terbatas! (' + stock + ')';
+                card.style.position = 'relative';
+                card.appendChild(badge);
+            } else {
+                if (imgEl) imgEl.style.filter = '';
+                if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = ''; }
+            }
+        });
+        // Also update sidebar cart items
+        document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+            const name = btn.dataset.name;
+            if (name && inv[name] !== undefined && inv[name] <= 0) {
+                btn.disabled = true; btn.textContent = 'Sold Out'; btn.style.opacity = '0.4';
+            }
+        });
+    };
+    window.reduceStock = function(name, qty) {
+        let inv = {};
+        try { inv = JSON.parse(localStorage.getItem('karsa_inventory')) || {}; } catch(e) {}
+        if (inv[name] !== undefined) {
+            inv[name] = Math.max(0, inv[name] - qty);
+            localStorage.setItem('karsa_inventory', JSON.stringify(inv));
+        }
+        if (window.updateStockUI) window.updateStockUI();
+    };
+    window.updateStockUI();
+    setInterval(window.updateStockUI, 5000);
+}
+
+// ===== FEATURE 2: ANTI-DOUBLE BOOKING =====
+function initAntiDoubleBooking() {
+    // Wrap existing checkout to add double-booking protection
+    const origHandleCheckout = function() {
+        if (!checkAuth()) return;
+        const userName = localStorage.getItem('karsa_user_name');
+        // Check for active order
+        let pesanan = [];
+        try { pesanan = JSON.parse(localStorage.getItem('karsa_pesanan_masuk')) || []; } catch(e) {}
+        const activeOrder = pesanan.find(p => p.nama === userName && (p.status === 'menunggu' || p.status === 'dikonfirmasi'));
+        if (activeOrder) {
+            showToast('⚠️ Kamu masih punya pesanan aktif yang belum selesai!', '#ef4444');
+            return false;
+        }
+        return true; // allow
+    };
+    window._checkDoubleBooking = origHandleCheckout;
+}
+
+// ===== FEATURE 3: DOWNLOAD PDF RECEIPT =====
+function initDownloadPDF() {
+    const dlBtn = document.getElementById('downloadReceiptBtn');
+    if (!dlBtn) return;
+    dlBtn.addEventListener('click', function() {
+        if (typeof window.jspdf === 'undefined' && typeof jspdf === 'undefined') {
+            showToast('⏳ Memuat PDF generator...', '#f59e0b');
+            const s = document.createElement('script');
+            s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+            s.onload = () => generatePDF();
+            document.head.appendChild(s);
+        } else {
+            generatePDF();
+        }
+    });
+}
+function generatePDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: [80, 200] }); // receipt width
+    const userName = localStorage.getItem('karsa_user_name') || 'Pelanggan';
+    const tableNum = localStorage.getItem('karsa_table_number') || '-';
+    const receiptTotal = document.getElementById('receiptTotal')?.textContent || 'Rp 0';
+    const timeStr = document.getElementById('receiptTime')?.textContent || '--:--';
+    // Header
+    doc.setFillColor(44, 26, 18);
+    doc.rect(0, 0, 80, 30, 'F');
+    doc.setTextColor(245, 158, 11);
+    doc.setFontSize(16);
+    doc.text('KARSA CAFE', 40, 12, { align: 'center' });
+    doc.setFontSize(7);
+    doc.setTextColor(180, 160, 140);
+    doc.text('Jl. Belibis, Air Tawar Barat, Padang', 40, 18, { align: 'center' });
+    doc.text('Digital Receipt', 40, 23, { align: 'center' });
+    // Info
+    doc.setTextColor(60, 60, 60);
+    doc.setFontSize(9);
+    let y = 36;
+    doc.text('Nama: ' + userName, 5, y); y += 6;
+    doc.text('Meja: ' + tableNum, 5, y);
+    doc.text('Waktu: ' + timeStr, 45, y); y += 8;
+    // Separator
+    doc.setDrawColor(200); doc.line(5, y, 75, y); y += 6;
+    // Items
+    doc.setFontSize(8);
+    const itemEls = document.querySelectorAll('#receiptItems > div');
+    itemEls.forEach(el => {
+        const spans = el.querySelectorAll('span');
+        if (spans.length >= 2) {
+            doc.text(spans[0].textContent, 5, y);
+            doc.text(spans[1].textContent, 75, y, { align: 'right' });
+            y += 5;
+        }
+    });
+    // Total
+    y += 3;
+    doc.setDrawColor(200); doc.line(5, y, 75, y); y += 6;
+    doc.setFontSize(11);
+    doc.setTextColor(180, 83, 9);
+    doc.text('TOTAL: ' + receiptTotal, 40, y, { align: 'center' }); y += 8;
+    // Footer
+    doc.setFontSize(7);
+    doc.setTextColor(150);
+    doc.text('Terima kasih sudah mampir di Karsa Cafe!', 40, y, { align: 'center' }); y += 4;
+    doc.text(new Date().toLocaleDateString('id-ID'), 40, y, { align: 'center' });
+    doc.save('Nota-Karsa-Cafe-' + Date.now() + '.pdf');
+    showToast('📄 Nota berhasil diunduh!', '#22c55e');
+}
+
+// ===== FEATURE 4: PEAK HOUR ANALYTICS (data logging) =====
+function logPeakHour() {
+    const hour = new Date().getHours();
+    let peakData = {};
+    try { peakData = JSON.parse(localStorage.getItem('karsa_peak_hours')) || {}; } catch(e) {}
+    peakData[hour] = (peakData[hour] || 0) + 1;
+    localStorage.setItem('karsa_peak_hours', JSON.stringify(peakData));
+}
+
+// ===== FEATURE 5: DIGITAL WAITER CALL =====
+function initWaiterCall() {
+    const bellBtn = document.getElementById('waiterCallBtn');
+    const popup = document.getElementById('waiterCallPopup');
+    if (!bellBtn || !popup) return;
+    bellBtn.addEventListener('click', () => {
+        popup.classList.toggle('hidden');
+        setTimeout(() => popup.classList.toggle('scale-0'), 10);
+    });
+    document.addEventListener('click', e => {
+        if (!bellBtn.contains(e.target) && !popup.contains(e.target)) {
+            popup.classList.add('scale-0');
+            setTimeout(() => popup.classList.add('hidden'), 300);
+        }
+    });
+    document.querySelectorAll('.waiter-call-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+            const type = opt.dataset.service;
+            const tableNum = localStorage.getItem('karsa_table_number') || '?';
+            const userName = localStorage.getItem('karsa_user_name') || 'Pelanggan';
+            // Save call to localStorage for kasir
+            let calls = [];
+            try { calls = JSON.parse(localStorage.getItem('karsa_waiter_calls')) || []; } catch(e) {}
+            calls.push({ id: Date.now(), meja: tableNum, nama: userName, layanan: type, waktu: new Date().toLocaleString('id-ID'), status: 'aktif' });
+            localStorage.setItem('karsa_waiter_calls', JSON.stringify(calls));
+            popup.classList.add('scale-0');
+            setTimeout(() => popup.classList.add('hidden'), 300);
+            showToast('🔔 Permintaan "' + type + '" telah dikirim ke kasir!', '#22c55e');
+        });
+    });
+}
+
+// ===== FEATURE 6: MULTI-PAYMENT PICKER =====
+function initPaymentPicker() {
+    const picker = document.getElementById('paymentMethodPicker');
+    if (!picker) return;
+    document.querySelectorAll('.payment-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+            document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('payment-active'));
+            opt.classList.add('payment-active');
+            const method = opt.dataset.method;
+            localStorage.setItem('karsa_payment_method', method);
+            const qrisPanel = document.getElementById('qrisPanel');
+            const tunaiPanel = document.getElementById('tunaiPanel');
+            const transferPanel = document.getElementById('transferPanel');
+            if (qrisPanel) qrisPanel.classList.toggle('hidden', method !== 'qris');
+            if (tunaiPanel) tunaiPanel.classList.toggle('hidden', method !== 'tunai');
+            if (transferPanel) transferPanel.classList.toggle('hidden', method !== 'transfer');
+        });
+    });
+}
+
+// ===== FEATURE 7: DAILY SPECIALS FLIP CARD =====
+function initDailySpecials() {
+    const container = document.getElementById('dailySpecialsContainer');
+    if (!container) return;
+    const days = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    const specials = [
+        { name: 'Sunday Brunch Latte', desc: 'Espresso + susu oat + karamel', promo: 'Beli 1 Gratis 1!', price: 'Rp 22.000', img: 'images/kopi-susu-karsa.png', ingredients: 'Espresso shot, Oat Milk, Caramel Drizzle, Vanilla Foam' },
+        { name: 'Monday Blues Mocha', desc: 'Dark choco + espresso kuat', promo: 'Diskon 20%', price: 'Rp 20.000', img: 'images/kopi-susu-karsa.png', ingredients: 'Double Espresso, Dark Chocolate, Whipped Cream, Cocoa' },
+        { name: 'Tropical Tuesday', desc: 'Matcha + coconut milk', promo: 'Free Topping!', price: 'Rp 24.000', img: 'images/matcha-latte.png', ingredients: 'Premium Matcha, Coconut Milk, Palm Sugar, Nata de Coco' },
+        { name: 'Rabu Rasa Nusantara', desc: 'Kopi gula aren spesial', promo: 'Bonus Pisang Goreng', price: 'Rp 18.000', img: 'images/kopi-susu-karsa.png', ingredients: 'Single Origin Coffee, Gula Aren, Fresh Milk, Ice' },
+        { name: 'Kamis Cozy Chai', desc: 'Chai tea latte rempah', promo: 'Paket + Roti Bakar', price: 'Rp 25.000', img: 'images/matcha-latte.png', ingredients: 'Chai Tea, Cinnamon, Cardamom, Steamed Milk, Honey' },
+        { name: 'Jumat Berkah Combo', desc: 'Nasi Katsu + Es Kopi', promo: 'Hemat Rp 10.000!', price: 'Rp 35.000', img: 'images/nasi-goreng-katsu.png', ingredients: 'Chicken Katsu, Nasi Hangat, Salad, Es Kopi Susu' },
+        { name: 'Sabtu Seru Platter', desc: 'Mix platter sharing', promo: 'Free 2 Minuman!', price: 'Rp 50.000', img: 'images/mix-platter.png', ingredients: 'Chicken Wings, Fries, Sausage, Nachos, 2 Drinks' }
+    ];
+    const todayIdx = new Date().getDay();
+    const todaySpecial = specials[todayIdx];
+    container.innerHTML = `
+        <div class="flip-card mx-auto" style="max-width:320px; height:380px; perspective:1000px; cursor:pointer;">
+            <div class="flip-card-inner" style="position:relative; width:100%; height:100%; transition:transform 0.7s cubic-bezier(0.4,0,0.2,1); transform-style:preserve-3d;">
+                <div class="flip-card-front" style="position:absolute; width:100%; height:100%; backface-visibility:hidden; border-radius:20px; overflow:hidden; box-shadow:0 0 0 2px rgba(245,158,11,0.5),0 20px 50px rgba(0,0,0,0.3);">
+                    <div style="height:55%; overflow:hidden; position:relative;">
+                        <img src="${todaySpecial.img}" style="width:100%; height:100%; object-fit:cover;">
+                        <div style="position:absolute;top:12px;right:12px;background:linear-gradient(135deg,#d97706,#b45309);color:#fff;font-size:9px;font-weight:900;padding:5px 14px;border-radius:8px;text-transform:uppercase;letter-spacing:0.08em;">${todaySpecial.promo}</div>
+                        <div style="position:absolute;top:12px;left:12px;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);color:#f59e0b;font-size:9px;font-weight:900;padding:5px 12px;border-radius:8px;text-transform:uppercase;letter-spacing:0.12em;">🔥 ${days[todayIdx]}</div>
+                    </div>
+                    <div style="padding:20px; background:#fff;">
+                        <p style="color:#b45309;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.15em;margin:0 0 6px;">✨ Menu Spesial Hari Ini</p>
+                        <h4 style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#3e2723;margin:0 0 4px;">${todaySpecial.name}</h4>
+                        <p style="color:#78716c;font-size:12px;margin:0 0 12px;">${todaySpecial.desc}</p>
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span style="color:#b45309;font-weight:900;font-size:16px;">${todaySpecial.price}</span>
+                            <span style="color:#a8a29e;font-size:10px;font-weight:600;">Tap untuk detail →</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flip-card-back" style="position:absolute; width:100%; height:100%; backface-visibility:hidden; transform:rotateY(180deg); border-radius:20px; overflow:hidden; background:linear-gradient(135deg,#2c1a12,#1a100a); border:1px solid rgba(245,158,11,0.3); display:flex; flex-direction:column; justify-content:center; padding:32px;">
+                    <p style="color:rgba(245,158,11,0.5);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.2em;margin:0 0 8px;">📋 Detail Bahan</p>
+                    <h4 style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff;margin:0 0 16px;">${todaySpecial.name}</h4>
+                    <div style="space-y:8px;">
+                        ${todaySpecial.ingredients.split(', ').map(i => '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><span style="color:#f59e0b;font-size:14px;">•</span><span style="color:rgba(255,255,255,0.7);font-size:13px;">' + i + '</span></div>').join('')}
+                    </div>
+                    <div style="margin-top:20px;padding:12px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:12px;text-align:center;">
+                        <p style="color:#f59e0b;font-size:11px;font-weight:800;margin:0;">${todaySpecial.promo}</p>
+                        <p style="color:rgba(255,255,255,0.4);font-size:9px;margin:4px 0 0;">Berlaku hari ini saja</p>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    const flipCard = container.querySelector('.flip-card');
+    let flipped = false;
+    flipCard.addEventListener('click', () => {
+        flipped = !flipped;
+        flipCard.querySelector('.flip-card-inner').style.transform = flipped ? 'rotateY(180deg)' : '';
+    });
+}
+
+// ===== GLOBAL TOAST =====
+function showToast(msg, color) {
+    const t = document.createElement('div');
+    t.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:99999;background:' + (color || '#22c55e') + ';color:#fff;padding:14px 28px;border-radius:14px;font-weight:800;font-size:13px;box-shadow:0 8px 30px rgba(0,0,0,0.3);animation:slideIn 0.4s ease;white-space:nowrap;';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
 }

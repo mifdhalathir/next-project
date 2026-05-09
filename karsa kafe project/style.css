@@ -500,3 +500,25 @@ body {
     opacity: 1;
     transform: translateY(0);
 }
+
+/* Payment Method Picker */
+.payment-option {
+    transition: all 0.3s ease;
+}
+.payment-active {
+    border-color: rgba(245, 158, 11, 0.6) !important;
+    background: rgba(245, 158, 11, 0.1) !important;
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.15);
+}
+
+/* Stock Badge Pulse */
+@keyframes stockPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.05); }
+}
+.stock-badge { animation: stockPulse 1.5s infinite; }
+
+/* Flip Card Hover Glow */
+.flip-card:hover .flip-card-front {
+    box-shadow: 0 0 0 2px rgba(245,158,11,0.8), 0 25px 60px rgba(0,0,0,0.4) !important;
+}
