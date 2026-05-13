@@ -79,61 +79,103 @@ tailwind.config = {
             </button>
         </form>
         
-        <p class="text-center text-stone-400 text-xs mt-10">Belum punya akun? <a href="#" class="text-amber-500 hover:text-amber-400 font-bold transition">Daftar di Sini</a></p>
+        <p class="text-center text-stone-400 text-xs mt-8 font-medium">Belum punya akun? <span class="text-amber-500 cursor-pointer hover:text-amber-400 font-bold" onclick="alert('Fitur daftar sedang dikembangkan, Ngab! 🙏')">Daftar di Sini</span></p>
     </div>
-    <p class="text-center text-stone-600 text-xs mt-8 tracking-widest uppercase">&copy; 2024 Karsa Cafe Padang</p>
-</div>
 
-<!-- Table Selection Modal -->
-<div id="tableModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-    <div class="glass-login rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl transform transition-all scale-95 opacity-0" id="tableModalContent">
-        <h2 class="font-display text-2xl font-bold text-white text-center mb-2">Pilih Meja, Ngab!</h2>
-        
+    <!-- Modal Pilihan Meja (Step 2) -->
+    <div id="tableModal" class="hidden absolute top-0 left-0 w-full glass-login rounded-[3rem] p-12 shadow-[0_30px_100px_rgba(0,0,0,0.8)] transform transition-all scale-95 opacity-0">
         <div class="mb-6 text-center">
-            <img id="userAvatar" src="" alt="Profile" class="w-16 h-16 rounded-full mx-auto mb-3 border-2 border-amber-500 hidden object-cover shadow-lg">
-            <p class="text-stone-300 text-sm">Selamat datang, <span id="welcomeName" class="text-amber-500 font-bold"></span></p>
+            <img id="userAvatar" src="" class="w-14 h-14 rounded-full mx-auto mb-3 border-2 border-amber-500 hidden object-cover shadow-[0_0_15px_rgba(245,158,11,0.5)]">
+            <p class="text-white/70 text-xs uppercase tracking-widest font-bold">Selamat datang,</p>
+            <p id="welcomeName" class="text-amber-500 font-display text-2xl font-bold mt-1"></p>
         </div>
 
         <div class="space-y-6">
-            <!-- Area Selection -->
             <div>
-                <label class="block text-cream-200 text-xs font-bold uppercase tracking-widest mb-2">Pilih Area</label>
-                <div class="flex gap-4">
+                <label class="block text-white/50 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Pilih Area</label>
+                <div class="flex gap-3">
                     <label class="flex-1 cursor-pointer">
                         <input type="radio" name="modalArea" value="Indoor" class="peer sr-only" checked>
-                        <div class="text-center py-3 rounded-xl border border-white/10 bg-white/5 text-white peer-checked:bg-amber-500/20 peer-checked:border-amber-500 peer-checked:text-amber-500 transition-all font-semibold">Indoor</div>
+                        <div class="text-center py-3 rounded-xl border border-white/5 bg-white/5 text-white/50 peer-checked:bg-amber-500/20 peer-checked:border-amber-500 peer-checked:text-amber-500 transition-all font-black text-xs uppercase tracking-widest">Indoor</div>
                     </label>
                     <label class="flex-1 cursor-pointer">
                         <input type="radio" name="modalArea" value="Outdoor" class="peer sr-only">
-                        <div class="text-center py-3 rounded-xl border border-white/10 bg-white/5 text-white peer-checked:bg-amber-500/20 peer-checked:border-amber-500 peer-checked:text-amber-500 transition-all font-semibold">Outdoor</div>
+                        <div class="text-center py-3 rounded-xl border border-white/5 bg-white/5 text-white/50 peer-checked:bg-amber-500/20 peer-checked:border-amber-500 peer-checked:text-amber-500 transition-all font-black text-xs uppercase tracking-widest">Outdoor</div>
                     </label>
                 </div>
             </div>
 
-            <!-- Table Selection -->
-            <div>
-                <label class="block text-cream-200 text-xs font-bold uppercase tracking-widest mb-2">Nomor Meja</label>
-                <select id="modalTableNumber" class="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-4 text-sm focus:outline-none focus:border-amber-500 focus:bg-white/10 transition-all appearance-none cursor-pointer">
-                    <option value="" class="bg-wood-900">-- Pilih Nomor Meja --</option>
-                    <option value="01" class="bg-wood-900">Meja 01</option>
-                    <option value="02" class="bg-wood-900">Meja 02</option>
-                    <option value="03" class="bg-wood-900">Meja 03</option>
-                    <option value="04" class="bg-wood-900">Meja 04</option>
-                    <option value="05" class="bg-wood-900">Meja 05</option>
-                    <option value="06" class="bg-wood-900">Meja 06</option>
-                    <option value="07" class="bg-wood-900">Meja 07</option>
-                    <option value="08" class="bg-wood-900">Meja 08</option>
+            <div class="relative">
+                <select id="modalTableNumber" class="w-full bg-white/5 border border-white/5 text-white rounded-2xl px-6 py-4 text-xs font-black tracking-widest uppercase focus:outline-none focus:border-amber-500 focus:bg-white/10 transition-all appearance-none cursor-pointer">
+                    <option value="" class="bg-stone-950">PILIH NOMOR MEJA</option>
+                    <option value="01" class="bg-stone-950">MEJA 01</option>
+                    <option value="02" class="bg-stone-950">MEJA 02</option>
+                    <option value="03" class="bg-stone-950">MEJA 03</option>
                 </select>
-                <p id="tableWarning" class="text-red-400 text-xs mt-2 hidden opacity-0 transition-opacity">Pilih meja dulu, Ngab!</p>
+                <span class="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none">🪑</span>
             </div>
 
-            <button type="button" id="goToMenuBtn" disabled class="w-full bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 hover:bg-amber-600 text-white py-4 rounded-xl text-sm font-bold tracking-[0.2em] uppercase transition-all transform hover:scale-[1.05] btn-glow">Masuk ke Menu</button>
+            <p id="tableWarning" class="text-red-400 text-[10px] uppercase font-black tracking-widest text-center mt-2 hidden">Pilih meja dulu, Ngab!</p>
+
+            <button type="button" id="goToMenuBtn" disabled class="w-full disabled:bg-white/10 disabled:text-white/30 disabled:cursor-not-allowed bg-amber-600 hover:bg-amber-500 text-white py-5 rounded-2xl text-xs font-black tracking-[0.4em] uppercase transition-all shadow-2xl active:scale-95 btn-glow mt-6">MASUK KE MENU</button>
         </div>
     </div>
 </div>
 
-
-
 <script src="script.js"></script>
+<script>
+  // Setup config Firebase lo di sini Ngab
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID"
+  };
+
+  if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+  }
+
+  const googleLoginBtn = document.getElementById('googleLoginBtn');
+
+  // Override script.js Google Login event listener with a visual alert
+  if (googleLoginBtn) {
+      // Remove existing listener to prevent duplicate execution
+      const newBtn = googleLoginBtn.cloneNode(true);
+      googleLoginBtn.parentNode.replaceChild(newBtn, googleLoginBtn);
+      
+      newBtn.addEventListener('click', () => {
+          if (firebaseConfig.apiKey === "YOUR_API_KEY") {
+              alert('Simulasi Google Login berhasil! (Ganti API Key untuk koneksi Google asli)');
+              const dummyName = "Sultan " + Math.floor(Math.random() * 1000);
+              
+              const loginStepContainer = document.getElementById('loginStepContainer');
+              const tableModal = document.getElementById('tableModal');
+              const userAvatar = document.getElementById('userAvatar');
+              const welcomeName = document.getElementById('welcomeName');
+              
+              if(loginStepContainer) loginStepContainer.classList.add('hidden');
+              if(tableModal) {
+                  tableModal.classList.remove('hidden');
+                  setTimeout(() => {
+                      tableModal.classList.remove('scale-95', 'opacity-0');
+                      tableModal.classList.add('scale-100', 'opacity-100');
+                  }, 50);
+              }
+              if (welcomeName) welcomeName.textContent = dummyName;
+              if (userAvatar) {
+                  userAvatar.src = "https://ui-avatars.com/api/?name=Sultan&background=f59e0b&color=fff";
+                  userAvatar.classList.remove('hidden');
+              }
+              localStorage.setItem('karsa_user_name', dummyName);
+              localStorage.setItem('karsa_user_avatar', "https://ui-avatars.com/api/?name=Sultan&background=f59e0b&color=fff");
+              return;
+          }
+          const provider = new firebase.auth.GoogleAuthProvider();
+          firebase.auth().signInWithPopup(provider).then((result) => {
+              // Same logic handled in script.js but we re-trigger here if needed
+          }).catch((err) => alert('Login Gagal: ' + err.message));
+      });
+  }
+</script>
 </body>
 </html>

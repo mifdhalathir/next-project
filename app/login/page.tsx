@@ -51,9 +51,10 @@ export default function Login() {
     }, 1000);
   };
 
-  const handleGoogleLogin = async () => {
+    const handleGoogleLogin = async () => {
     try {
       if (firebaseConfig.apiKey === "YOUR_API_KEY") {
+        alert("Simulasi Google Login berhasil! (Ganti API Key untuk koneksi Google asli)");
         setUsername("Sultan " + Math.floor(Math.random() * 1000));
         setAvatar(`https://ui-avatars.com/api/?name=Sultan&background=f59e0b&color=fff`);
         setStep("table");
@@ -245,7 +246,7 @@ export default function Login() {
 
             {step === "login" && (
               <p className="text-center text-stone-400 text-xs mt-8 font-medium">
-                Belum punya akun? <span className="text-amber-500 cursor-pointer hover:text-amber-400 font-bold">Daftar di Sini</span>
+                Belum punya akun? <span onClick={() => alert("Fitur daftar sedang dikembangkan, Ngab! 🙏")} className="text-amber-500 cursor-pointer hover:text-amber-400 font-bold">Daftar di Sini</span>
               </p>
             )}
           </div>
