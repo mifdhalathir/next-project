@@ -370,32 +370,149 @@ function initAOS() {
 // ===== LOGIN REDIRECT & PAGE TRANSITIONS =====
 function initLoginRedirect() {
   const loginForm = document.getElementById('loginForm');
+  const googleLoginBtn = document.getElementById('googleLoginBtn');
+  const loginStepContainer = document.getElementById('loginStepContainer');
+  const tableModal = document.getElementById('tableModal');
+  const tableModalContent = document.getElementById('tableModalContent');
+  const modalTableNumber = document.getElementById('modalTableNumber');
+  const goToMenuBtn = document.getElementById('goToMenuBtn');
+  const userAvatar = document.getElementById('userAvatar');
+  const welcomeName = document.getElementById('welcomeName');
+  const tableWarning = document.getElementById('tableWarning');
+  
+  // Firebase initialization placeholder
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+  }
+
+  // Handle Table Selection Modal Logic
+  if (modalTableNumber && goToMenuBtn) {
+      modalTableNumber.addEventListener('change', (e) => {
+          if (e.target.value) {
+              goToMenuBtn.disabled = false;
+              if (tableWarning) {
+                  tableWarning.classList.add('opacity-0');
+                  setTimeout(() => tableWarning.classList.add('hidden'), 300);
+              }
+          } else {
+              goToMenuBtn.disabled = true;
+              if (tableWarning) {
+                  tableWarning.classList.remove('hidden');
+                  setTimeout(() => tableWarning.classList.remove('opacity-0'), 10);
+              }
+          }
+      });
+      
+      goToMenuBtn.addEventListener('click', () => {
+          if (!modalTableNumber.value) {
+              if (tableWarning) {
+                  tableWarning.classList.remove('hidden');
+                  setTimeout(() => tableWarning.classList.remove('opacity-0'), 10);
+              }
+              return;
+          }
+          
+          goToMenuBtn.textContent = 'Memproses...';
+          goToMenuBtn.disabled = true;
+          
+          const selectedAreaElement = document.querySelector('input[name="modalArea"]:checked');
+          const selectedArea = selectedAreaElement ? selectedAreaElement.value : 'Indoor';
+          
+          localStorage.setItem('karsa_table_number', modalTableNumber.value);
+          localStorage.setItem('karsa_area', selectedArea);
+          
+          setTimeout(() => {
+              triggerPageTransition('index.html');
+          }, 800);
+      });
+  }
+
+  function showTableModal(name, photoUrl) {
+      // Hide login, show modal
+      if(loginStepContainer) loginStepContainer.classList.add('hidden');
+      if(tableModal) {
+          tableModal.classList.remove('hidden');
+          setTimeout(() => {
+              if (tableModalContent) {
+                  tableModalContent.classList.remove('scale-95', 'opacity-0');
+                  tableModalContent.classList.add('scale-100', 'opacity-100');
+              }
+          }, 50);
+      }
+      
+      if (welcomeName) welcomeName.textContent = name;
+      if (photoUrl && userAvatar) {
+          userAvatar.src = photoUrl;
+          userAvatar.classList.remove('hidden');
+      }
+      localStorage.setItem('karsa_user_name', name);
+      if(photoUrl) localStorage.setItem('karsa_user_avatar', photoUrl);
+  }
+
+  // 1. Manual Login
   if (loginForm) {
     loginForm.addEventListener('submit', function(e) {
       e.preventDefault();
-      
       const name = document.getElementById('userName').value.trim();
-      const table = document.getElementById('tableNumber').value;
-      
-      if (!name || !table) {
-        alert('Eits! Isi namamu dan pilih nomor meja dulu ya!');
-        return;
-      }
-      
       const btn = document.getElementById('loginBtn');
+      
+      if (!name) return;
+      
       if(btn) {
+        const ogText = btn.textContent;
         btn.textContent = 'Memproses...';
         btn.disabled = true;
+        setTimeout(() => {
+            showTableModal(name, null);
+            btn.textContent = ogText;
+            btn.disabled = false;
+        }, 500);
       }
-      
-      // Save to localStorage
-      localStorage.setItem('karsa_user_name', name);
-      localStorage.setItem('karsa_table_number', table);
-      
-      setTimeout(function() {
-         triggerPageTransition('index.html');
-      }, 1000);
     });
+  }
+  
+  // 2. Google Login
+  if (googleLoginBtn) {
+      googleLoginBtn.addEventListener('click', () => {
+          if (typeof firebase === 'undefined') {
+              alert('Firebase SDK belum di-load. Pastikan script Firebase ada di HTML.');
+              return;
+          }
+          
+          if (firebaseConfig.apiKey === "YOUR_API_KEY") {
+              alert('Peringatan: API Key Firebase masih default/placeholder. Menggunakan dummy data untuk demo.');
+              const dummyName = "Sultan " + Math.floor(Math.random() * 1000);
+              const photoUrl = "https://ui-avatars.com/api/?name=" + dummyName.replace(' ', '+') + "&background=f59e0b&color=fff";
+              showTableModal(dummyName, photoUrl);
+              return;
+          }
+
+          const provider = new firebase.auth.GoogleAuthProvider();
+          const ogContent = googleLoginBtn.innerHTML;
+          googleLoginBtn.innerHTML = 'Connecting to Google...';
+          googleLoginBtn.disabled = true;
+          
+          firebase.auth().signInWithPopup(provider)
+              .then((result) => {
+                  const user = result.user;
+                  showTableModal(user.displayName, user.photoURL);
+              })
+              .catch((error) => {
+                  console.error(error);
+                  alert('Login Gagal: ' + error.message);
+                  googleLoginBtn.innerHTML = ogContent;
+                  googleLoginBtn.disabled = false;
+              });
+      });
   }
 }
 

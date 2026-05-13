@@ -23,6 +23,11 @@ tailwind.config = {
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2c1a12">
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<!-- If you enabled Analytics in your project, add the Firebase SDK for Analytics -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 </head>
 <body class="min-h-screen flex items-center justify-center relative overflow-hidden bg-wood-800">
 
@@ -38,20 +43,16 @@ tailwind.config = {
 
 <!-- Login Card -->
 <div class="login-card relative z-10 w-full max-w-md mx-4">
-    <div class="glass-login rounded-3xl p-10 shadow-2xl">
+    <div class="glass-login rounded-3xl p-10 shadow-2xl" id="loginStepContainer">
         <div class="text-center mb-10">
             <h1 class="font-display text-4xl font-bold text-white tracking-[0.2em]">KARSA <span class="text-amber-500">CAFE</span></h1>
             <div class="w-16 h-1 bg-amber-500 mx-auto mt-4 mb-4 rounded-full"></div>
             <p id="defaultSubtitle" class="text-stone-300 text-sm tracking-widest uppercase">Ruang Inspirasi</p>
-            <div id="personalGreeting" class="hidden mt-2">
-                <p class="text-amber-500 font-display text-lg font-semibold italic">Selamat datang kembali, <span id="savedNameDisplay"></span>!</p>
-                <p class="text-stone-400 text-xs mt-1 tracking-wider">Mau ngopi di meja mana hari ini?</p>
-            </div>
         </div>
         
         <form id="loginForm" class="space-y-6">
             <div>
-                <label class="block text-cream-200 text-xs font-bold uppercase tracking-widest mb-2">Nama Lengkap</label>
+                <label class="block text-cream-200 text-xs font-bold uppercase tracking-widest mb-2">Nama Lengkap / Email</label>
                 <input id="userName" type="text" required placeholder="Masukkan namamu..." class="w-full bg-white/5 border border-white/10 text-white placeholder-stone-500 rounded-xl px-4 py-4 text-sm focus:outline-none focus:border-amber-500 focus:bg-white/10 transition-all">
             </div>
             
@@ -60,28 +61,77 @@ tailwind.config = {
                 <input id="password" type="password" required placeholder="Masukkan password..." class="w-full bg-white/5 border border-white/10 text-white placeholder-stone-500 rounded-xl px-4 py-4 text-sm focus:outline-none focus:border-amber-500 focus:bg-white/10 transition-all">
             </div>
 
-            <div>
-                <label class="block text-cream-200 text-xs font-bold uppercase tracking-widest mb-2">Nomor Meja</label>
-                <select id="tableNumber" required class="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-4 text-sm focus:outline-none focus:border-amber-500 focus:bg-white/10 transition-all appearance-none">
-                    <option value="" class="bg-wood-900">Pilih Nomor Meja</option>
-                    <option value="01" class="bg-wood-900">Meja 01 (Indoor)</option>
-                    <option value="02" class="bg-wood-900">Meja 02 (Indoor)</option>
-                    <option value="03" class="bg-wood-900">Meja 03 (Indoor)</option>
-                    <option value="04" class="bg-wood-900">Meja 04 (Indoor)</option>
-                    <option value="05" class="bg-wood-900">Meja 05 (Outdoor)</option>
-                    <option value="06" class="bg-wood-900">Meja 06 (Outdoor)</option>
-                    <option value="07" class="bg-wood-900">Meja 07 (Outdoor)</option>
-                    <option value="08" class="bg-wood-900">Meja 08 (Outdoor)</option>
-                </select>
+            <button type="submit" id="loginBtn" class="w-full bg-amber-700 hover:bg-amber-600 text-white py-4 rounded-xl text-sm font-bold tracking-[0.2em] uppercase transition-all transform hover:scale-[1.05] btn-glow">Login Manual</button>
+            
+            <div class="relative flex items-center justify-center mt-6 mb-6">
+                <div class="border-t border-white/10 w-full"></div>
+                <span class="text-stone-400 text-xs px-3 bg-wood-800 absolute font-medium tracking-widest">ATAU</span>
             </div>
 
-            <button type="submit" id="loginBtn" class="w-full bg-amber-700 hover:bg-amber-600 text-white py-4 rounded-xl text-sm font-bold tracking-[0.2em] uppercase transition-all transform hover:scale-[1.05] btn-glow">Masuk Sekarang</button>
+            <button type="button" id="googleLoginBtn" class="w-full bg-white/10 hover:bg-white/20 border border-white/10 text-white py-4 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-3">
+                <svg class="w-5 h-5" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                </svg>
+                Sign in with Google
+            </button>
         </form>
         
         <p class="text-center text-stone-400 text-xs mt-10">Belum punya akun? <a href="#" class="text-amber-500 hover:text-amber-400 font-bold transition">Daftar di Sini</a></p>
     </div>
     <p class="text-center text-stone-600 text-xs mt-8 tracking-widest uppercase">&copy; 2024 Karsa Cafe Padang</p>
 </div>
+
+<!-- Table Selection Modal -->
+<div id="tableModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div class="glass-login rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl transform transition-all scale-95 opacity-0" id="tableModalContent">
+        <h2 class="font-display text-2xl font-bold text-white text-center mb-2">Pilih Meja, Ngab!</h2>
+        
+        <div class="mb-6 text-center">
+            <img id="userAvatar" src="" alt="Profile" class="w-16 h-16 rounded-full mx-auto mb-3 border-2 border-amber-500 hidden object-cover shadow-lg">
+            <p class="text-stone-300 text-sm">Selamat datang, <span id="welcomeName" class="text-amber-500 font-bold"></span></p>
+        </div>
+
+        <div class="space-y-6">
+            <!-- Area Selection -->
+            <div>
+                <label class="block text-cream-200 text-xs font-bold uppercase tracking-widest mb-2">Pilih Area</label>
+                <div class="flex gap-4">
+                    <label class="flex-1 cursor-pointer">
+                        <input type="radio" name="modalArea" value="Indoor" class="peer sr-only" checked>
+                        <div class="text-center py-3 rounded-xl border border-white/10 bg-white/5 text-white peer-checked:bg-amber-500/20 peer-checked:border-amber-500 peer-checked:text-amber-500 transition-all font-semibold">Indoor</div>
+                    </label>
+                    <label class="flex-1 cursor-pointer">
+                        <input type="radio" name="modalArea" value="Outdoor" class="peer sr-only">
+                        <div class="text-center py-3 rounded-xl border border-white/10 bg-white/5 text-white peer-checked:bg-amber-500/20 peer-checked:border-amber-500 peer-checked:text-amber-500 transition-all font-semibold">Outdoor</div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Table Selection -->
+            <div>
+                <label class="block text-cream-200 text-xs font-bold uppercase tracking-widest mb-2">Nomor Meja</label>
+                <select id="modalTableNumber" class="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-4 text-sm focus:outline-none focus:border-amber-500 focus:bg-white/10 transition-all appearance-none cursor-pointer">
+                    <option value="" class="bg-wood-900">-- Pilih Nomor Meja --</option>
+                    <option value="01" class="bg-wood-900">Meja 01</option>
+                    <option value="02" class="bg-wood-900">Meja 02</option>
+                    <option value="03" class="bg-wood-900">Meja 03</option>
+                    <option value="04" class="bg-wood-900">Meja 04</option>
+                    <option value="05" class="bg-wood-900">Meja 05</option>
+                    <option value="06" class="bg-wood-900">Meja 06</option>
+                    <option value="07" class="bg-wood-900">Meja 07</option>
+                    <option value="08" class="bg-wood-900">Meja 08</option>
+                </select>
+                <p id="tableWarning" class="text-red-400 text-xs mt-2 hidden opacity-0 transition-opacity">Pilih meja dulu, Ngab!</p>
+            </div>
+
+            <button type="button" id="goToMenuBtn" disabled class="w-full bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 hover:bg-amber-600 text-white py-4 rounded-xl text-sm font-bold tracking-[0.2em] uppercase transition-all transform hover:scale-[1.05] btn-glow">Masuk ke Menu</button>
+        </div>
+    </div>
+</div>
+
 
 
 <script src="script.js"></script>
