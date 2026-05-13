@@ -80,6 +80,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     // Auth Guard
     const userName = typeof window !== "undefined" ? localStorage.getItem("karsa_user_name") : null;
     const tableNum = typeof window !== "undefined" ? localStorage.getItem("karsa_table_number") : null;
+    const area = typeof window !== "undefined" ? localStorage.getItem("karsa_area") || "Indoor" : "Indoor";
     
     if (!userName || !tableNum) {
       alert("Eits! Isi namamu dan pilih nomor meja dulu ya! ☕");
@@ -87,23 +88,71 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       throw new Error("Unauthorized");
     }
 
-    const customerName = sessionStorage.getItem("username") || userName || "Tamu";
+    const orderID = `KRSA-${Math.floor(1000 + Math.random() * 9000)}`;
+    const itemsArray = Object.values(cart);
+    const totalAmount = itemsArray.reduce((sum, item) => sum + item.price * item.qty, 0);
+    const totalQty = itemsArray.reduce((sum, item) => sum + item.qty, 0);
+
     const newOrder: Order = {
-      id: `KRSA-${Math.floor(1000 + Math.random() * 9000)}`,
+      id: orderID,
       tableNumber,
-      customerName,
-      items: Object.values(cart),
-      total: Object.values(cart).reduce((sum, item) => sum + item.price * item.qty, 0),
+      customerName: userName,
+      items: itemsArray,
+      total: totalAmount,
       status: "received",
       timestamp: Date.now(),
     };
 
+    // [CORE SYSTEM BRIDGE] Save to PESANAN_HARI_INI for Kasir consistency
+    const pesananBaru = {
+        orderID: orderID,
+        id: Date.now(),
+        nama: userName,
+        meja: 'Meja ' + tableNumber,
+        area: area,
+        items: itemsArray.map(item => ({
+            nama: item.name,
+            harga: item.price,
+            qty: item.qty,
+            subtotal: item.price * item.qty
+        })),
+        totalHarga: totalAmount,
+        totalItem: totalQty,
+        waktuPesan: new Date().toLocaleString('id-ID'),
+        tanggal: new Date().toLocaleDateString('id-ID'),
+        jam: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+        status: 'Pending'
+    };
+
+    // Save to PESANAN_HARI_INI
+    let pesananHariIni = [];
+    try { pesananHariIni = JSON.parse(localStorage.getItem('PESANAN_HARI_INI') || '[]'); } catch(e) {}
+    pesananHariIni.push(pesananBaru);
+    localStorage.setItem('PESANAN_HARI_INI', JSON.stringify(pesananHariIni));
+
+    // Save to karsa_pesanan_masuk (backward compat)
+    let pesananMasuk = [];
+    try { pesananMasuk = JSON.parse(localStorage.getItem('karsa_pesanan_masuk') || '[]'); } catch(e) {}
+    pesananMasuk.push({
+        id: pesananBaru.id,
+        nama: userName,
+        jumlah: totalQty,
+        tanggal: pesananBaru.tanggal,
+        jam: pesananBaru.jam,
+        catatan: 'Order dari Next.js (Meja ' + tableNumber + ')',
+        area: area,
+        status: 'menunggu',
+        waktuMasuk: pesananBaru.waktuPesan,
+        totalHarga: totalAmount
+    });
+    localStorage.setItem('karsa_pesanan_masuk', JSON.stringify(pesananMasuk));
+
+    // Save to legacy karsa_orders (for internal Next.js tracking if needed)
     const existingOrdersJson = localStorage.getItem("karsa_orders");
     const existingOrders: Order[] = existingOrdersJson ? JSON.parse(existingOrdersJson) : [];
-    const updatedOrders = [...existingOrders, newOrder];
-    localStorage.setItem("karsa_orders", JSON.stringify(updatedOrders));
+    localStorage.setItem("karsa_orders", JSON.stringify([...existingOrders, newOrder]));
 
-    addKarsaNotification(`Pesanan Baru dari ${customerName} di Meja ${tableNumber}`, "warning");
+    addKarsaNotification(`Pesanan Baru Terkirim! Mohon Tunggu Ya! ☕`, "warning");
     window.dispatchEvent(new Event("storage"));
 
     setActiveOrder(newOrder);

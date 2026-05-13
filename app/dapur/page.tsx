@@ -9,10 +9,21 @@ export default function DapurPage() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   const loadData = () => {
-    const savedOrders = localStorage.getItem("karsa_orders");
+    const savedOrders = localStorage.getItem("PESANAN_HARI_INI");
     if (savedOrders) {
-      const parsedOrders: Order[] = JSON.parse(savedOrders);
-      const kitchenOrders = parsedOrders.filter(o => o.status === "received" || o.status === "preparing");
+      const parsedOrders: any[] = JSON.parse(savedOrders);
+      // Map to Order interface for Next.js internal use
+      const kitchenOrders: Order[] = parsedOrders
+        .filter(p => p.status === "Pending" || p.status === "Preparing")
+        .map(p => ({
+            id: p.orderID,
+            tableNumber: p.meja.replace('Meja ', ''),
+            customerName: p.nama,
+            items: p.items.map((it: any) => ({ name: it.nama, price: it.harga, qty: it.qty })),
+            total: p.totalHarga,
+            status: p.status === 'Pending' ? 'received' : 'preparing',
+            timestamp: p.id
+        }));
       setOrders(kitchenOrders);
     } else {
       setOrders([]);
@@ -32,21 +43,31 @@ export default function DapurPage() {
   }, []);
 
   const updateOrderStatus = (orderId: string, newStatus: OrderStatus) => {
-    const savedOrders = localStorage.getItem("karsa_orders");
-    if (savedOrders) {
-      const allOrders: Order[] = JSON.parse(savedOrders);
-      const updated = allOrders.map(order => {
-        if (order.id === orderId) {
-          if (newStatus === "preparing") {
-            addKarsaNotification(`Pesanan ${order.customerName} (Meja ${order.tableNumber}) sedang diproses`, "info");
-          } else if (newStatus === "cooked") {
-            addKarsaNotification(`Pesanan ${order.customerName} (Meja ${order.tableNumber}) SELESAI dimasak`, "success");
-          }
-          return { ...order, status: newStatus };
+    const savedOrders = localStorage.getItem("PESANAN_HARI_INI");
+    const savedMasuk = localStorage.getItem("karsa_pesanan_masuk");
+
+    if (savedOrders && savedMasuk) {
+      let pesananHariIni: any[] = JSON.parse(savedOrders);
+      let pesananMasuk: any[] = JSON.parse(savedMasuk);
+
+      const mappedStatus = newStatus === 'preparing' ? 'Preparing' : (newStatus === 'cooked' ? 'Ready' : 'Pending');
+
+      pesananHariIni = pesananHariIni.map(p => {
+        if (p.orderID === orderId) {
+            if (newStatus === "preparing") {
+                addKarsaNotification(`Pesanan ${p.nama} (Meja ${p.meja}) sedang diproses`, "info");
+            } else if (newStatus === "cooked") {
+                addKarsaNotification(`Pesanan ${p.nama} (Meja ${p.meja}) SELESAI dimasak`, "success");
+            }
+            return { ...p, status: mappedStatus };
         }
-        return order;
+        return p;
       });
-      localStorage.setItem("karsa_orders", JSON.stringify(updated));
+
+      // Update also in karsa_pesanan_masuk if needed (though it only tracks basic status)
+      // For now, let's just keep PESANAN_HARI_INI as the source of truth for Dapur/Kasir bridge
+
+      localStorage.setItem("PESANAN_HARI_INI", JSON.stringify(pesananHariIni));
       window.dispatchEvent(new Event("storage"));
       loadData();
     }

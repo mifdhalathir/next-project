@@ -12,22 +12,37 @@ export default function KasirPage() {
 
   const loadData = () => {
     try {
-      const savedOrders = localStorage.getItem("karsa_orders");
-      const savedRes = localStorage.getItem("karsa_reservations");
+      const savedOrders = localStorage.getItem("PESANAN_HARI_INI");
+      const savedRes = localStorage.getItem("karsa_pesanan_masuk");
       
       if (savedOrders) {
-        const parsedOrders: Order[] = JSON.parse(savedOrders);
-        const kasirOrders = parsedOrders.filter(o => o.status === "cooked" || o.status === "ready");
-        setOrders(kasirOrders);
+        const parsedOrders: any[] = JSON.parse(savedOrders);
+        // Map to Order interface for Next.js internal use
+        const mappedOrders: Order[] = parsedOrders.map(p => ({
+            id: p.orderID,
+            tableNumber: p.meja.replace('Meja ', ''),
+            customerName: p.nama,
+            items: p.items.map((it: any) => ({ name: it.nama, price: it.harga, qty: it.qty })),
+            total: p.totalHarga,
+            status: p.status === 'Pending' ? 'received' : (p.status === 'Selesai' ? 'completed' : 'ready'),
+            timestamp: p.id
+        }));
+        setOrders(mappedOrders.filter(o => o.status !== "completed"));
       }
 
       if (savedRes) {
-        let parsedRes: Reservation[] = JSON.parse(savedRes);
-        if (parsedRes.length > 30) {
-          parsedRes = parsedRes.slice(-30);
-          localStorage.setItem("karsa_reservations", JSON.stringify(parsedRes));
-        }
-        setReservations(parsedRes);
+        let parsedRes: any[] = JSON.parse(savedRes);
+        // Filter to only show actual reservations (not orders for backward compatibility)
+        const resList: Reservation[] = parsedRes.filter(p => !p.orderID).map(p => ({
+            id: String(p.id),
+            name: p.nama,
+            time: `${p.tanggal} ${p.jam}`,
+            guests: p.jumlah,
+            notes: p.catatan,
+            status: p.status === 'menunggu' ? 'pending' : (p.status === 'selesai' ? 'arrived' : 'cancelled' as any),
+            timestamp: p.id
+        }));
+        setReservations(resList);
       }
     } catch (e) {
       console.error("Data sync error:", e);
@@ -37,7 +52,7 @@ export default function KasirPage() {
   useEffect(() => {
     loadData();
     const handleStorage = (e: StorageEvent) => {
-      if (e.key === "karsa_orders" || e.key === "karsa_reservations" || e.key === "karsa_notifications") {
+      if (e.key === "PESANAN_HARI_INI" || e.key === "karsa_pesanan_masuk") {
         loadData();
       }
     };
@@ -56,37 +71,28 @@ export default function KasirPage() {
     setIsUpdating(true);
 
     try {
-      const savedOrders = localStorage.getItem("karsa_orders");
-      if (savedOrders) {
-        const allOrders: Order[] = JSON.parse(savedOrders);
-        const updated = allOrders.map(order => 
-          order.id === orderId ? { ...order, status: newStatus } : order
-        );
+      const savedOrders = localStorage.getItem("PESANAN_HARI_INI");
+      const savedMasuk = localStorage.getItem("karsa_pesanan_masuk");
 
-        let finalOrders = updated;
+      if (savedOrders && savedMasuk) {
+        let pesananHariIni: any[] = JSON.parse(savedOrders);
+        let pesananMasuk: any[] = JSON.parse(savedMasuk);
+
+        const mappedStatus = newStatus === 'completed' ? 'Selesai' : (newStatus === 'ready' ? 'Dikonfirmasi' : 'Pending');
+
+        pesananHariIni = pesananHariIni.map(p => p.orderID === orderId ? { ...p, status: mappedStatus } : p);
+        pesananMasuk = pesananMasuk.map(p => p.id === pesananHariIni.find(x => x.orderID === orderId)?.id ? { ...p, status: newStatus === 'completed' ? 'selesai' : 'menunggu' } : p);
+
         if (newStatus === "completed") {
-          finalOrders = updated.filter(order => order.id !== orderId);
-          const completedOrder = allOrders.find(o => o.id === orderId);
+          const completedOrder = pesananHariIni.find(o => o.orderID === orderId);
           if (completedOrder) {
             const totalRevenue = Number(localStorage.getItem("karsa_revenue") || 0);
-            localStorage.setItem("karsa_revenue", (totalRevenue + completedOrder.total).toString());
-
-            // Add Loyalty Points
-            const userKey = `karsa_points_${completedOrder.customerName}`;
-            const currentPoints = Number(localStorage.getItem(userKey) || 0);
-            localStorage.setItem(userKey, (currentPoints + 10).toString());
-
-            // Save to History (Selesai)
-            const historyJson = localStorage.getItem("karsa_completed_orders");
-            const history: Order[] = historyJson ? JSON.parse(historyJson) : [];
-            const newHistoryItem = { ...completedOrder, status: "completed" as OrderStatus, timestamp: Date.now() };
-            // Limit history to 50 items
-            const updatedHistory = [newHistoryItem, ...history].slice(0, 50);
-            localStorage.setItem("karsa_completed_orders", JSON.stringify(updatedHistory));
+            localStorage.setItem("karsa_revenue", (totalRevenue + completedOrder.totalHarga).toString());
           }
         }
 
-        localStorage.setItem("karsa_orders", JSON.stringify(finalOrders));
+        localStorage.setItem("PESANAN_HARI_INI", JSON.stringify(pesananHariIni));
+        localStorage.setItem("karsa_pesanan_masuk", JSON.stringify(pesananMasuk));
         window.dispatchEvent(new Event("storage"));
         loadData();
       }
@@ -96,18 +102,26 @@ export default function KasirPage() {
   };
 
   const updateReservation = (id: string, status: "arrived" | "cancelled") => {
-    const updated = reservations.map(r => r.id === id ? { ...r, status } : r);
-    setReservations(updated);
-    localStorage.setItem("karsa_reservations", JSON.stringify(updated));
-    window.dispatchEvent(new Event("storage"));
+    const savedRes = localStorage.getItem("karsa_pesanan_masuk");
+    if (savedRes) {
+        let parsed: any[] = JSON.parse(savedRes);
+        parsed = parsed.map(p => String(p.id) === id ? { ...p, status: status === 'arrived' ? 'dikonfirmasi' : 'batal' } : p);
+        localStorage.setItem("karsa_pesanan_masuk", JSON.stringify(parsed));
+        window.dispatchEvent(new Event("storage"));
+        loadData();
+    }
   };
 
   const deleteReservation = (id: string) => {
     if (!confirm("Hapus permanen data reservasi ini?")) return;
-    const updated = reservations.filter(r => r.id !== id);
-    setReservations(updated);
-    localStorage.setItem("karsa_reservations", JSON.stringify(updated));
-    window.dispatchEvent(new Event("storage"));
+    const savedRes = localStorage.getItem("karsa_pesanan_masuk");
+    if (savedRes) {
+        let parsed: any[] = JSON.parse(savedRes);
+        parsed = parsed.filter(p => String(p.id) !== id);
+        localStorage.setItem("karsa_pesanan_masuk", JSON.stringify(parsed));
+        window.dispatchEvent(new Event("storage"));
+        loadData();
+    }
   };
 
   const totalRevenue = Number(typeof window !== "undefined" ? localStorage.getItem("karsa_revenue") || 0 : 0);

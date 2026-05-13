@@ -50,6 +50,33 @@ export default function MenuSection() {
           <p className="text-amber-500 tracking-[.4em] text-xs uppercase mb-3 font-bold">Pilihan Terbaik</p>
           <h2 className="font-display text-4xl md:text-5xl font-bold text-theme">Menu Favorit</h2>
           <div className="w-20 h-1 bg-amber-600 mx-auto mt-6"></div>
+          
+          {/* [CORE SYSTEM] Area Banner */}
+          {(() => {
+            if (typeof window === "undefined") return null;
+            const area = localStorage.getItem("karsa_area") || "Indoor";
+            return (
+              <div className="mt-8 flex justify-center animate-in fade-in slide-in-from-top-4 duration-1000">
+                {area === "Outdoor" ? (
+                  <div className="flex items-center gap-4 px-6 py-4 rounded-[2rem] bg-green-500/10 border border-green-500/20 shadow-lg shadow-green-950/20">
+                    <span className="text-3xl">🌿</span>
+                    <div className="text-left">
+                      <p className="text-green-400 text-[10px] font-black uppercase tracking-widest">Area Outdoor — Smoking Area</p>
+                      <p className="text-stone-500 text-[11px] mt-0.5 italic">Nikmati udara segar & suasana terbuka ☀️</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-4 px-6 py-4 rounded-[2rem] bg-blue-500/10 border border-blue-500/20 shadow-lg shadow-blue-950/20">
+                    <span className="text-3xl">❄️</span>
+                    <div className="text-left">
+                      <p className="text-blue-400 text-[10px] font-black uppercase tracking-widest">Area Indoor — AC / No Smoking</p>
+                      <p className="text-stone-500 text-[11px] mt-0.5 italic">Zona nyaman ber-AC, bebas asap rokok 🚭</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </div>
 
         {/* Categories Filter */}
