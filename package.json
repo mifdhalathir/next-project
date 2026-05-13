@@ -11,6 +11,7 @@
   "dependencies": {
     "aos": "^2.3.4",
     "canvas-confetti": "^1.9.4",
+    "firebase": "^12.13.0",
     "flatpickr": "^4.6.13",
     "next": "16.2.4",
     "react": "19.2.4",
