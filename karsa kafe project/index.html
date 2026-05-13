@@ -135,6 +135,43 @@
         </div>
     </nav>
 
+    <!-- ===== [CORE SYSTEM] SESSION INFO BAR ===== -->
+    <!-- Menampilkan Nama, Meja, dan Area user yang sudah login. Di-populate oleh initSessionHeader() -->
+    <div id="sessionInfoBar" class="hidden fixed top-16 left-0 right-0 z-40" style="pointer-events:none;">
+        <div class="max-w-7xl mx-auto px-4 py-2" style="pointer-events:auto;">
+            <div class="flex items-center justify-between flex-wrap gap-3" style="background:rgba(15,10,5,0.92);backdrop-filter:blur(20px);border:1px solid rgba(245,158,11,0.2);border-radius:1rem;padding:12px 24px;box-shadow:0 12px 40px rgba(0,0,0,0.4);">
+                <!-- User Info -->
+                <div class="flex items-center gap-5">
+                    <div class="flex items-center gap-2">
+                        <span class="text-amber-500 text-lg">👤</span>
+                        <div>
+                            <p style="font-size:9px;color:#78716c;text-transform:uppercase;letter-spacing:0.15em;font-weight:800;">Pelanggan</p>
+                            <p id="sessionName" style="color:#fff;font-size:14px;font-weight:700;"></p>
+                        </div>
+                    </div>
+                    <div style="width:1px;height:28px;background:rgba(255,255,255,0.1);"></div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-amber-500 text-lg">🪑</span>
+                        <div>
+                            <p style="font-size:9px;color:#78716c;text-transform:uppercase;letter-spacing:0.15em;font-weight:800;">Meja</p>
+                            <p id="sessionTable" style="color:#fff;font-size:14px;font-weight:700;"></p>
+                        </div>
+                    </div>
+                    <div style="width:1px;height:28px;background:rgba(255,255,255,0.1);"></div>
+                    <div class="flex items-center gap-2">
+                        <span id="sessionAreaIcon" class="text-amber-500 text-lg">🏠</span>
+                        <div>
+                            <p style="font-size:9px;color:#78716c;text-transform:uppercase;letter-spacing:0.15em;font-weight:800;">Area</p>
+                            <p id="sessionArea" style="color:#fff;font-size:14px;font-weight:700;"></p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Area Banner (Inline) -->
+                <div id="areaBanner" class="hidden"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- HERO -->
     <section id="home" class="relative h-screen flex items-center justify-center">
         <!-- Background Video -->

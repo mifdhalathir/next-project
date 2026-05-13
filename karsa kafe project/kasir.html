@@ -197,6 +197,38 @@
             <div id="stockGrid" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
         </div>
 
+        <!-- ===== [CORE SYSTEM] PESANAN HARI INI — Data dari checkoutPesanan() ===== -->
+        <div class="glass-card p-6 mb-8 border-amber-500/20">
+            <div class="flex items-center justify-between mb-5">
+                <div>
+                    <h2 class="font-display text-xl font-bold text-white flex items-center gap-2">🧾 Pesanan Hari Ini <span class="text-xs text-stone-500 font-normal">(dari PESANAN_HARI_INI)</span></h2>
+                    <p class="text-[10px] text-stone-500 uppercase tracking-widest mt-1">Data otomatis dari checkout menu pelanggan</p>
+                </div>
+                <button onclick="clearPesananHariIni()" class="text-xs text-red-400 hover:text-red-300 transition font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg border border-red-400/20 hover:border-red-400/40">🗑️ Reset</button>
+            </div>
+
+            <!-- Tabel Ringkasan Pesanan -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left" id="pesananHariIniTable">
+                    <thead>
+                        <tr class="border-b border-white/10">
+                            <th class="text-[10px] text-stone-500 uppercase tracking-widest font-bold py-3 px-3">Order ID</th>
+                            <th class="text-[10px] text-stone-500 uppercase tracking-widest font-bold py-3 px-3">Pelanggan</th>
+                            <th class="text-[10px] text-stone-500 uppercase tracking-widest font-bold py-3 px-3">Meja / Area</th>
+                            <th class="text-[10px] text-stone-500 uppercase tracking-widest font-bold py-3 px-3">Items</th>
+                            <th class="text-[10px] text-stone-500 uppercase tracking-widest font-bold py-3 px-3">Total</th>
+                            <th class="text-[10px] text-stone-500 uppercase tracking-widest font-bold py-3 px-3">Waktu</th>
+                            <th class="text-[10px] text-stone-500 uppercase tracking-widest font-bold py-3 px-3">Status</th>
+                            <th class="text-[10px] text-stone-500 uppercase tracking-widest font-bold py-3 px-3">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pesananHariIniBody">
+                        <tr><td colspan="8" class="text-center text-stone-600 py-8 text-sm italic">Belum ada pesanan hari ini.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <div id="pesananList" class="grid gap-4 mb-12">
             <p id="emptyState" class="text-center text-stone-600 py-20 text-sm italic">Belum ada reservasi masuk. Silakan tunggu...</p>
         </div>
@@ -568,6 +600,8 @@
             renderPeakHourChart();
             renderWaiterCalls();
             renderStockGrid();
+            // [CORE SYSTEM] Render tabel pesanan dari PESANAN_HARI_INI
+            if (typeof renderPesananHariIni === 'function') renderPesananHariIni();
         })();
 
         // ===== PEAK HOUR ANALYTICS CHART (Feature 4) =====
@@ -693,6 +727,138 @@
             syncCapacityFromReservations(pesanan);
             renderPesanan();
         }
+
+        // ╔══════════════════════════════════════════════════════════════════╗
+        // ║   [CORE SYSTEM] PESANAN HARI INI — Bridge dari Menu ke Kasir    ║
+        // ║   Otomatis menarik data dari localStorage key PESANAN_HARI_INI  ║
+        // ╚══════════════════════════════════════════════════════════════════╝
+
+        // Format Rupiah lokal untuk kasir (backup kalau script.js ga ke-load)
+        function formatRupiahKasir(angka) {
+            if (typeof angka !== 'number' || isNaN(angka)) return 'Rp 0';
+            return 'Rp ' + angka.toLocaleString('id-ID');
+        }
+
+        // ===== RENDER TABEL PESANAN HARI INI =====
+        // Fungsi ini otomatis menarik data dari PESANAN_HARI_INI
+        // dan menampilkannya dalam tabel ringkasan yang bisa di-klik 'Selesai'
+        function renderPesananHariIni() {
+            const tbody = document.getElementById('pesananHariIniBody');
+            if (!tbody) return;
+
+            let pesanan = [];
+            try { pesanan = JSON.parse(localStorage.getItem('PESANAN_HARI_INI')) || []; } catch(e) {}
+
+            if (pesanan.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-stone-600 py-8 text-sm italic">Belum ada pesanan hari ini.</td></tr>';
+                return;
+            }
+
+            // Urutkan: Pending duluan, lalu Selesai
+            pesanan.sort((a, b) => {
+                if (a.status === 'Pending' && b.status !== 'Pending') return -1;
+                if (a.status !== 'Pending' && b.status === 'Pending') return 1;
+                return (b.id || 0) - (a.id || 0);
+            });
+
+            tbody.innerHTML = pesanan.map((p, i) => {
+                const isPending = p.status === 'Pending';
+                const statusColor = isPending ? '#f59e0b' : '#22c55e';
+                const statusBg = isPending ? 'rgba(245,158,11,0.12)' : 'rgba(34,197,94,0.12)';
+                const statusIcon = isPending ? '⏳' : '✅';
+                const itemsText = (p.items || []).map(it => it.qty + 'x ' + it.nama).join(', ') || '-';
+                const rowOpacity = isPending ? '1' : '0.6';
+
+                return `
+                <tr class="border-b border-white/5 animate-slide" style="animation-delay:${i * 60}ms; opacity:${rowOpacity};">
+                    <td class="py-3 px-3">
+                        <span style="color:#f59e0b;font-size:12px;font-weight:800;font-family:monospace;">${p.orderID || '-'}</span>
+                    </td>
+                    <td class="py-3 px-3">
+                        <span class="text-white text-sm font-bold">${p.nama || '-'}</span>
+                    </td>
+                    <td class="py-3 px-3">
+                        <span style="font-size:11px;font-weight:700;color:${p.area === 'Outdoor' ? '#4ade80' : '#60a5fa'};">
+                            ${p.area === 'Outdoor' ? '🌿' : '🏠'} ${p.meja || '-'} (${p.area || '-'})
+                        </span>
+                    </td>
+                    <td class="py-3 px-3">
+                        <span class="text-stone-300 text-xs">${itemsText}</span>
+                    </td>
+                    <td class="py-3 px-3">
+                        <span class="text-amber-400 font-black text-sm">${formatRupiahKasir(p.totalHarga || 0)}</span>
+                    </td>
+                    <td class="py-3 px-3">
+                        <span class="text-stone-400 text-xs">${p.jam || '-'}</span>
+                    </td>
+                    <td class="py-3 px-3">
+                        <span style="background:${statusBg};color:${statusColor};font-size:10px;font-weight:800;padding:4px 12px;border-radius:8px;text-transform:uppercase;letter-spacing:0.08em;">
+                            ${statusIcon} ${p.status}
+                        </span>
+                    </td>
+                    <td class="py-3 px-3">
+                        ${isPending ? `
+                            <button onclick="selesaikanPesanan('${p.orderID}')"
+                                class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition"
+                                style="background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);color:#4ade80;"
+                                onmouseover="this.style.background='rgba(34,197,94,0.3)'"
+                                onmouseout="this.style.background='rgba(34,197,94,0.15)'"
+                            >🏁 Selesai</button>
+                        ` : '<span class="text-stone-600 text-xs italic">Done</span>'}
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        // ===== SELESAIKAN PESANAN (Klik 'Selesai') =====
+        // Menghapus pesanan dari PESANAN_HARI_INI berdasarkan orderID
+        function selesaikanPesanan(orderID) {
+            let pesanan = [];
+            try { pesanan = JSON.parse(localStorage.getItem('PESANAN_HARI_INI')) || []; } catch(e) {}
+
+            // Update status jadi 'Selesai' (bukan hapus, biar ada histori)
+            pesanan = pesanan.map(p => {
+                if (p.orderID === orderID) {
+                    p.status = 'Selesai';
+                }
+                return p;
+            });
+            localStorage.setItem('PESANAN_HARI_INI', JSON.stringify(pesanan));
+
+            // Juga update di karsa_pesanan_masuk
+            let masuk = [];
+            try { masuk = JSON.parse(localStorage.getItem('karsa_pesanan_masuk')) || []; } catch(e) {}
+            const target = pesanan.find(p => p.orderID === orderID);
+            if (target) {
+                masuk = masuk.map(m => {
+                    if (m.id === target.id) m.status = 'selesai';
+                    return m;
+                });
+                localStorage.setItem('karsa_pesanan_masuk', JSON.stringify(masuk));
+                syncCapacityFromReservations(masuk);
+            }
+
+            // Log staff performance
+            if (currentStaff) {
+                let staffStats = JSON.parse(localStorage.getItem('karsa_staff_performance')) || {};
+                staffStats[currentStaff] = (staffStats[currentStaff] || 0) + 1;
+                localStorage.setItem('karsa_staff_performance', JSON.stringify(staffStats));
+            }
+
+            renderPesananHariIni();
+            renderPesanan();
+        }
+
+        // ===== CLEAR SEMUA PESANAN HARI INI =====
+        function clearPesananHariIni() {
+            if (!confirm('Hapus semua data Pesanan Hari Ini?')) return;
+            localStorage.setItem('PESANAN_HARI_INI', JSON.stringify([]));
+            renderPesananHariIni();
+        }
+
+        // ===== AUTO-REFRESH PESANAN HARI INI setiap 3 detik =====
+        renderPesananHariIni();
+        setInterval(renderPesananHariIni, 3000);
     </script>
 
     <!-- Ding Sound for Waiter Calls -->

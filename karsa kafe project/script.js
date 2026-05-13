@@ -945,23 +945,31 @@ function initCartSimulation() {
   window.updateCartUI();
   
   // Add to cart buttons on menu cards
+  // [CORE SYSTEM] State Management: Jika item sama ditambah lagi,
+  // JANGAN buat baris baru, tapi tambahkan quantity-nya saja.
   document.querySelectorAll('.tambah-keranjang-btn').forEach(btn => {
     btn.onclick = () => {
       const name = btn.dataset.name;
       const price = parseInt(btn.dataset.price);
       const image = btn.dataset.image;
       
+      // Cek apakah item sudah ada di keranjang
       const existing = cart.find(i => i.name === name);
       if (existing) {
+          // Item sudah ada → tambah qty saja, BUKAN baris baru
           existing.qty++;
       } else {
+          // Item baru → push ke array
           cart.push({ name, price, image, qty: 1 });
       }
       window.updateCartUI();
       
-      // Feedback animation
+      // [CORE SYSTEM] Toast Notification saat barang ditambah
+      showCartToast(name);
+      
+      // Feedback animation pada tombol
       const originalText = btn.textContent;
-      btn.textContent = 'Ditambahkan!';
+      btn.textContent = 'Ditambahkan! ✓';
       btn.classList.replace('bg-amber-700', 'bg-green-600');
       btn.classList.replace('hover:bg-amber-800', 'hover:bg-green-700');
       setTimeout(() => {
@@ -1046,104 +1054,21 @@ function initLiveChat() {
 }
 
 // ===== MENU CALCULATOR & CHECKOUT =====
-// ===== MENU CALCULATOR & CHECKOUT & ETA (Feature 4) =====
+// [CORE SYSTEM] Sekarang menggunakan checkoutPesanan() sebagai handler utama
+// yang menyimpan ke PESANAN_HARI_INI dan karsa_pesanan_masuk sekaligus
 function initMenuCalculator() {
     const checkoutBtn = document.getElementById('checkoutMenuBtn');
     const finalCheckoutBtn = document.getElementById('finalCheckoutBtn');
     
-    const handleCheckout = () => {
-        if (!checkAuth()) return;
-        // ===== ANTI-DOUBLE BOOKING (Feature 1) =====
-        if (window._checkDoubleBooking && !window._checkDoubleBooking()) return;
-        
-        let cart = [];
-        try { cart = JSON.parse(localStorage.getItem('karsa_cart')) || []; } catch(e) {}
-        if (cart.length === 0) {
-            alert('Keranjang masih kosong, Ngab!');
-            return;
-        }
-        // Disable checkout buttons immediately
-        document.querySelectorAll('#checkoutMenuBtn, #finalCheckoutBtn').forEach(b => {
-            b.disabled = true; b.textContent = 'Memproses...'; b.style.opacity='0.5';
-        });
-
-        const userName = localStorage.getItem('karsa_user_name');
-        const tableNum = localStorage.getItem('karsa_table_number');
-        const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-        const qtyTotal = cart.reduce((sum, item) => sum + item.qty, 0);
-        
-        // Simpan pesanan ke Kasir Dashboard
-        const pesananBaru = {
-            id: Date.now(),
-            nama: userName,
-            jumlah: qtyTotal,
-            tanggal: new Date().toLocaleDateString('id-ID'),
-            jam: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
-            catatan: 'Order dari Menu (Meja ' + tableNum + ')',
-            area: 'Meja ' + tableNum, // Treat Meja as Area for simplicity or define properly
-            status: 'menunggu',
-            waktuMasuk: new Date().toLocaleString('id-ID'),
-            totalHarga: total
-        };
-
-        let pesananMasuk = [];
-        try { pesananMasuk = JSON.parse(localStorage.getItem('karsa_pesanan_masuk')) || []; } catch(err) {}
-        pesananMasuk.push(pesananBaru);
-        localStorage.setItem('karsa_pesanan_masuk', JSON.stringify(pesananMasuk));
-
-        // Start ETA
-        localStorage.setItem('karsa_order_time', Date.now());
-        localStorage.setItem('karsa_order_status', 'processing');
-        localStorage.setItem('karsa_last_order_id', String(pesananBaru.id));
-        localStorage.setItem('karsa_order_stage', '0');
-        
-        // ===== REDUCE STOCK (Feature 2) =====
-        cart.forEach(item => { if (window.reduceStock) window.reduceStock(item.name, item.qty); });
-        // ===== LOG PEAK HOUR (Feature 4) =====
-        if (typeof logPeakHour === 'function') logPeakHour();
-        // Clear Cart
-        localStorage.setItem('karsa_cart', JSON.stringify([]));
-        if (window.updateCartUI) window.updateCartUI();
-        
-        // Close modal
-        const cartModal = document.getElementById('cartModal');
-        if (cartModal) {
-            cartModal.classList.remove('show');
-            setTimeout(() => cartModal.classList.add('hidden'), 300);
-        }
-        
-        // Show Receipt Modal
-        const receiptModal = document.getElementById('receiptModal');
-        if (receiptModal) {
-            const receiptTable = document.getElementById('receiptTable');
-            const receiptTime = document.getElementById('receiptTime');
-            const receiptItems = document.getElementById('receiptItems');
-            const receiptTotal = document.getElementById('receiptTotal');
-            if (receiptTable) receiptTable.textContent = 'Meja ' + tableNum;
-            if (receiptTime) receiptTime.textContent = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-            if (receiptItems) {
-                receiptItems.innerHTML = cart.map(item =>
-                    `<div class="flex justify-between items-center text-sm">
-                        <span class="text-stone-300">${item.qty}x ${item.name}</span>
-                        <span class="text-amber-400 font-bold">Rp ${(item.price * item.qty).toLocaleString('id-ID')}</span>
-                    </div>`
-                ).join('');
-            }
-            if (receiptTotal) receiptTotal.textContent = 'Rp ' + total.toLocaleString('id-ID');
-            receiptModal.classList.remove('hidden');
-            receiptModal.classList.add('flex');
-        } else {
-            alert('Pesananmu senilai Rp ' + total.toLocaleString('id-ID') + ' sedang diproses!');
-        }
-        checkETA();
-    };
-
-    if (checkoutBtn) checkoutBtn.addEventListener('click', handleCheckout);
-    if (finalCheckoutBtn) finalCheckoutBtn.addEventListener('click', handleCheckout);
+    // Wire kedua tombol checkout ke fungsi CORE checkoutPesanan()
+    if (checkoutBtn) checkoutBtn.addEventListener('click', checkoutPesanan);
+    if (finalCheckoutBtn) finalCheckoutBtn.addEventListener('click', checkoutPesanan);
     
     // Check ETA on load
-    checkETA();
-    setInterval(checkETA, 1000);
+    if (typeof checkETA === 'function') {
+        checkETA();
+        setInterval(checkETA, 1000);
+    }
 }
 
 // ===== LIVE CLOCK & CAFE STATUS (Feature 3) =====
@@ -1400,14 +1325,248 @@ function checkETA() {
     }
 }
 
+// ╔══════════════════════════════════════════════════════════════════════╗
+// ║            CORE SYSTEM - KAFE KARSA (Auth, Cart, Kasir Bridge)     ║
+// ║  Menghubungkan login.html ↔ index.html (Menu) ↔ kasir.html         ║
+// ╚══════════════════════════════════════════════════════════════════════╝
+
+// ===== [CORE 1] GLOBAL AUTH & SESSION CHECK =====
+// Fungsi ini WAJIB jalan di setiap halaman.
+// Kalau user belum login atau belum pilih meja → paksa redirect ke login.html
+// Kalau sudah login → ambil data Nama, Meja, Area lalu tampilkan di Header
 function checkAuth() {
     const name = localStorage.getItem('karsa_user_name');
     const table = localStorage.getItem('karsa_table_number');
+    const area = localStorage.getItem('karsa_area') || 'Indoor';
+
+    // Kalau di halaman login, skip check (anti infinite-loop)
+    if (window.location.pathname.includes('login.html') || window.location.pathname.endsWith('/')) {
+        return true;
+    }
+
     if (!name || !table) {
+        // Belum login/pilih meja → tendang ke login
         triggerPageTransition('login.html');
         return false;
     }
     return true;
+}
+
+// ===== [CORE 2] FORMAT RUPIAH =====
+// Mengubah angka biasa jadi format mata uang Indonesia yang rapi
+// Contoh: formatRupiah(25000) → "Rp 25.000"
+// Contoh: formatRupiah(1500000) → "Rp 1.500.000"
+function formatRupiah(angka) {
+    if (typeof angka !== 'number' || isNaN(angka)) return 'Rp 0';
+    return 'Rp ' + angka.toLocaleString('id-ID');
+}
+
+// ===== [CORE 3] SESSION HEADER — Tampilkan Info User di Header =====
+// Menampilkan Nama, Meja, dan Area di bar khusus dengan animasi fade-in.
+// Dipanggil saat DOMContentLoaded di index.html
+function initSessionHeader() {
+    const name = localStorage.getItem('karsa_user_name');
+    const table = localStorage.getItem('karsa_table_number');
+    const area = localStorage.getItem('karsa_area') || 'Indoor';
+
+    const header = document.getElementById('sessionInfoBar');
+    if (!header || !name || !table) return;
+
+    // Isi data ke elemen
+    const nameEl = document.getElementById('sessionName');
+    const tableEl = document.getElementById('sessionTable');
+    const areaEl = document.getElementById('sessionArea');
+    const areaIcon = document.getElementById('sessionAreaIcon');
+
+    if (nameEl) nameEl.textContent = name;
+    if (tableEl) tableEl.textContent = 'Meja ' + table;
+    if (areaEl) areaEl.textContent = area;
+    if (areaIcon) areaIcon.textContent = area === 'Outdoor' ? '🌿' : '🏠';
+
+    // Animasi fade-in dari atas
+    header.classList.remove('hidden');
+    header.style.opacity = '0';
+    header.style.transform = 'translateY(-20px)';
+    setTimeout(() => {
+        header.style.transition = 'all 0.7s cubic-bezier(0.23,1,0.32,1)';
+        header.style.opacity = '1';
+        header.style.transform = 'translateY(0)';
+    }, 200);
+}
+
+// ===== [CORE 4] AREA-BASED EXPERIENCE (Indoor/Outdoor) =====
+// Logika visual: menampilkan banner/notifikasi sesuai area yang dipilih.
+// Indoor → "Area AC / No Smoking" | Outdoor → "Area Merokok / Outdoor"
+function initAreaBanner() {
+    const area = localStorage.getItem('karsa_area') || 'Indoor';
+    const banner = document.getElementById('areaBanner');
+    if (!banner) return;
+
+    if (area === 'Outdoor') {
+        banner.innerHTML = `
+            <div class="flex items-center gap-3 px-5 py-3 rounded-2xl" style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);">
+                <span class="text-2xl">🌿</span>
+                <div>
+                    <p style="color:#4ade80;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;">Area Outdoor — Smoking Area</p>
+                    <p style="color:rgba(74,222,128,0.5);font-size:10px;margin-top:2px;">Nikmati udara segar & suasana terbuka ☀️</p>
+                </div>
+            </div>`;
+    } else {
+        banner.innerHTML = `
+            <div class="flex items-center gap-3 px-5 py-3 rounded-2xl" style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.25);">
+                <span class="text-2xl">❄️</span>
+                <div>
+                    <p style="color:#60a5fa;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;">Area Indoor — AC / No Smoking</p>
+                    <p style="color:rgba(96,165,250,0.5);font-size:10px;margin-top:2px;">Zona nyaman ber-AC, bebas asap rokok 🚭</p>
+                </div>
+            </div>`;
+    }
+
+    // Fade-in animasi
+    banner.classList.remove('hidden');
+    banner.style.opacity = '0';
+    setTimeout(() => {
+        banner.style.transition = 'opacity 0.8s ease';
+        banner.style.opacity = '1';
+    }, 500);
+}
+
+// ===== [CORE 5] CHECKOUT PESANAN — Bridge Menu → Kasir =====
+// Fungsi utama untuk checkout keranjang belanja.
+// Data disimpan dengan kunci PESANAN_HARI_INI dalam bentuk Array of Objects.
+// Setiap pesanan punya orderID unik (berbasis timestamp) dan status: 'Pending'.
+function checkoutPesanan() {
+    // --- Proteksi 1: Cek apakah user sudah login ---
+    if (!checkAuth()) return;
+
+    // --- Proteksi 2: Jangan biarkan checkout kalau keranjang kosong ---
+    let cart = [];
+    try { cart = JSON.parse(localStorage.getItem('karsa_cart')) || []; } catch(e) {}
+    if (cart.length === 0) {
+        showToast('⚠️ Keranjang masih kosong! Tambah menu dulu, Ngab.', '#ef4444');
+        return;
+    }
+
+    // --- Proteksi 3: Anti double-booking ---
+    if (window._checkDoubleBooking && !window._checkDoubleBooking()) return;
+
+    // Disable tombol checkout supaya tidak double-click
+    document.querySelectorAll('#checkoutMenuBtn, #finalCheckoutBtn').forEach(b => {
+        b.disabled = true; b.textContent = 'Memproses...'; b.style.opacity = '0.5';
+    });
+
+    // Ambil data session user
+    const userName = localStorage.getItem('karsa_user_name');
+    const tableNum = localStorage.getItem('karsa_table_number');
+    const area = localStorage.getItem('karsa_area') || 'Indoor';
+    const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    const qtyTotal = cart.reduce((sum, item) => sum + item.qty, 0);
+
+    // Buat object pesanan baru dengan orderID unik
+    const pesananBaru = {
+        orderID: 'KRS-' + Date.now(),              // ID unik berbasis timestamp
+        id: Date.now(),                              // Untuk backward compatibility
+        nama: userName,
+        meja: 'Meja ' + tableNum,
+        area: area,
+        items: cart.map(item => ({
+            nama: item.name,
+            harga: item.price,
+            qty: item.qty,
+            subtotal: item.price * item.qty
+        })),
+        totalHarga: total,
+        totalItem: qtyTotal,
+        waktuPesan: new Date().toLocaleString('id-ID'),
+        tanggal: new Date().toLocaleDateString('id-ID'),
+        jam: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+        status: 'Pending'                            // Status awal selalu 'Pending'
+    };
+
+    // --- Simpan ke PESANAN_HARI_INI (Array of Objects) ---
+    let pesananHariIni = [];
+    try { pesananHariIni = JSON.parse(localStorage.getItem('PESANAN_HARI_INI')) || []; } catch(e) {}
+    pesananHariIni.push(pesananBaru);
+    localStorage.setItem('PESANAN_HARI_INI', JSON.stringify(pesananHariIni));
+
+    // --- Simpan juga ke karsa_pesanan_masuk (backward compat untuk fitur lama) ---
+    let pesananMasuk = [];
+    try { pesananMasuk = JSON.parse(localStorage.getItem('karsa_pesanan_masuk')) || []; } catch(e) {}
+    pesananMasuk.push({
+        id: pesananBaru.id,
+        nama: userName,
+        jumlah: qtyTotal,
+        tanggal: pesananBaru.tanggal,
+        jam: pesananBaru.jam,
+        catatan: 'Order dari Menu (Meja ' + tableNum + ')',
+        area: area,
+        status: 'menunggu',
+        waktuMasuk: pesananBaru.waktuPesan,
+        totalHarga: total
+    });
+    localStorage.setItem('karsa_pesanan_masuk', JSON.stringify(pesananMasuk));
+
+    // --- Catat peak hour & kurangi stok ---
+    if (typeof logPeakHour === 'function') logPeakHour();
+    cart.forEach(item => { if (window.reduceStock) window.reduceStock(item.name, item.qty); });
+
+    // --- Start ETA tracking ---
+    localStorage.setItem('karsa_order_time', Date.now());
+    localStorage.setItem('karsa_order_status', 'processing');
+    localStorage.setItem('karsa_last_order_id', String(pesananBaru.id));
+    localStorage.setItem('karsa_order_stage', '0');
+
+    // --- Kosongkan Keranjang ---
+    localStorage.setItem('karsa_cart', JSON.stringify([]));
+    if (window.updateCartUI) window.updateCartUI();
+
+    // --- Tutup modal keranjang ---
+    const cartModal = document.getElementById('cartModal');
+    if (cartModal) {
+        cartModal.classList.remove('show');
+        setTimeout(() => cartModal.classList.add('hidden'), 300);
+    }
+
+    // --- Tampilkan Receipt Modal kalau ada ---
+    const receiptModal = document.getElementById('receiptModal');
+    if (receiptModal) {
+        const receiptTable = document.getElementById('receiptTable');
+        const receiptTime = document.getElementById('receiptTime');
+        const receiptItems = document.getElementById('receiptItems');
+        const receiptTotal = document.getElementById('receiptTotal');
+        if (receiptTable) receiptTable.textContent = 'Meja ' + tableNum;
+        if (receiptTime) receiptTime.textContent = pesananBaru.jam;
+        if (receiptItems) {
+            receiptItems.innerHTML = cart.map(item =>
+                `<div class="flex justify-between items-center text-sm">
+                    <span class="text-stone-300">${item.qty}x ${item.name}</span>
+                    <span class="text-amber-400 font-bold">${formatRupiah(item.price * item.qty)}</span>
+                </div>`
+            ).join('');
+        }
+        if (receiptTotal) receiptTotal.textContent = formatRupiah(total);
+        receiptModal.classList.remove('hidden');
+        receiptModal.classList.add('flex');
+    } else {
+        // Fallback: tampilkan alert
+        showToast('✅ Pesanan ' + pesananBaru.orderID + ' senilai ' + formatRupiah(total) + ' dikirim ke kasir!', '#22c55e');
+    }
+
+    // --- Re-enable checkout buttons setelah 2 detik ---
+    setTimeout(() => {
+        document.querySelectorAll('#checkoutMenuBtn, #finalCheckoutBtn').forEach(b => {
+            b.disabled = false; b.textContent = 'Checkout'; b.style.opacity = '';
+        });
+    }, 2000);
+
+    // --- Cek ETA ---
+    if (typeof checkETA === 'function') checkETA();
+}
+
+// ===== [CORE 6] TOAST NOTIFIKASI UNTUK ADD-TO-CART =====
+// Menampilkan notifikasi toast kecil saat barang ditambahkan ke keranjang
+function showCartToast(itemName) {
+    showToast('🛒 ' + itemName + ' ditambahkan ke keranjang!', '#b45309');
 }
 
 
@@ -1561,6 +1720,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initWaiterCall();
   initPaymentPicker();
   initDailySpecials();
+  // ===== CORE SYSTEM (Auth, Session, Area) =====
+  initSessionHeader();   // Tampilkan info user di header
+  initAreaBanner();      // Banner Indoor/Outdoor
 });
 
 // ===== SHARE ORDER =====
