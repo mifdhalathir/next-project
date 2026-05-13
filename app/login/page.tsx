@@ -20,7 +20,7 @@ const firebaseConfig = {
 };
 
 export default function Login() {
-  const [step, setStep] = useState<"login" | "table">("login");
+  const [step, setStep] = useState<"login" | "table" | "register">("login");
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState("");
   const [shake, setShake] = useState(false);
@@ -28,6 +28,12 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [avatar, setAvatar] = useState("");
+
+  // Register states
+  const [regName, setRegName] = useState("");
+  const [regEmail, setRegEmail] = useState("");
+  const [regPassword, setRegPassword] = useState("");
+  const [regConfirmPassword, setRegConfirmPassword] = useState("");
   
   const [tableNumber, setTableNumber] = useState("");
   const [area, setArea] = useState("Indoor");
@@ -37,8 +43,8 @@ export default function Login() {
     e.preventDefault();
     setError("");
     
-    if (!username) {
-      setError("Isi namamu dulu ya!");
+    if (!username || !password) {
+      setError("Isi nama dan passwordmu dulu ya!");
       setShake(true);
       setTimeout(() => setShake(false), 500);
       return;
@@ -46,12 +52,67 @@ export default function Login() {
 
     setIsProcessing(true);
     setTimeout(() => {
+      // Verify user from localStorage
+      let users = [];
+      try { users = JSON.parse(localStorage.getItem('karsa_users') || '[]'); } catch(e) {}
+      
+      const user = users.find((u: any) => (u.name === username || u.email === username) && u.password === password);
+      
+      if (user) {
+        setUsername(user.name);
+        setStep("table");
+      } else {
+        // Fallback for demo if no users exist yet
+        if (users.length === 0) {
+          setStep("table");
+        } else {
+          setError("Email/Nama atau Password salah, Ngab! ❌");
+          setShake(true);
+          setTimeout(() => setShake(false), 500);
+        }
+      }
       setIsProcessing(false);
-      setStep("table");
     }, 1000);
   };
 
-    const handleGoogleLogin = async () => {
+  const handleRegister = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    if (!regName || !regEmail || !regPassword) {
+      setError("Semua field harus diisi, Ngab!");
+      setShake(true);
+      return;
+    }
+
+    if (regPassword !== regConfirmPassword) {
+      setError("Password nggak cocok, Ngab! ❌");
+      setShake(true);
+      return;
+    }
+
+    setIsProcessing(true);
+    setTimeout(() => {
+      let users = [];
+      try { users = JSON.parse(localStorage.getItem('karsa_users') || '[]'); } catch(e) {}
+
+      if (users.some((u: any) => u.email === regEmail)) {
+        setError("Email ini sudah terdaftar, Ngab!");
+        setIsProcessing(false);
+        return;
+      }
+
+      const newUser = { name: regName, email: regEmail, password: regPassword };
+      users.push(newUser);
+      localStorage.setItem('karsa_users', JSON.stringify(users));
+
+      alert('Pendaftaran Berhasil! Silakan Login, Sultan! 🎉');
+      setStep("login");
+      setIsProcessing(false);
+    }, 1200);
+  };
+
+  const handleGoogleLogin = async () => {
     try {
       if (firebaseConfig.apiKey === "YOUR_API_KEY") {
         alert("Simulasi Google Login berhasil! (Ganti API Key untuk koneksi Google asli)");
@@ -133,7 +194,9 @@ export default function Login() {
                 KARSA <span className="text-amber-500">CAFE</span>
               </h1>
               <div className="w-12 h-[3px] bg-amber-500 mx-auto mt-4 mb-4 rounded-full"></div>
-              <p className="text-stone-300 text-sm tracking-widest uppercase font-medium">Ruang Inspirasi</p>
+              <p className="text-stone-300 text-sm tracking-widest uppercase font-medium">
+                {step === "register" ? "Gabung Jadi Sultan" : "Ruang Inspirasi"}
+              </p>
             </div>
 
             {error && (
@@ -193,6 +256,60 @@ export default function Login() {
                   Sign in with Google
                 </button>
               </form>
+            ) : step === "register" ? (
+              <form onSubmit={handleRegister} className="space-y-6 animate-fade-in">
+                <div>
+                  <label className="block text-stone-200 text-[10px] font-bold uppercase tracking-widest mb-2">Nama Lengkap</label>
+                  <input
+                    type="text"
+                    value={regName}
+                    onChange={(e) => setRegName(e.target.value)}
+                    placeholder="Masukkan nama lengkap..."
+                    className="w-full bg-[#222222] border border-[#333333] rounded-xl text-white placeholder-stone-500 px-4 py-4 text-sm focus:outline-none focus:border-amber-500 focus:bg-[#2a2a2a] transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-stone-200 text-[10px] font-bold uppercase tracking-widest mb-2">Email</label>
+                  <input
+                    type="email"
+                    value={regEmail}
+                    onChange={(e) => setRegEmail(e.target.value)}
+                    placeholder="Masukkan email..."
+                    className="w-full bg-[#222222] border border-[#333333] rounded-xl text-white placeholder-stone-500 px-4 py-4 text-sm focus:outline-none focus:border-amber-500 focus:bg-[#2a2a2a] transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-stone-200 text-[10px] font-bold uppercase tracking-widest mb-2">Password</label>
+                  <input
+                    type="password"
+                    value={regPassword}
+                    onChange={(e) => setRegPassword(e.target.value)}
+                    placeholder="Buat password..."
+                    className="w-full bg-[#222222] border border-[#333333] rounded-xl text-white placeholder-stone-500 px-4 py-4 text-sm focus:outline-none focus:border-amber-500 focus:bg-[#2a2a2a] transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-stone-200 text-[10px] font-bold uppercase tracking-widest mb-2">Konfirmasi Password</label>
+                  <input
+                    type="password"
+                    value={regConfirmPassword}
+                    onChange={(e) => setRegConfirmPassword(e.target.value)}
+                    placeholder="Ulangi password..."
+                    className="w-full bg-[#222222] border border-[#333333] rounded-xl text-white placeholder-stone-500 px-4 py-4 text-sm focus:outline-none focus:border-amber-500 focus:bg-[#2a2a2a] transition-all"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isProcessing}
+                  className="w-full bg-[#B45309] hover:bg-[#D97706] text-white py-4 rounded-xl text-sm font-bold tracking-[0.2em] uppercase transition-all shadow-[0_0_20px_rgba(180,83,9,0.4)] mt-2"
+                >
+                  {isProcessing ? "MENDAFTARKAN..." : "DAFTAR SEKARANG"}
+                </button>
+              </form>
             ) : (
               <div className="space-y-6 animate-fade-in">
                 <div className="text-center mb-6">
@@ -244,9 +361,13 @@ export default function Login() {
               </div>
             )}
 
-            {step === "login" && (
+            {(step === "login" || step === "register") && (
               <p className="text-center text-stone-400 text-xs mt-8 font-medium">
-                Belum punya akun? <span onClick={() => alert("Fitur daftar sedang dikembangkan, Ngab! 🙏")} className="text-amber-500 cursor-pointer hover:text-amber-400 font-bold">Daftar di Sini</span>
+                {step === "login" ? (
+                  <>Belum punya akun? <span onClick={() => setStep("register")} className="text-amber-500 cursor-pointer hover:text-amber-400 font-bold">Daftar di Sini</span></>
+                ) : (
+                  <>Sudah punya akun? <span onClick={() => setStep("login")} className="text-amber-500 cursor-pointer hover:text-amber-400 font-bold">Login di Sini</span></>
+                )}
               </p>
             )}
           </div>

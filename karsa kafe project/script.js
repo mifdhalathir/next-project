@@ -462,22 +462,98 @@ function initLoginRedirect() {
   if (loginForm) {
     loginForm.addEventListener('submit', function(e) {
       e.preventDefault();
-      const name = document.getElementById('userName').value.trim();
+      const identifier = document.getElementById('userName').value.trim();
+      const password = document.getElementById('password').value;
       const btn = document.getElementById('loginBtn');
       
-      if (!name) return;
+      if (!identifier || !password) return;
       
       if(btn) {
         const ogText = btn.textContent;
         btn.textContent = 'Memproses...';
         btn.disabled = true;
+        
         setTimeout(() => {
-            showTableModal(name, null);
-            btn.textContent = ogText;
-            btn.disabled = false;
-        }, 500);
+            // Verify user from localStorage
+            let users = [];
+            try { users = JSON.parse(localStorage.getItem('karsa_users')) || []; } catch(e) {}
+            
+            const user = users.find(u => (u.name === identifier || u.email === identifier) && u.password === password);
+            
+            if (user) {
+                showTableModal(user.name, null);
+            } else {
+                // If no user found, but for backward compatibility/demo, let's allow "Sultan" login without password check if users is empty
+                if (users.length === 0) {
+                    showTableModal(identifier, null);
+                } else {
+                    alert('Email/Nama atau Password salah, Ngab! ❌');
+                    btn.textContent = ogText;
+                    btn.disabled = false;
+                }
+            }
+            
+            if (user || users.length === 0) {
+                btn.textContent = ogText;
+                btn.disabled = false;
+            }
+        }, 800);
       }
     });
+  }
+
+  // 2. Manual Registration
+  const registerForm = document.getElementById('registerForm');
+  if (registerForm) {
+      registerForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const name = document.getElementById('regName').value.trim();
+          const email = document.getElementById('regEmail').value.trim();
+          const password = document.getElementById('regPassword').value;
+          const confirmPassword = document.getElementById('regConfirmPassword').value;
+          const btn = document.getElementById('registerBtn');
+
+          if (password !== confirmPassword) {
+              alert('Password nggak cocok, Ngab! ❌');
+              return;
+          }
+
+          if (btn) {
+              btn.textContent = 'Mendaftarkan...';
+              btn.disabled = true;
+
+              setTimeout(() => {
+                  let users = [];
+                  try { users = JSON.parse(localStorage.getItem('karsa_users')) || []; } catch(e) {}
+
+                  if (users.some(u => u.email === email)) {
+                      alert('Email ini sudah terdaftar, Ngab! Gunakan email lain.');
+                      btn.textContent = 'Daftar Sekarang';
+                      btn.disabled = false;
+                      return;
+                  }
+
+                  const newUser = { name, email, password };
+                  users.push(newUser);
+                  localStorage.setItem('karsa_users', JSON.stringify(users));
+
+                  if (typeof confetti === 'function') {
+                      confetti({
+                          particleCount: 100,
+                          spread: 70,
+                          origin: { y: 0.6 },
+                          colors: ['#f59e0b', '#ffffff']
+                      });
+                  }
+
+                  alert('Pendaftaran Berhasil! Silakan Login, Sultan! 🎉');
+                  toggleAuthMode('login');
+                  
+                  btn.textContent = 'Daftar Sekarang';
+                  btn.disabled = false;
+              }, 1200);
+          }
+      });
   }
   
   // 2. Google Login
@@ -603,6 +679,29 @@ function triggerPageTransition(url) {
         window.location.href = url;
     }
 }
+
+// Global function for toggling login/register
+window.toggleAuthMode = function(mode) {
+    const loginWrapper = document.getElementById('loginFormWrapper');
+    const registerWrapper = document.getElementById('registerFormWrapper');
+    const defaultSubtitle = document.getElementById('defaultSubtitle');
+    
+    if (mode === 'register') {
+        if(loginWrapper) loginWrapper.classList.add('hidden');
+        if(registerWrapper) {
+            registerWrapper.classList.remove('hidden');
+            registerWrapper.classList.add('fade-in', 'visible');
+        }
+        if(defaultSubtitle) defaultSubtitle.textContent = 'Gabung Jadi Sultan';
+    } else {
+        if(registerWrapper) registerWrapper.classList.add('hidden');
+        if(loginWrapper) {
+            loginWrapper.classList.remove('hidden');
+            loginWrapper.classList.add('fade-in', 'visible');
+        }
+        if(defaultSubtitle) defaultSubtitle.textContent = 'Ruang Inspirasi';
+    }
+};
 
 // ===== CAPACITY LOGIC (Feature 3 - real-time from reservation data) =====
 function initCapacityLogic() {
