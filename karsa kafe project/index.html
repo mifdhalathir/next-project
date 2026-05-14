@@ -30,6 +30,7 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2c1a12">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <!-- AOS CSS -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 </head>
@@ -496,6 +497,11 @@
                     </div>
                 </div>
 
+            </div>
+
+            <!-- ===== LOYALTY CARD WIDGET ===== -->
+            <div class="mt-12 flex justify-center" data-aos="fade-up">
+                <div id="loyaltyCardContainer" style="max-width:340px;width:100%;"></div>
             </div>
         </div>
     </section>
@@ -1217,6 +1223,32 @@
         </div>
     </section>
 
+    <!-- ===== CUSTOMER REVIEW WALL ===== -->
+    <section id="customerReviewSection" class="py-16 px-4 bg-cream-100 dark:bg-wood-900">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-10" data-aos="fade-up">
+                <p class="text-amber-700 tracking-[.3em] text-xs uppercase mb-2">💬 Testimoni</p>
+                <h2 class="font-display text-3xl md:text-4xl font-bold text-wood-800 dark:text-cream-100">Apa Kata Karsa-Lovers?</h2>
+                <div class="w-16 h-0.5 bg-amber-700 mx-auto mt-4"></div>
+            </div>
+            <div id="reviewCarousel" class="review-carousel-container mb-10" data-aos="fade-up" data-aos-delay="100"></div>
+            <!-- Review Form -->
+            <div class="max-w-md mx-auto" data-aos="fade-up" data-aos-delay="200">
+                <div class="bg-white dark:bg-wood-800 p-6 rounded-2xl shadow-md border border-stone-100 dark:border-white/5">
+                    <p class="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-4">✍️ Tulis Review Kamu</p>
+                    <form id="reviewForm" class="space-y-3">
+                        <input type="text" id="reviewNama" placeholder="Nama kamu" required
+                            class="w-full bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-stone-700 dark:text-cream-100 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition">
+                        <textarea id="reviewKomentar" rows="3" placeholder="Ceritakan pengalamanmu di Karsa Cafe..." required
+                            class="w-full bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-stone-700 dark:text-cream-100 placeholder-stone-400 focus:outline-none focus:border-amber-500 transition resize-none"></textarea>
+                        <button type="submit"
+                            class="w-full bg-amber-700 hover:bg-amber-800 text-white py-3 rounded-xl text-sm font-bold tracking-wider transition">Kirim Review</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- FOOTER -->
     <footer id="kontak" class="bg-wood-900 text-cream-200 py-14 px-4 animated-grid relative overflow-hidden">
         <div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-10 text-sm relative z-10">
@@ -1430,6 +1462,16 @@
                     Anda</h4>
                 <div id="cartItemsList" class="space-y-3">
                     <p class="text-stone-500 dark:text-stone-400 text-sm italic">Keranjang masih kosong.</p>
+                </div>
+
+                <!-- ===== VOUCHER CODE SECTION ===== -->
+                <div id="voucherCodeSection" class="mt-4 pt-4 border-t border-stone-200 dark:border-stone-700">
+                    <p class="text-[10px] text-stone-400 dark:text-stone-500 uppercase tracking-widest font-bold mb-2">🎟️ Punya Kode Promo?</p>
+                    <div class="voucher-input-wrap">
+                        <input type="text" id="voucherInput" placeholder="Masukkan kode...">
+                        <button id="voucherApplyBtn">Terapkan</button>
+                    </div>
+                    <div id="voucherMsg" class="voucher-success hidden"></div>
                 </div>
             </div>
 

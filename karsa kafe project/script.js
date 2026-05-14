@@ -1459,8 +1459,20 @@ function checkoutPesanan() {
     const userName = localStorage.getItem('karsa_user_name');
     const tableNum = localStorage.getItem('karsa_table_number');
     const area = localStorage.getItem('karsa_area') || 'Indoor';
-    const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    let total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
     const qtyTotal = cart.reduce((sum, item) => sum + item.qty, 0);
+
+    // Apply voucher discount if active
+    const voucherType = sessionStorage.getItem('karsa_voucher_type');
+    const voucherDiscount = parseInt(sessionStorage.getItem('karsa_voucher_discount') || '0');
+    let discountAmount = 0;
+    if (voucherType === 'persen' && voucherDiscount > 0) {
+        discountAmount = Math.round(total * voucherDiscount / 100);
+        total = total - discountAmount;
+    } else if (voucherType === 'flat' && voucherDiscount > 0) {
+        discountAmount = Math.min(voucherDiscount, total);
+        total = total - discountAmount;
+    }
 
     // Buat object pesanan baru dengan orderID unik
     const pesananBaru = {
@@ -1723,6 +1735,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===== CORE SYSTEM (Auth, Session, Area) =====
   initSessionHeader();   // Tampilkan info user di header
   initAreaBanner();      // Banner Indoor/Outdoor
+  // ===== NEW FEATURES =====
+  initLoyaltyCard();
+  initVoucherCode();
+  initCustomerReviews();
+  initStockSync();
+  initOrderStatusTracker();
 });
 
 // ===== SHARE ORDER =====
@@ -2008,6 +2026,214 @@ function initDailySpecials() {
         flipped = !flipped;
         flipCard.querySelector('.flip-card-inner').style.transform = flipped ? 'rotateY(180deg)' : '';
     });
+}
+
+// ===== FEATURE: LOYALTY DIGITAL STAMP =====
+function initLoyaltyCard() {
+    const container = document.getElementById('loyaltyCardContainer');
+    if (!container) return;
+    function render() {
+        let points = parseInt(localStorage.getItem('karsa_loyalty_points') || '0');
+        const hasCoupon = points >= 5;
+        if (hasCoupon) points = 5;
+        let stamps = '';
+        for (let i = 0; i < 5; i++) {
+            stamps += `<div class="stamp-hole ${i < points ? 'filled' : ''}">
+                ${i < points ? '☕' : ''}
+            </div>`;
+        }
+        container.innerHTML = `
+            <div class="loyalty-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                    <p style="color:rgba(245,158,11,0.5);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.2em;">🎫 Karsa Loyalty Card</p>
+                    <p style="color:rgba(255,255,255,0.3);font-size:10px;font-weight:700;">${points}/5 Stamp</p>
+                </div>
+                <div class="stamp-grid">${stamps}</div>
+                <p style="color:rgba(255,255,255,0.4);font-size:10px;text-align:center;margin:0;">Kumpulkan 5 stamp, dapet 1 Kopi Gratis!</p>
+                ${hasCoupon ? `
+                <div class="loyalty-coupon" style="margin-top:14px;">
+                    <p style="color:#22c55e;font-size:14px;font-weight:900;margin:0;">🎉 Selamat! Kamu dapet 1 Kopi Gratis!</p>
+                    <p style="color:rgba(34,197,94,0.6);font-size:10px;margin:4px 0 0;">Tunjukkan ke kasir untuk klaim</p>
+                    <button onclick="claimLoyaltyCoupon()" style="margin-top:10px;background:#22c55e;color:#fff;border:none;padding:8px 20px;border-radius:10px;font-size:11px;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:0.08em;">Klaim Sekarang</button>
+                </div>` : ''}
+            </div>`;
+    }
+    render();
+    setInterval(render, 3000);
+}
+function claimLoyaltyCoupon() {
+    let points = parseInt(localStorage.getItem('karsa_loyalty_points') || '0');
+    if (points >= 5) {
+        localStorage.setItem('karsa_loyalty_points', '0');
+        showToast('🎉 Kupon Kopi Gratis berhasil diklaim! Tunjukkan ke kasir.', '#22c55e');
+        if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    }
+}
+function addLoyaltyPoint() {
+    let points = parseInt(localStorage.getItem('karsa_loyalty_points') || '0');
+    if (points < 5) { points++; localStorage.setItem('karsa_loyalty_points', String(points)); }
+}
+
+// ===== FEATURE: KITCHEN TICKET PRINT =====
+function printKitchenTicket(orderID) {
+    let pesanan = [];
+    try { pesanan = JSON.parse(localStorage.getItem('PESANAN_HARI_INI')) || []; } catch(e) {}
+    const order = pesanan.find(p => p.orderID === orderID);
+    if (!order) { showToast('Pesanan tidak ditemukan!', '#ef4444'); return; }
+    const itemsHtml = (order.items || []).map(it => `<tr><td style="padding:4px 0;border-bottom:1px dashed #ccc;">${it.qty}x</td><td style="padding:4px 8px;border-bottom:1px dashed #ccc;">${it.nama}</td></tr>`).join('');
+    const ticketHtml = `<!DOCTYPE html><html><head><title>Kitchen Ticket</title>
+    <style>body{font-family:'Courier New',monospace;width:280px;margin:0 auto;padding:20px;color:#000;}
+    h2{text-align:center;margin:0;font-size:16px;letter-spacing:2px;}
+    .sep{border-top:2px dashed #000;margin:10px 0;}
+    table{width:100%;font-size:13px;}
+    .info{font-size:11px;margin:4px 0;}
+    .footer{text-align:center;font-size:9px;color:#666;margin-top:12px;}
+    @media print{body{width:100%;padding:5px;}}</style></head>
+    <body><h2>☕ KARSA CAFE</h2><p style="text-align:center;font-size:9px;color:#666;margin:2px 0;">KITCHEN ORDER TICKET</p>
+    <div class="sep"></div>
+    <p class="info"><b>Order:</b> ${order.orderID}</p>
+    <p class="info"><b>Nama:</b> ${order.nama || '-'}</p>
+    <p class="info"><b>Meja:</b> ${order.meja || '-'} (${order.area || '-'})</p>
+    <p class="info"><b>Jam:</b> ${order.jam || '-'}</p>
+    <div class="sep"></div>
+    <table>${itemsHtml}</table>
+    <div class="sep"></div>
+    <p style="text-align:center;font-size:12px;font-weight:bold;">Total: Rp ${(order.totalHarga||0).toLocaleString('id-ID')}</p>
+    <div class="footer">Dicetak: ${new Date().toLocaleString('id-ID')}</div>
+    <script>window.onload=function(){window.print();}<\/script></body></html>`;
+    const w = window.open('', '_blank', 'width=320,height=500');
+    if (w) { w.document.write(ticketHtml); w.document.close(); }
+}
+
+// ===== FEATURE: LOW STOCK POP-UP =====
+function initLowStockAlert() {
+    let alerted = {};
+    function check() {
+        let inv = {};
+        try { inv = JSON.parse(localStorage.getItem('karsa_inventory')) || {}; } catch(e) {}
+        for (const [name, stock] of Object.entries(inv)) {
+            if (stock > 0 && stock < 5 && !alerted[name]) {
+                alerted[name] = true;
+                const toast = document.createElement('div');
+                toast.className = 'low-stock-toast';
+                toast.innerHTML = `<div style="width:40px;height:40px;border-radius:12px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-size:20px;">⚠️</span></div>
+                <div><p style="color:#ef4444;font-size:13px;font-weight:800;margin:0;">Woi Ngab!</p><p style="color:rgba(255,255,255,0.6);font-size:11px;margin:3px 0 0;">Stok <strong style="color:#f59e0b;">${name}</strong> sisa <strong style="color:#ef4444;">${stock}</strong> nih! Segera restock!</p></div>
+                <button onclick="this.parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,0.3);font-size:18px;cursor:pointer;line-height:1;">×</button>`;
+                document.body.appendChild(toast);
+                try { new Audio('https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3?filename=service-bell-ring-14610.mp3').play().catch(()=>{}); } catch(e) {}
+                setTimeout(() => { if (toast.parentElement) toast.remove(); }, 6000);
+            }
+            if (stock >= 5) delete alerted[name];
+        }
+    }
+    check();
+    setInterval(check, 5000);
+}
+
+// ===== FEATURE: VOUCHER CODE =====
+function initVoucherCode() {
+    const wrap = document.getElementById('voucherCodeSection');
+    if (!wrap) return;
+    const input = document.getElementById('voucherInput');
+    const btn = document.getElementById('voucherApplyBtn');
+    const msg = document.getElementById('voucherMsg');
+    if (!input || !btn) return;
+    btn.addEventListener('click', () => {
+        const code = input.value.trim().toUpperCase();
+        if (!code) { showToast('Masukkan kode voucher!', '#ef4444'); return; }
+        if (sessionStorage.getItem('karsa_voucher_used')) { showToast('Voucher sudah dipakai di sesi ini!', '#ef4444'); return; }
+        let discount = 0; let discountType = '';
+        if (code === 'KARSAVIP') { discount = 20; discountType = 'persen'; }
+        else if (code === 'KOPIGRATIS') { discount = 15000; discountType = 'flat'; }
+        else { showToast('❌ Kode voucher tidak valid!', '#ef4444'); return; }
+        sessionStorage.setItem('karsa_voucher_used', code);
+        sessionStorage.setItem('karsa_voucher_discount', String(discount));
+        sessionStorage.setItem('karsa_voucher_type', discountType);
+        if (msg) {
+            msg.classList.remove('hidden');
+            msg.innerHTML = discountType === 'persen'
+                ? `✅ Voucher <b>${code}</b> aktif! Diskon ${discount}% dari total.`
+                : `✅ Voucher <b>${code}</b> aktif! Potongan Rp ${discount.toLocaleString('id-ID')}.`;
+        }
+        input.disabled = true; btn.disabled = true; btn.textContent = 'Terapkan ✓';
+        btn.style.opacity = '0.5';
+        showToast('🎉 Voucher berhasil diterapkan!', '#22c55e');
+        if (window.updateCartUI) window.updateCartUI();
+    });
+}
+
+// ===== FEATURE: CUSTOMER REVIEW WALL =====
+function initCustomerReviews() {
+    const section = document.getElementById('customerReviewSection');
+    if (!section) return;
+    const form = document.getElementById('reviewForm');
+    const carousel = document.getElementById('reviewCarousel');
+    function renderReviews() {
+        let reviews = [];
+        try { reviews = JSON.parse(localStorage.getItem('karsa_customer_reviews')) || []; } catch(e) {}
+        if (reviews.length === 0) { carousel.innerHTML = '<p class="text-stone-400 text-sm italic text-center py-8">Belum ada review. Jadi yang pertama!</p>'; return; }
+        const doubled = [...reviews, ...reviews];
+        carousel.innerHTML = `<div class="review-carousel-track">${doubled.map(r => `
+            <div class="review-card">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+                    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#b45309);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;">${(r.nama||'A')[0].toUpperCase()}</div>
+                    <div><p style="font-weight:700;font-size:13px;margin:0;" class="text-wood-800 dark:text-cream-100">${r.nama}</p>
+                    <p style="font-size:10px;color:#a8a29e;margin:0;">${r.waktu || ''}</p></div>
+                </div>
+                <p style="font-size:13px;line-height:1.6;color:#57534e;" class="dark:text-stone-300">"${r.komentar}"</p>
+            </div>`).join('')}</div>`;
+    }
+    renderReviews();
+    setInterval(renderReviews, 10000);
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const nama = document.getElementById('reviewNama')?.value.trim();
+            const komentar = document.getElementById('reviewKomentar')?.value.trim();
+            if (!nama || !komentar) { showToast('Isi nama dan komentar ya!', '#ef4444'); return; }
+            let reviews = [];
+            try { reviews = JSON.parse(localStorage.getItem('karsa_customer_reviews')) || []; } catch(e) {}
+            reviews.push({ nama, komentar, waktu: new Date().toLocaleDateString('id-ID') });
+            localStorage.setItem('karsa_customer_reviews', JSON.stringify(reviews));
+            form.reset();
+            showToast('💬 Review berhasil dikirim! Terima kasih!', '#22c55e');
+            renderReviews();
+        });
+    }
+}
+
+// ===== FEATURE: ENHANCED STOCK SYNC (Matikan Menu) =====
+function initStockSync() {
+    window.toggleMenuAvailability = function(name) {
+        let inv = {};
+        try { inv = JSON.parse(localStorage.getItem('karsa_inventory')) || {}; } catch(e) {}
+        if (inv[name] !== undefined) {
+            inv[name] = inv[name] <= 0 ? 10 : 0;
+            localStorage.setItem('karsa_inventory', JSON.stringify(inv));
+        }
+        if (typeof renderStockGrid === 'function') renderStockGrid();
+        if (window.updateStockUI) window.updateStockUI();
+    };
+}
+
+// ===== FEATURE: ORDER STATUS TRACKER (Enhanced) =====
+function initOrderStatusTracker() {
+    window.updateOrderStatus = function(orderID) {
+        let pesanan = [];
+        try { pesanan = JSON.parse(localStorage.getItem('PESANAN_HARI_INI')) || []; } catch(e) {}
+        const order = pesanan.find(p => p.orderID === orderID);
+        if (!order) return;
+        const stages = ['Pending', 'Diracik', 'Siap Diambil', 'Selesai'];
+        const currentIdx = stages.indexOf(order.status);
+        if (currentIdx < stages.length - 1) {
+            order.status = stages[currentIdx + 1];
+            localStorage.setItem('PESANAN_HARI_INI', JSON.stringify(pesanan));
+            const stageMap = { 'Pending': '0', 'Diracik': '1', 'Siap Diambil': '2', 'Selesai': '2' };
+            localStorage.setItem('karsa_order_stage', stageMap[order.status] || '0');
+            if (order.status === 'Selesai') { addLoyaltyPoint(); }
+        }
+        if (typeof renderPesananHariIni === 'function') renderPesananHariIni();
+    };
 }
 
 // ===== GLOBAL TOAST =====

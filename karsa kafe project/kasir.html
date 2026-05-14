@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Karsa Kasir — Dashboard Reservasi</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
@@ -36,6 +37,7 @@
         @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(245,158,11,0.4); } 70% { box-shadow: 0 0 0 10px rgba(245,158,11,0); } 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); } }
         .pulse-ring { animation: pulse-ring 2s infinite; }
     </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="min-h-screen">
 
@@ -113,6 +115,14 @@
                     <span class="text-[9px] text-stone-600">23:00</span>
                 </div>
                 <p id="peakHourSummary" class="text-xs text-stone-400 mt-3">Belum ada data pesanan.</p>
+            </div>
+
+            <!-- ===== DAILY SALES CHART (Chart.js) ===== -->
+            <div class="mt-6 p-5 rounded-xl border border-amber-500/20 bg-amber-500/5">
+                <p class="text-[10px] text-amber-400/70 uppercase tracking-widest font-bold mb-3">📈 Grafik Penjualan Per Jam (Chart.js)</p>
+                <div style="height:220px;">
+                    <canvas id="salesChartCanvas"></canvas>
+                </div>
             </div>
         </div>
 
@@ -672,7 +682,7 @@
         }
         setInterval(renderWaiterCalls, 3000);
 
-        // ===== STOCK MANAGEMENT GRID =====
+        // ===== STOCK MANAGEMENT GRID (Enhanced with Matikan Menu toggle) =====
         function renderStockGrid() {
             const grid = document.getElementById('stockGrid');
             if (!grid) return;
@@ -680,17 +690,22 @@
             try { inv = JSON.parse(localStorage.getItem('karsa_inventory')) || {}; } catch(e) {}
             if (Object.keys(inv).length === 0) { grid.innerHTML = '<p class="text-xs text-stone-600 italic">Belum ada data stok.</p>'; return; }
             grid.innerHTML = Object.entries(inv).map(([name, stock]) => {
-                const color = stock <= 0 ? 'red' : stock <= 3 ? 'amber' : 'green';
+                const isOff = stock <= 0;
+                const color = isOff ? 'red' : stock <= 3 ? 'amber' : 'green';
                 return `
                 <div class="bg-${color}-500/10 border border-${color}-500/20 p-3 rounded-xl">
-                    <p class="text-white text-sm font-bold truncate">${name}</p>
-                    <div class="flex items-center justify-between mt-2">
-                        <span class="text-${color}-400 text-lg font-black">${stock}</span>
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="text-white text-sm font-bold truncate flex-1">${name}</p>
+                        <button onclick="toggleMenuAvailability('${name}')" class="menu-toggle-switch ${isOff ? '' : 'active'}" title="${isOff ? 'Nyalakan Menu' : 'Matikan Menu'}"></button>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-${color}-400 text-lg font-black">${isOff ? 'OFF' : stock}</span>
                         <div class="flex gap-1">
                             <button onclick="adjustStock('${name}', -1)" class="w-7 h-7 rounded-lg bg-red-500/20 text-red-400 text-sm font-bold hover:bg-red-500/40 transition">-</button>
                             <button onclick="adjustStock('${name}', 1)" class="w-7 h-7 rounded-lg bg-green-500/20 text-green-400 text-sm font-bold hover:bg-green-500/40 transition">+</button>
                         </div>
                     </div>
+                    ${isOff ? '<p class="text-red-400 text-[9px] font-bold mt-1 uppercase">Menu Dimatikan</p>' : ''}
                 </div>`;
             }).join('');
         }
@@ -698,6 +713,13 @@
             let inv = {};
             try { inv = JSON.parse(localStorage.getItem('karsa_inventory')) || {}; } catch(e) {}
             if (inv[name] !== undefined) { inv[name] = Math.max(0, inv[name] + delta); }
+            localStorage.setItem('karsa_inventory', JSON.stringify(inv));
+            renderStockGrid();
+        }
+        function toggleMenuAvailability(name) {
+            let inv = {};
+            try { inv = JSON.parse(localStorage.getItem('karsa_inventory')) || {}; } catch(e) {}
+            if (inv[name] !== undefined) { inv[name] = inv[name] <= 0 ? 10 : 0; }
             localStorage.setItem('karsa_inventory', JSON.stringify(inv));
             renderStockGrid();
         }
@@ -798,13 +820,27 @@
                     </td>
                     <td class="py-3 px-3">
                         ${isPending ? `
-                            <button onclick="selesaikanPesanan('${p.orderID}')"
-                                class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition"
-                                style="background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);color:#4ade80;"
-                                onmouseover="this.style.background='rgba(34,197,94,0.3)'"
-                                onmouseout="this.style.background='rgba(34,197,94,0.15)'"
-                            >🏁 Selesai</button>
-                        ` : '<span class="text-stone-600 text-xs italic">Done</span>'}
+                            <div class="flex gap-2">
+                                <button onclick="updateOrderStatus('${p.orderID}')"
+                                    class="px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition"
+                                    style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;"
+                                    onmouseover="this.style.background='rgba(59,130,246,0.3)'"
+                                    onmouseout="this.style.background='rgba(59,130,246,0.15)'"
+                                >🔄 Update Status</button>
+                                <button onclick="selesaikanPesanan('${p.orderID}')"
+                                    class="px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition"
+                                    style="background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);color:#4ade80;"
+                                    onmouseover="this.style.background='rgba(34,197,94,0.3)'"
+                                    onmouseout="this.style.background='rgba(34,197,94,0.15)'"
+                                >🏁 Selesai</button>
+                                <button onclick="printKitchenTicket('${p.orderID}')"
+                                    class="px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition"
+                                    style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);color:#a855f7;"
+                                    onmouseover="this.style.background='rgba(168,85,247,0.3)'"
+                                    onmouseout="this.style.background='rgba(168,85,247,0.15)'"
+                                >🖨️ Cetak</button>
+                            </div>
+                        ` : '<span class="text-stone-600 text-xs italic">Done</span>'}}
                     </td>
                 </tr>`;
             }).join('');
@@ -859,6 +895,103 @@
         // ===== AUTO-REFRESH PESANAN HARI INI setiap 3 detik =====
         renderPesananHariIni();
         setInterval(renderPesananHariIni, 3000);
+
+        // ===== UPDATE ORDER STATUS =====
+        function updateOrderStatus(orderID) {
+            let pesanan = [];
+            try { pesanan = JSON.parse(localStorage.getItem('PESANAN_HARI_INI')) || []; } catch(e) {}
+            const order = pesanan.find(p => p.orderID === orderID);
+            if (!order) return;
+            const stages = ['Pending', 'Diracik', 'Siap Diambil', 'Selesai'];
+            const currentIdx = stages.indexOf(order.status);
+            if (currentIdx < stages.length - 1) {
+                order.status = stages[currentIdx + 1];
+                localStorage.setItem('PESANAN_HARI_INI', JSON.stringify(pesanan));
+                const stageMap = { 'Pending': '0', 'Diracik': '1', 'Siap Diambil': '2', 'Selesai': '2' };
+                localStorage.setItem('karsa_order_stage', stageMap[order.status] || '0');
+                if (order.status === 'Selesai') {
+                    // Add loyalty point
+                    let pts = parseInt(localStorage.getItem('karsa_loyalty_points') || '0');
+                    if (pts < 5) { pts++; localStorage.setItem('karsa_loyalty_points', String(pts)); }
+                }
+            }
+            renderPesananHariIni();
+            renderPesanan();
+        }
+
+        // ===== PRINT KITCHEN TICKET =====
+        function printKitchenTicket(orderID) {
+            let pesanan = [];
+            try { pesanan = JSON.parse(localStorage.getItem('PESANAN_HARI_INI')) || []; } catch(e) {}
+            const order = pesanan.find(p => p.orderID === orderID);
+            if (!order) { alert('Pesanan tidak ditemukan!'); return; }
+            const itemsHtml = (order.items || []).map(it => '<tr><td style="padding:4px 0;border-bottom:1px dashed #ccc;">' + it.qty + 'x</td><td style="padding:4px 8px;border-bottom:1px dashed #ccc;">' + it.nama + '</td></tr>').join('');
+            const ticketHtml = '<!DOCTYPE html><html><head><title>Kitchen Ticket</title><style>body{font-family:Courier New,monospace;width:280px;margin:0 auto;padding:20px;color:#000;}h2{text-align:center;margin:0;font-size:16px;letter-spacing:2px;}.sep{border-top:2px dashed #000;margin:10px 0;}table{width:100%;font-size:13px;}.info{font-size:11px;margin:4px 0;}.footer{text-align:center;font-size:9px;color:#666;margin-top:12px;}@media print{body{width:100%;padding:5px;}}</style></head><body><h2>☕ KARSA CAFE</h2><p style="text-align:center;font-size:9px;color:#666;margin:2px 0;">KITCHEN ORDER TICKET</p><div class="sep"></div><p class="info"><b>Order:</b> ' + order.orderID + '</p><p class="info"><b>Nama:</b> ' + (order.nama||'-') + '</p><p class="info"><b>Meja:</b> ' + (order.meja||'-') + ' (' + (order.area||'-') + ')</p><p class="info"><b>Jam:</b> ' + (order.jam||'-') + '</p><div class="sep"></div><table>' + itemsHtml + '</table><div class="sep"></div><p style="text-align:center;font-size:12px;font-weight:bold;">Total: Rp ' + (order.totalHarga||0).toLocaleString('id-ID') + '</p><div class="footer">Dicetak: ' + new Date().toLocaleString('id-ID') + '</div><script>window.onload=function(){window.print();}<\/script></body></html>';
+            const w = window.open('', '_blank', 'width=320,height=500');
+            if (w) { w.document.write(ticketHtml); w.document.close(); }
+        }
+
+        // ===== LOW STOCK ALERT SYSTEM =====
+        (function initLowStockAlert() {
+            let alerted = {};
+            function check() {
+                let inv = {};
+                try { inv = JSON.parse(localStorage.getItem('karsa_inventory')) || {}; } catch(e) {}
+                for (const [name, stock] of Object.entries(inv)) {
+                    if (stock > 0 && stock < 5 && !alerted[name]) {
+                        alerted[name] = true;
+                        const toast = document.createElement('div');
+                        toast.className = 'low-stock-toast';
+                        toast.style.cssText = 'position:fixed;top:' + (24 + Object.keys(alerted).length * 80) + 'px;right:24px;z-index:99999;background:rgba(15,10,5,0.96);backdrop-filter:blur(20px);border:1px solid rgba(239,68,68,0.4);border-radius:16px;padding:16px 22px;box-shadow:0 20px 50px rgba(0,0,0,0.5);display:flex;align-items:center;gap:14px;max-width:380px;animation:slideIn 0.5s ease;';
+                        toast.innerHTML = '<div style="width:40px;height:40px;border-radius:12px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-size:20px;">⚠️</span></div><div><p style="color:#ef4444;font-size:13px;font-weight:800;margin:0;">Woi Ngab!</p><p style="color:rgba(255,255,255,0.6);font-size:11px;margin:3px 0 0;">Stok <strong style="color:#f59e0b;">' + name + '</strong> sisa <strong style="color:#ef4444;">' + stock + '</strong> nih! Segera restock!</p></div><button onclick="this.parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,0.3);font-size:18px;cursor:pointer;">×</button>';
+                        document.body.appendChild(toast);
+                        try { new Audio('https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3?filename=service-bell-ring-14610.mp3').play().catch(function(){}); } catch(e) {}
+                        setTimeout(function() { if (toast.parentElement) toast.remove(); }, 6000);
+                    }
+                    if (stock >= 5) delete alerted[name];
+                }
+            }
+            check();
+            setInterval(check, 5000);
+        })();
+
+        // ===== DAILY SALES CHART (Chart.js) =====
+        function renderSalesChart() {
+            const canvas = document.getElementById('salesChartCanvas');
+            if (!canvas || typeof Chart === 'undefined') return;
+            let pesanan = [];
+            try { pesanan = JSON.parse(localStorage.getItem('PESANAN_HARI_INI')) || []; } catch(e) {}
+            const selesai = pesanan.filter(p => p.status === 'Selesai');
+            const hourData = new Array(24).fill(0);
+            selesai.forEach(p => {
+                if (p.jam) {
+                    const h = parseInt(p.jam.split(':')[0]) || 0;
+                    if (h >= 0 && h < 24) hourData[h]++;
+                }
+            });
+            const labels = Array.from({length: 24}, (_, i) => String(i).padStart(2,'0') + ':00');
+            if (window._salesChart) window._salesChart.destroy();
+            window._salesChart = new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{ label: 'Pesanan Selesai', data: hourData,
+                        backgroundColor: hourData.map(v => v > 0 ? 'rgba(245,158,11,0.6)' : 'rgba(255,255,255,0.05)'),
+                        borderColor: hourData.map(v => v > 0 ? 'rgba(245,158,11,0.9)' : 'rgba(255,255,255,0.1)'),
+                        borderWidth: 1, borderRadius: 4 }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 9 } }, grid: { display: false } },
+                        y: { beginAtZero: true, ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10 }, stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+        }
+        renderSalesChart();
+        setInterval(renderSalesChart, 10000);
     </script>
 
     <!-- Ding Sound for Waiter Calls -->

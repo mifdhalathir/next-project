@@ -522,3 +522,223 @@ body {
 .flip-card:hover .flip-card-front {
     box-shadow: 0 0 0 2px rgba(245,158,11,0.8), 0 25px 60px rgba(0,0,0,0.4) !important;
 }
+
+/* ===== LOYALTY STAMP CARD ===== */
+.loyalty-card {
+    background: linear-gradient(135deg, #2c1a12 0%, #1a100a 100%);
+    border: 1px solid rgba(245,158,11,0.3);
+    border-radius: 20px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+}
+.loyalty-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(245,158,11,0.08) 0%, transparent 70%);
+    pointer-events: none;
+}
+.stamp-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin: 16px 0;
+}
+.stamp-hole {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px dashed rgba(255,255,255,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    position: relative;
+}
+.stamp-hole.filled {
+    border-color: #f59e0b;
+    background: rgba(245,158,11,0.15);
+    box-shadow: 0 0 12px rgba(245,158,11,0.3);
+    animation: stampBounce 0.5s ease;
+}
+@keyframes stampBounce {
+    0% { transform: scale(0); }
+    60% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+.loyalty-coupon {
+    background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(34,197,94,0.05));
+    border: 1px solid rgba(34,197,94,0.3);
+    border-radius: 16px;
+    padding: 16px 20px;
+    text-align: center;
+    animation: couponPop 0.6s cubic-bezier(0.34,1.56,0.64,1);
+    position: relative;
+    overflow: hidden;
+}
+@keyframes couponPop {
+    0% { transform: scale(0) rotate(-5deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+/* ===== LOW STOCK TOAST ===== */
+.low-stock-toast {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 99999;
+    background: rgba(15,10,5,0.96);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(239,68,68,0.4);
+    border-radius: 16px;
+    padding: 16px 22px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 20px rgba(239,68,68,0.1);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    animation: toastSlideIn 0.5s cubic-bezier(0.23,1,0.32,1);
+    max-width: 380px;
+}
+@keyframes toastSlideIn {
+    from { transform: translateX(120%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* ===== VOUCHER CODE INPUT ===== */
+.voucher-input-wrap {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+.voucher-input-wrap input {
+    flex: 1;
+    background: rgba(255,255,255,0.08) !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+    color: #fff !important;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    outline: none;
+    transition: border-color 0.3s;
+}
+.voucher-input-wrap input:focus {
+    border-color: rgba(245,158,11,0.5) !important;
+    box-shadow: 0 0 10px rgba(245,158,11,0.15);
+}
+.voucher-input-wrap button {
+    background: linear-gradient(135deg, #b45309, #d97706);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+.voucher-input-wrap button:hover {
+    box-shadow: 0 0 15px rgba(245,158,11,0.4);
+}
+.voucher-success {
+    background: rgba(34,197,94,0.1);
+    border: 1px solid rgba(34,197,94,0.3);
+    color: #4ade80;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ===== CUSTOMER REVIEW CAROUSEL ===== */
+.review-carousel-container {
+    overflow: hidden;
+    position: relative;
+}
+.review-carousel-track {
+    display: flex;
+    gap: 16px;
+    animation: scrollReview 30s linear infinite;
+    width: max-content;
+}
+.review-carousel-track:hover {
+    animation-play-state: paused;
+}
+@keyframes scrollReview {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+.review-card {
+    min-width: 280px;
+    max-width: 280px;
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.05);
+    flex-shrink: 0;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.review-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+}
+.dark .review-card {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.08);
+}
+
+/* ===== MENU TOGGLE (Kasir - Matikan Menu) ===== */
+.menu-toggle-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    border-radius: 12px;
+    background: rgba(239,68,68,0.3);
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+    padding: 0;
+}
+.menu-toggle-switch.active {
+    background: rgba(34,197,94,0.4);
+}
+.menu-toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #ef4444;
+    transition: all 0.3s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+.menu-toggle-switch.active::after {
+    left: 23px;
+    background: #22c55e;
+}
+
+/* ===== KITCHEN TICKET PRINT ===== */
+@media print {
+    .kitchen-ticket-print * {
+        color: #000 !important;
+        background: #fff !important;
+    }
+}
