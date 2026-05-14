@@ -45,6 +45,17 @@ export default function KasirPage() {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
 
+  // New Summary States
+  const [completedOrdersCount, setCompletedOrdersCount] = useState(0);
+  const [popularMenu, setPopularMenu] = useState("-");
+  const [topMenus, setTopMenus] = useState<{name: string, qty: number}[]>([]);
+  const [avgRating, setAvgRating] = useState(0);
+  const [reviewCount, setReviewCount] = useState(0);
+  const [activeOrdersCount, setActiveOrdersCount] = useState(0);
+  const [pendingResCount, setPendingResCount] = useState(0);
+  const [indoorCapacity, setIndoorCapacity] = useState(0);
+  const [outdoorCapacity, setOutdoorCapacity] = useState(0);
+
   const rawTotalRevenue = Number(typeof window !== "undefined" ? localStorage.getItem("karsa_revenue") || 0 : 0);
   const animatedRevenue = useRunningNumber(rawTotalRevenue, 1500);
 
@@ -53,6 +64,7 @@ export default function KasirPage() {
       const savedOrders = localStorage.getItem("PESANAN_HARI_INI");
       const savedRes = localStorage.getItem("karsa_pesanan_masuk");
       const savedInv = localStorage.getItem("karsa_inventory");
+      const savedReviews = localStorage.getItem("karsa_reviews");
       
       if (savedOrders) {
         const parsedOrders: any[] = JSON.parse(savedOrders);
@@ -70,6 +82,41 @@ export default function KasirPage() {
         }));
         setOrders(mappedOrders.filter(o => o.status !== "completed"));
         updateChart(parsedOrders);
+
+        // Calculate Summary Stats
+        const completed = parsedOrders.filter(p => p.status === 'Selesai');
+        setCompletedOrdersCount(completed.length);
+        setActiveOrdersCount(parsedOrders.length - completed.length);
+        
+        const itemCounts: Record<string, number> = {};
+        completed.forEach(p => {
+            p.items.forEach((it: any) => {
+                itemCounts[it.nama] = (itemCounts[it.nama] || 0) + it.qty;
+            });
+        });
+        
+        const sortedMenus = Object.entries(itemCounts).sort((a, b) => b[1] - a[1]);
+        setTopMenus(sortedMenus.slice(0, 3).map(m => ({name: m[0], qty: m[1]})));
+        setPopularMenu(sortedMenus.length > 0 ? sortedMenus[0][0] : "-");
+        
+        let ind = 0, out = 0;
+        parsedOrders.filter(p => p.status !== 'Selesai').forEach(p => {
+            const t = parseInt(p.meja.replace('Meja ', ''));
+            if (!isNaN(t)) {
+                if (t <= 10) ind++;
+                else if (t <= 15) out++;
+            }
+        });
+        setIndoorCapacity(ind);
+        setOutdoorCapacity(out);
+
+      } else {
+        setCompletedOrdersCount(0);
+        setActiveOrdersCount(0);
+        setTopMenus([]);
+        setPopularMenu("-");
+        setIndoorCapacity(0);
+        setOutdoorCapacity(0);
       }
 
       if (savedRes) {
@@ -84,6 +131,20 @@ export default function KasirPage() {
             timestamp: p.id
         }));
         setReservations(resList);
+
+        const pending = parsedRes.filter(p => p.status === 'menunggu');
+        setPendingResCount(pending.length);
+      } else {
+        setPendingResCount(0);
+      }
+
+      if (savedReviews) {
+        const parsedReviews: any[] = JSON.parse(savedReviews);
+        if (parsedReviews.length > 0) {
+            const total = parsedReviews.reduce((sum, r) => sum + r.rating, 0);
+            setAvgRating(total / parsedReviews.length);
+            setReviewCount(parsedReviews.length);
+        }
       }
 
       if (savedInv) {
@@ -345,7 +406,99 @@ export default function KasirPage() {
       </header>
 
       <main className="flex-1 grid grid-cols-12 gap-6 overflow-hidden relative z-10">
-        {/* Reservation / Table Map Column */}
+        
+        {/* NEW SUMMARY ROW: Ringkasan Hari Ini & Top Summary Cards */}
+        <div className="col-span-12 grid grid-cols-12 gap-6 mb-2">
+          {/* Left: Ringkasan Hari Ini */}
+          <div className="col-span-12 lg:col-span-8 cyber-glass-amber p-6">
+             <h2 className="text-[#FFBF00] text-sm font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+               <span className="text-xl">📊</span> Ringkasan Hari Ini (Pesanan Selesai)
+             </h2>
+             <div className="grid grid-cols-3 gap-4 mb-4">
+                <div className="bg-black/40 border border-white/5 p-4 rounded-sm flex flex-col justify-center">
+                   <p className="text-[10px] text-stone-500 uppercase font-bold tracking-widest mb-1">Total Pesanan</p>
+                   <p className="text-3xl font-black text-white">{completedOrdersCount}</p>
+                </div>
+                <div className="bg-black/40 border border-[#FFBF00]/30 p-4 rounded-sm shadow-[inset_0_0_15px_rgba(255,191,0,0.1)] flex flex-col justify-center">
+                   <p className="text-[10px] text-[#FFBF00]/70 uppercase font-bold tracking-widest mb-1">Total Pendapatan</p>
+                   <p className="text-2xl font-black text-[#FFBF00] break-all">Rp {animatedRevenue.toLocaleString("id-ID")}</p>
+                </div>
+                <div className="bg-black/40 border border-[#39FF14]/30 p-4 rounded-sm shadow-[inset_0_0_15px_rgba(57,255,20,0.1)] flex flex-col justify-center">
+                   <p className="text-[10px] text-[#39FF14]/70 uppercase font-bold tracking-widest mb-1">Menu Terpopuler</p>
+                   <p className="text-sm font-black text-[#39FF14] truncate mt-1">{popularMenu}</p>
+                </div>
+             </div>
+             
+             <div className="grid grid-cols-2 gap-4">
+                <div className="bg-black/40 border border-white/5 p-4 rounded-sm">
+                    <p className="text-[10px] text-stone-500 uppercase font-bold tracking-widest mb-2">Statistik Menu (Top 3)</p>
+                    {topMenus.length === 0 ? (
+                        <p className="text-[10px] text-stone-600 italic">Belum ada data penjualan selesai.</p>
+                    ) : (
+                        topMenus.map((m, i) => (
+                            <div key={i} className="flex justify-between items-center mb-1 border-b border-white/5 pb-1">
+                                <span className="text-xs text-stone-300 font-bold truncate pr-2">{m.name}</span>
+                                <span className="text-[10px] text-[#FFBF00] font-black">{m.qty}x</span>
+                            </div>
+                        ))
+                    )}
+                </div>
+                
+                <div className="bg-black/40 border border-white/5 p-4 rounded-sm flex flex-col justify-center">
+                    <p className="text-[10px] text-stone-500 uppercase font-bold tracking-widest mb-2 flex items-center gap-1"><span className="text-[#FFBF00]">⭐</span> Rata-Rata Kepuasan</p>
+                    <div className="flex items-end gap-3">
+                        <span className="text-3xl font-black text-white">{avgRating.toFixed(1)}</span>
+                        <div className="flex text-[#FFBF00] text-sm mb-1">
+                           {"★".repeat(Math.round(avgRating))}{"☆".repeat(5 - Math.round(avgRating))}
+                        </div>
+                    </div>
+                    <p className="text-[10px] text-stone-500 mt-1">{reviewCount} rating masuk</p>
+                </div>
+             </div>
+          </div>
+
+          {/* Right: Summary Cards & Capacity */}
+          <div className="col-span-12 lg:col-span-4 flex flex-col gap-4">
+             <div className="grid grid-cols-2 gap-4 flex-1">
+                <div className="cyber-glass-amber p-4 flex flex-col justify-center items-center text-center">
+                    <p className="text-[10px] text-stone-500 uppercase font-bold tracking-widest mb-1">Total Aktif</p>
+                    <p className="text-3xl font-black text-white">{activeOrdersCount}</p>
+                </div>
+                <div className="cyber-glass-amber p-4 flex flex-col justify-center items-center text-center">
+                    <p className="text-[10px] text-[#FFBF00]/70 uppercase font-bold tracking-widest mb-1">Menunggu</p>
+                    <p className="text-3xl font-black text-[#FFBF00]">{pendingResCount}</p>
+                </div>
+             </div>
+             
+             <div className="cyber-glass-amber p-4 flex-1 flex flex-col justify-center">
+                 <p className="text-[10px] text-stone-500 uppercase font-bold tracking-widest mb-3 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-white/30 animate-pulse"></span> Kapasitas Real-Time
+                 </p>
+                 
+                 <div className="mb-3">
+                     <div className="flex justify-between text-[10px] font-bold uppercase mb-1">
+                         <span className="text-[#FFBF00]">🏠 Indoor</span>
+                         <span className="text-stone-400">{indoorCapacity} / 10</span>
+                     </div>
+                     <div className="h-1.5 w-full bg-stone-900 rounded-full overflow-hidden">
+                         <div className="h-full bg-[#FFBF00] transition-all duration-500" style={{ width: `${Math.min((indoorCapacity/10)*100, 100)}%` }}></div>
+                     </div>
+                 </div>
+                 
+                 <div>
+                     <div className="flex justify-between text-[10px] font-bold uppercase mb-1">
+                         <span className="text-[#39FF14]">🌿 Outdoor</span>
+                         <span className="text-stone-400">{outdoorCapacity} / 5</span>
+                     </div>
+                     <div className="h-1.5 w-full bg-stone-900 rounded-full overflow-hidden">
+                         <div className="h-full bg-[#39FF14] transition-all duration-500" style={{ width: `${Math.min((outdoorCapacity/5)*100, 100)}%` }}></div>
+                     </div>
+                 </div>
+             </div>
+          </div>
+        </div>
+
+        {/* Existing Grid Row */}
         <div className="col-span-12 lg:col-span-3 flex flex-col gap-4 overflow-hidden">
           <div className="flex items-center gap-3 mb-2 px-2">
             <div className="w-2 h-2 rounded-none bg-[#FFBF00] shadow-[0_0_10px_#FFBF00] animate-pulse"></div>
