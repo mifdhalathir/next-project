@@ -7,18 +7,8 @@ import CustomCursor from "@/components/CustomCursor";
 import { addKarsaNotification } from "@/components/NotificationHub";
 import { addActivityLog } from "@/components/ActivityLog";
 
-// Firebase configuration
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
+import { auth, googleProvider } from "@/lib/firebase";
+import { signInWithPopup } from "firebase/auth";
 
 export default function Login() {
   const [step, setStep] = useState<"login" | "table" | "register">("login");
@@ -163,27 +153,27 @@ export default function Login() {
 
   const handleGoogleLogin = async () => {
     try {
-      if (firebaseConfig.apiKey === "YOUR_API_KEY") {
-        alert("Simulasi Google Login berhasil! (Ganti API Key untuk koneksi Google asli)");
-        setUsername("Sultan " + Math.floor(Math.random() * 1000));
-        setAvatar(`https://ui-avatars.com/api/?name=Sultan&background=f59e0b&color=fff`);
-        setStep("table");
-        return;
-      }
-      
-      const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-      const auth = getAuth(app);
-      const provider = new GoogleAuthProvider();
-      
-      const result = await signInWithPopup(auth, provider);
+      setIsProcessing(true);
+      const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
+      
       setUsername(user.displayName || "Sultan");
       setAvatar(user.photoURL || "");
+      
+      addActivityLog(`Login Google: ${user.displayName}`, "login");
+      addKarsaNotification(`Selamat datang, ${user.displayName}! 👋`, "success");
+      
       setStep("table");
     } catch (err: any) {
-      setError("Google Login Gagal: " + err.message);
+      if (err.code === "auth/popup-closed-by-user") {
+        setError("Login dibatalkan, Sultan.");
+      } else {
+        setError("Google Login Gagal: " + err.message);
+      }
       setShake(true);
       setTimeout(() => setShake(false), 500);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
