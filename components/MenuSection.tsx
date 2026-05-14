@@ -40,6 +40,23 @@ const MENU_ITEMS = [
 export default function MenuSection() {
   const [filter, setFilter] = useState("all");
   const { cart, updateQty } = useCart();
+  const [inventory, setInventory] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    const fetchInv = () => {
+      try {
+        const inv = JSON.parse(localStorage.getItem("karsa_inventory") || "{}");
+        setInventory(inv);
+      } catch (e) {}
+    };
+    fetchInv();
+    const interval = setInterval(fetchInv, 5000);
+    window.addEventListener("storage", fetchInv);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("storage", fetchInv);
+    };
+  }, []);
 
   const filteredItems = filter === "all" ? MENU_ITEMS : MENU_ITEMS.filter((item) => item.category === filter);
 
@@ -108,6 +125,10 @@ export default function MenuSection() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
           {filteredItems.map((item, index) => {
             const qty = cart[item.name]?.qty || 0;
+            const stock = inventory[item.name];
+            const isSoldOut = stock !== undefined && stock <= 0;
+            const isLowStock = stock !== undefined && stock > 0 && stock <= 3;
+
             return (
               <div
                 key={item.id}
@@ -119,12 +140,18 @@ export default function MenuSection() {
                   <img
                     src={item.img}
                     alt={item.name}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${isSoldOut ? 'grayscale' : ''}`}
                   />
                     <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-transparent to-transparent opacity-60"></div>
                     
                     {/* Smart Badge Logic */}
                     {(() => {
+                      if (isSoldOut) {
+                        return <div className="absolute top-4 left-4 bg-red-500 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg z-10">SOLD OUT</div>;
+                      } else if (isLowStock) {
+                        return <div className="absolute top-4 left-4 bg-amber-500 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg z-10 animate-pulse">SISA {stock}</div>;
+                      }
+
                       const hour = new Date().getHours();
                       if (hour >= 18 || hour < 5) {
                         if (item.name.includes("Matcha") || item.name.includes("Teh")) {
@@ -141,12 +168,14 @@ export default function MenuSection() {
                     {/* Add Button in Corner */}
                   <button 
                     onClick={() => {
+                      if (isSoldOut) return;
                       updateQty(item.name, qty + 1, item.price);
                       if (typeof window !== "undefined" && window.navigator.vibrate) {
                         window.navigator.vibrate(10);
                       }
                     }}
-                    className="absolute top-4 right-4 w-10 h-10 bg-amber-600 hover:bg-amber-500 text-white rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 hover:rotate-90 active:scale-90 z-20"
+                    disabled={isSoldOut}
+                    className={`absolute top-4 right-4 w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 z-20 ${isSoldOut ? 'bg-stone-700 text-stone-500 cursor-not-allowed opacity-50' : 'bg-amber-600 hover:bg-amber-500 text-white hover:rotate-90 active:scale-90'}`}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
                   </button>

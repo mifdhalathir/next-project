@@ -33,9 +33,11 @@ type CartContextType = {
   clearCart: () => void;
   placeOrder: (tableNumber: string) => Order;
   placeReservation: (res: Omit<Reservation, "id" | "status" | "timestamp">) => void;
+  applyVoucher: (code: string) => { success: boolean; message: string };
   activeOrder: Order | null;
   total: number;
   totalItems: number;
+  voucherDiscount: number;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -43,6 +45,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<{ [key: string]: CartItem }>({});
   const [activeOrder, setActiveOrder] = useState<Order | null>(null);
+  const [voucher, setVoucher] = useState<{ type: string; discount: number; code: string } | null>(null);
 
   // Synchronize active order status from localStorage (for real-time tracking)
   useEffect(() => {
@@ -90,8 +93,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     const orderID = `KRSA-${Math.floor(1000 + Math.random() * 9000)}`;
     const itemsArray = Object.values(cart);
-    const totalAmount = itemsArray.reduce((sum, item) => sum + item.price * item.qty, 0);
+    const baseTotal = itemsArray.reduce((sum, item) => sum + item.price * item.qty, 0);
     const totalQty = itemsArray.reduce((sum, item) => sum + item.qty, 0);
+
+    let totalAmount = baseTotal;
+    if (voucher) {
+      if (voucher.type === 'persen') totalAmount -= Math.round(baseTotal * voucher.discount / 100);
+      else if (voucher.type === 'flat') totalAmount -= Math.min(voucher.discount, baseTotal);
+    }
 
     const newOrder: Order = {
       id: orderID,
@@ -155,8 +164,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     addKarsaNotification(`Pesanan Baru Terkirim! Mohon Tunggu Ya! ☕`, "warning");
     window.dispatchEvent(new Event("storage"));
 
+    if (voucher) {
+      sessionStorage.setItem('karsa_voucher_used', voucher.code);
+    }
+
     setActiveOrder(newOrder);
     setCart({});
+    setVoucher(null);
     return newOrder;
   };
 
@@ -218,13 +232,36 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const total = Object.values(cart).reduce((sum, item) => sum + item.price * item.qty, 0);
+  const applyVoucher = (code: string) => {
+    const c = code.trim().toUpperCase();
+    if (typeof window !== "undefined" && sessionStorage.getItem("karsa_voucher_used")) {
+      return { success: false, message: "Voucher sudah dipakai di sesi ini!" };
+    }
+    if (c === "KARSAVIP") {
+      setVoucher({ type: "persen", discount: 20, code: c });
+      return { success: true, message: `Voucher KARSAVIP aktif! Diskon 20%.` };
+    } else if (c === "KOPIGRATIS") {
+      setVoucher({ type: "flat", discount: 15000, code: c });
+      return { success: true, message: `Voucher KOPIGRATIS aktif! Potongan Rp 15.000.` };
+    }
+    return { success: false, message: "Kode voucher tidak valid!" };
+  };
+
+  const baseTotal = Object.values(cart).reduce((sum, item) => sum + item.price * item.qty, 0);
+  let total = baseTotal;
+  let voucherDiscount = 0;
+  if (voucher) {
+    if (voucher.type === 'persen') voucherDiscount = Math.round(baseTotal * voucher.discount / 100);
+    else if (voucher.type === 'flat') voucherDiscount = Math.min(voucher.discount, baseTotal);
+    total -= voucherDiscount;
+  }
+  
   const totalItems = Object.values(cart).reduce((sum, item) => sum + item.qty, 0);
 
   return (
     <CartContext.Provider value={{ 
       cart, addToCart, removeFromCart, updateQty, clearCart, 
-      placeOrder, placeReservation, activeOrder, total, totalItems 
+      placeOrder, placeReservation, applyVoucher, activeOrder, total, totalItems, voucherDiscount
     }}>
       {children}
     </CartContext.Provider>

@@ -5,10 +5,12 @@ import { useCart } from "./CartProvider";
 import DigitalReceipt from "./DigitalReceipt";
 
 export default function CartWidget() {
-  const { cart, total, totalItems, updateQty, placeOrder, activeOrder } = useCart();
+  const { cart, total, totalItems, updateQty, placeOrder, activeOrder, applyVoucher, voucherDiscount } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const [tableNumber, setTableNumber] = useState("");
   const [showReceipt, setShowReceipt] = useState(false);
+  const [voucherCode, setVoucherCode] = useState("");
+  const [voucherMsg, setVoucherMsg] = useState({ text: "", isError: false });
 
   useEffect(() => {
     const savedTable = localStorage.getItem("karsa_table_number");
@@ -237,6 +239,36 @@ export default function CartWidget() {
                     </div>
                   </div>
                 ))}
+                
+                {/* Voucher Section */}
+                <div className="mt-6 p-5 bg-stone-800/50 border border-white/10 rounded-2xl">
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 mb-3">🎫 Punya Kode Voucher?</p>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      value={voucherCode}
+                      onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
+                      placeholder="Masukkan Kode"
+                      className="flex-1 bg-stone-900 border border-white/10 rounded-xl px-4 py-2 text-xs text-white placeholder-stone-600 focus:border-amber-500 outline-none uppercase"
+                    />
+                    <button 
+                      onClick={() => {
+                        if (!voucherCode) return;
+                        const res = applyVoucher(voucherCode);
+                        setVoucherMsg({ text: res.message, isError: !res.success });
+                        if (res.success) setVoucherCode("");
+                      }}
+                      className="bg-amber-600 hover:bg-amber-500 text-white px-4 rounded-xl text-xs font-bold uppercase tracking-widest transition"
+                    >
+                      Klaim
+                    </button>
+                  </div>
+                  {voucherMsg.text && (
+                    <p className={`text-[10px] mt-2 font-bold ${voucherMsg.isError ? 'text-red-400' : 'text-green-400'}`}>
+                      {voucherMsg.text}
+                    </p>
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -244,8 +276,22 @@ export default function CartWidget() {
           <div className="p-8 bg-stone-900 border-t border-white/5">
             {!activeOrder && (
               <>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-stone-500 uppercase tracking-widest text-xs font-bold">Subtotal</span>
+                  <span className="font-bold text-sm text-stone-300">
+                    Rp {(total + voucherDiscount).toLocaleString("id-ID")}
+                  </span>
+                </div>
+                {voucherDiscount > 0 && (
+                  <div className="flex justify-between items-center mb-2 pb-2 border-b border-white/5">
+                    <span className="text-green-500 uppercase tracking-widest text-[10px] font-black">Diskon Voucher</span>
+                    <span className="font-bold text-sm text-green-500">
+                      - Rp {voucherDiscount.toLocaleString("id-ID")}
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center mb-6">
-                  <span className="text-stone-500 uppercase tracking-widest text-xs font-bold">Total Pembayaran</span>
+                  <span className="text-white uppercase tracking-widest text-sm font-black">Total</span>
                   <span className="font-black text-3xl text-amber-500 tracking-tighter">
                     Rp {total.toLocaleString("id-ID")}
                   </span>

@@ -28,6 +28,8 @@ import CustomCursor from "@/components/CustomCursor";
 import PageTransition from "@/components/PageTransition";
 import LiveActivityFeed from "@/components/LiveActivityFeed";
 import OrderTrackerCard from "@/components/OrderTrackerCard";
+import LoyaltyCard from "@/components/LoyaltyCard";
+import CustomerReviewWall from "@/components/CustomerReviewWall";
 
 export default function Home() {
   useEffect(() => {
@@ -64,6 +66,7 @@ export default function Home() {
         <RecentOrders />
         <CeritaKami />
         <MenuSection />
+        <LoyaltyCard />
         <ReservationForm />
         <TestimonialSlider />
         <BeforeAfterSlider />
@@ -71,6 +74,7 @@ export default function Home() {
         <StatusMeja />
         <MapsSection />
         <InstagramGrid />
+        <CustomerReviewWall />
       </main>
       <Footer />
       <AmbientWidget />
