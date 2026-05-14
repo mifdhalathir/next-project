@@ -521,3 +521,170 @@ body {
   100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
 }
 
+/* ═══════════════════════════════════════════════════════
+   ATMOSPHERIC AREA STATE — Dynamic Theme System
+   ═══════════════════════════════════════════════════════ */
+
+/* CSS Global Variables per Area */
+:root {
+  --theme-indoor: #FFBF00;
+  --theme-outdoor: #4CAF50;
+  --theme-reserved: #E0115F;
+  --atmo-accent: var(--theme-indoor);
+  --atmo-accent-rgb: 255, 191, 0;
+  --atmo-glow: rgba(255, 191, 0, 0.15);
+  --atmo-blur: 15px;
+}
+
+body.theme-outdoor {
+  --atmo-accent: var(--theme-outdoor);
+  --atmo-accent-rgb: 76, 175, 80;
+  --atmo-glow: rgba(76, 175, 80, 0.15);
+  --atmo-blur: 20px;
+}
+
+body.theme-reserved {
+  --atmo-accent: var(--theme-reserved);
+  --atmo-accent-rgb: 224, 17, 95;
+  --atmo-glow: rgba(224, 17, 95, 0.15);
+  --atmo-blur: 18px;
+}
+
+/* Atmospheric Body Transition */
+body {
+  transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
+}
+
+/* Atmospheric Glassmorphism Override */
+body.theme-outdoor .glass-form {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-color: rgba(76, 175, 80, 0.15);
+  box-shadow: 0 8px 32px 0 rgba(76, 175, 80, 0.08);
+}
+body.theme-reserved .glass-form {
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-color: rgba(224, 17, 95, 0.15);
+  box-shadow: 0 8px 32px 0 rgba(224, 17, 95, 0.08);
+}
+
+/* Atmospheric Blob Override */
+body.theme-outdoor .blob-1 { background: radial-gradient(circle, rgba(76, 175, 80, 0.15) 0%, transparent 70%); }
+body.theme-outdoor .blob-2 { background: radial-gradient(circle, rgba(56, 142, 60, 0.12) 0%, transparent 70%); }
+body.theme-outdoor .blob-3 { background: radial-gradient(circle, rgba(27, 94, 32, 0.1) 0%, transparent 70%); }
+
+body.theme-reserved .blob-1 { background: radial-gradient(circle, rgba(224, 17, 95, 0.12) 0%, transparent 70%); }
+body.theme-reserved .blob-2 { background: radial-gradient(circle, rgba(224, 17, 95, 0.08) 0%, transparent 70%); }
+body.theme-reserved .blob-3 { background: radial-gradient(circle, rgba(183, 28, 28, 0.06) 0%, transparent 70%); }
+
+/* Atmospheric Scanning Line Override */
+body.theme-outdoor .scanning-line {
+  background: linear-gradient(to right, transparent, rgba(76, 175, 80, 0.3), transparent);
+}
+body.theme-reserved .scanning-line {
+  background: linear-gradient(to right, transparent, rgba(224, 17, 95, 0.3), transparent);
+}
+
+/* Atmospheric Menu Card Hover Glow */
+body.theme-outdoor .dark .menu-card:hover {
+  box-shadow: 0 10px 30px -10px rgba(76, 175, 80, 0.3);
+  border-color: rgba(76, 175, 80, 0.3);
+}
+body.theme-reserved .dark .menu-card:hover {
+  box-shadow: 0 10px 30px -10px rgba(224, 17, 95, 0.3);
+  border-color: rgba(224, 17, 95, 0.3);
+}
+
+/* Atmospheric Nav Underline */
+body.theme-outdoor .nav-link::after { background: #4CAF50; }
+body.theme-outdoor .nav-link.active { color: #4CAF50 !important; }
+body.theme-reserved .nav-link::after { background: #E0115F; }
+body.theme-reserved .nav-link.active { color: #E0115F !important; }
+
+/* ─── DUST PARTICLES (Indoor: Silent & Cozy) ─── */
+.atmo-particles {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.dust-particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: rgba(255, 191, 0, 0.25);
+  border-radius: 50%;
+  animation: dustFloat linear infinite;
+}
+@keyframes dustFloat {
+  0%   { transform: translate(0, 0) scale(1); opacity: 0; }
+  10%  { opacity: 0.6; }
+  90%  { opacity: 0.3; }
+  100% { transform: translate(var(--dx, 80px), var(--dy, -600px)) scale(0.3); opacity: 0; }
+}
+
+/* ─── FALLING LEAVES (Outdoor: Nature Fresh) ─── */
+.leaf-particle {
+  position: absolute;
+  font-size: 14px;
+  opacity: 0;
+  animation: leafFall linear infinite;
+}
+@keyframes leafFall {
+  0%   { transform: translate(0, -20px) rotate(0deg) scale(0.7); opacity: 0; }
+  10%  { opacity: 0.5; }
+  50%  { opacity: 0.35; }
+  100% { transform: translate(var(--lx, -100px), calc(100vh + 20px)) rotate(var(--lr, 360deg)) scale(0.4); opacity: 0; }
+}
+
+/* ─── RESERVED RUBY BORDER ANIMATION ─── */
+@keyframes rubyBorderTravel {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+.ruby-border-glow {
+  position: relative;
+}
+.ruby-border-glow::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, rgba(224,17,95,0.5), transparent, rgba(224,17,95,0.3), transparent);
+  background-size: 200% 100%;
+  animation: rubyBorderTravel 3s linear infinite;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ─── RESERVED TABLE BREATHING LIGHT ─── */
+@keyframes breathingLight {
+  0%, 100% { box-shadow: 0 0 8px rgba(139, 0, 0, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(220, 20, 60, 0.6), 0 0 40px rgba(220, 20, 60, 0.2); }
+}
+.reserved-table-pulse {
+  animation: breathingLight 2.5s ease-in-out infinite;
+}
+
+/* ─── CONTEXTUAL BADGE STYLING ─── */
+.atmo-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 15;
+  font-size: 8px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  backdrop-filter: blur(8px);
+  animation: badgePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes badgePop {
+  0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}

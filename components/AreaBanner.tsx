@@ -24,16 +24,16 @@ export default function AreaBanner() {
         <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-green-500/10 border border-green-500/30 backdrop-blur-md shadow-lg shadow-green-900/20">
           <span className="text-2xl drop-shadow-lg">🌿</span>
           <div>
-            <p className="text-green-400 text-[11px] font-extrabold uppercase tracking-[0.12em]">Area Outdoor — Smoking Area</p>
-            <p className="text-green-400/50 text-[10px] mt-0.5">Nikmati udara segar & suasana terbuka ☀️</p>
+            <p className="text-green-400 text-[11px] font-extrabold uppercase tracking-[0.12em]">Open Air | Smoking Area</p>
+            <p className="text-green-400/70 text-[10px] mt-0.5">Pemandangan Asri</p>
           </div>
         </div>
       ) : (
-        <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-blue-500/10 border border-blue-500/30 backdrop-blur-md shadow-lg shadow-blue-900/20">
+        <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 backdrop-blur-md shadow-lg shadow-amber-900/20">
           <span className="text-2xl drop-shadow-lg">❄️</span>
           <div>
-            <p className="text-blue-400 text-[11px] font-extrabold uppercase tracking-[0.12em]">Area Indoor — AC / No Smoking</p>
-            <p className="text-blue-400/50 text-[10px] mt-0.5">Zona nyaman ber-AC, bebas asap rokok 🚭</p>
+            <p className="text-amber-400 text-[11px] font-extrabold uppercase tracking-[0.12em]">Full AC Area</p>
+            <p className="text-amber-400/70 text-[10px] mt-0.5">Suasana Tenang & Hangat</p>
           </div>
         </div>
       )}

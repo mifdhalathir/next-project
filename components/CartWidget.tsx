@@ -109,7 +109,7 @@ export default function CartWidget() {
         <div
           className={`w-full max-w-md bg-wood-900 h-full shadow-2xl flex flex-col transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${
             isOpen ? "translate-x-0" : "translate-x-full"
-          }`}
+          } ${typeof window !== 'undefined' && localStorage.getItem('karsa_status') === 'reserved' ? 'ruby-border-glow' : ''}`}
         >
           <div className="p-8 border-b border-white/5 flex justify-between items-center">
             <div>

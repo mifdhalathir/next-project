@@ -308,31 +308,47 @@ export default function KasirPage() {
           </div>
           
           <div className="flex-1 overflow-y-auto pr-2 space-y-4 custom-scrollbar">
-            {reservations.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center opacity-20 border border-dashed border-white/10 rounded-[2rem] py-12">
-                <p className="font-black uppercase text-[10px] tracking-widest text-center px-8">Kosong</p>
-              </div>
-            ) : (
-              [...reservations].sort((a, b) => b.timestamp - a.timestamp).map((res) => (
-                <div key={res.id} className={`glass-card p-5 rounded-[1.8rem] border border-white/5 relative overflow-hidden ${res.status === 'arrived' ? 'opacity-40 grayscale border-green-500/10' : 'hover:border-amber-500/30'}`}>
-                  <div className={`absolute top-0 left-0 w-1 h-full ${res.status === 'pending' ? 'bg-amber-500' : 'bg-green-500'}`}></div>
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <h4 className="text-white font-black text-lg leading-tight">{res.name}</h4>
-                      <p className="text-[9px] text-stone-500 uppercase font-bold tracking-widest">{res.id}</p>
-                    </div>
-                    <button onClick={() => deleteReservation(res.id)} className="text-stone-700 hover:text-red-500 p-1"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg></button>
+            <div className="grid grid-cols-3 gap-3 p-2">
+              {Array.from({ length: 12 }, (_, idx) => idx + 1).map((tableNum, i) => {
+                // Determine if this table is reserved in 'reservations'
+                // Since our reservation data doesn't strictly hold 'tableNumber', we mock it or match by name/time if we had it.
+                // For demonstration of the UI state, we will map reservations to table numbers pseudo-randomly or sequentially if they exist.
+                const res = reservations[i]; // Bind reservation to table index for the visual demo
+                const isReserved = !!res && res.status === 'pending';
+                const isArrived = !!res && res.status === 'arrived';
+
+                return (
+                  <div
+                    key={tableNum}
+                    className={`relative w-full aspect-square rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all duration-300 border border-white/5 ${
+                      isReserved ? 'bg-[#8B0000] reserved-table-pulse' : 
+                      isArrived ? 'bg-green-900/40 border-green-500/20 opacity-50' : 
+                      'bg-stone-900 hover:bg-stone-800'
+                    }`}
+                    onClick={() => {
+                      if (isReserved) {
+                        alert(`Dipesan oleh ${res.name} jam ${res.time}`);
+                      }
+                    }}
+                  >
+                    <span className="text-white/30 text-[10px] font-black uppercase">Meja</span>
+                    <span className={`text-xl font-black ${isReserved ? 'text-white' : 'text-stone-500'}`}>{tableNum}</span>
+                    
+                    {isReserved && (
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full shadow-[0_0_10px_red]"></div>
+                    )}
+                    
+                    {/* Hover tooltip for actions if reserved */}
+                    {isReserved && (
+                      <div className="absolute inset-0 bg-black/80 rounded-2xl opacity-0 hover:opacity-100 flex flex-col items-center justify-center gap-2 transition-opacity z-10 backdrop-blur-sm">
+                         <button onClick={(e) => { e.stopPropagation(); updateReservation(res.id, "arrived"); }} className="bg-amber-500 text-black text-[8px] font-black uppercase px-2 py-1 rounded">Check-in</button>
+                         <button onClick={(e) => { e.stopPropagation(); updateReservation(res.id, "cancelled"); }} className="bg-white/10 text-white text-[8px] font-black uppercase px-2 py-1 rounded">Batal</button>
+                      </div>
+                    )}
                   </div>
-                  <p className="text-xs font-bold text-stone-300 mb-4">Jam: {res.time}</p>
-                  {res.status === "pending" && (
-                    <div className="flex gap-2">
-                      <button onClick={() => updateReservation(res.id, "arrived")} className="flex-1 bg-amber-500 text-black text-[9px] font-black uppercase py-2 rounded-lg">Check-in</button>
-                      <button onClick={() => updateReservation(res.id, "cancelled")} className="px-3 bg-white/5 text-[9px] font-black uppercase py-2 rounded-lg text-stone-500">Batal</button>
-                    </div>
-                  )}
-                </div>
-              ))
-            )}
+                );
+              })}
+            </div>
           </div>
         </div>
 

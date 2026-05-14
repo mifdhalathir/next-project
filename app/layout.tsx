@@ -27,6 +27,7 @@ export const viewport: Viewport = {
 };
 
 import NotificationHub from "@/components/NotificationHub";
+import AtmosphereEngine from "@/components/AtmosphereEngine";
 
 export default function RootLayout({
   children,
@@ -46,6 +47,7 @@ export default function RootLayout({
         <div className="blob blob-3"></div>
         
         <div className="scanning-line"></div>
+        <AtmosphereEngine />
         <NotificationHub />
         {children}
       </body>

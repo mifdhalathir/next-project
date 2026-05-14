@@ -122,9 +122,30 @@ export default function Navbar() {
             {userName ? (
               <div className="flex items-center gap-4">
                 <div className="flex flex-col items-end">
-                  <span className="text-amber-500 font-black text-[10px] uppercase tracking-widest bg-white/5 px-4 py-2 rounded-full border border-white/10">
-                    {userName} {tableNumber && `• MEJA ${tableNumber}`}
-                  </span>
+                  {(() => {
+                    const status = typeof window !== 'undefined' ? localStorage.getItem("karsa_status") : null;
+                    const area = typeof window !== 'undefined' ? localStorage.getItem("karsa_area") || "Indoor" : "Indoor";
+                    const isVip = status === "reserved";
+                    
+                    if (isVip) {
+                      return (
+                        <span className="text-[#E0115F] font-black text-[10px] uppercase tracking-widest bg-[#E0115F]/10 px-4 py-2 rounded-full border border-[#E0115F]/30 shadow-[0_0_15px_rgba(224,17,95,0.2)]">
+                          VIP Guest: {userName} {tableNumber && `• MEJA ${tableNumber}`}
+                        </span>
+                      );
+                    }
+                    
+                    const areaColor = area === "Outdoor" ? "text-green-500" : "text-amber-500";
+                    const areaIcon = area === "Outdoor" ? "🌿" : "❄️";
+                    const bgColor = area === "Outdoor" ? "bg-green-500/10" : "bg-amber-500/10";
+                    const borderColor = area === "Outdoor" ? "border-green-500/30" : "border-amber-500/30";
+                    
+                    return (
+                      <span className={`${areaColor} font-black text-[10px] uppercase tracking-widest ${bgColor} px-4 py-2 rounded-full border ${borderColor}`}>
+                        {userName} {tableNumber && `• Meja ${tableNumber} [${area} ${areaIcon}]`}
+                      </span>
+                    );
+                  })()}
                 </div>
                 <button 
                   onClick={handleLogout}

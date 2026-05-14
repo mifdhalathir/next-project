@@ -61,7 +61,6 @@ export default function ReservationForm() {
     e.preventDefault();
     const newErrors: string[] = [];
     if (!formData.nama) newErrors.push("nama");
-    if (!formData.area) newErrors.push("area");
     if (!formData.jumlah) newErrors.push("jumlah");
     if (!formData.tanggal) newErrors.push("tanggal");
     if (!formData.jam) newErrors.push("jam");
@@ -86,7 +85,7 @@ export default function ReservationForm() {
         name: formData.nama,
         time: `${formData.tanggal} ${formData.jam}`,
         guests: parseInt(formData.jumlah),
-        notes: `Area: ${formData.area}. ${formData.catatan}`,
+        notes: `Area: ${localStorage.getItem('karsa_area') || 'Indoor'}. ${formData.catatan}`,
       });
 
       setFormData({ nama: "", area: "", jumlah: "", tanggal: "", jam: "", catatan: "" });
@@ -130,26 +129,7 @@ export default function ReservationForm() {
                 }`}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-cream-200 text-sm mb-1.5">Pilih Area</label>
-                <select
-                  name="area"
-                  value={formData.area}
-                  onChange={handleChange}
-                  className={`w-full bg-white/10 border text-cream-100 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition appearance-none ${
-                    errors.includes("area") ? "border-red-500 shake" : "border-cream-200/20"
-                  }`}
-                >
-                  <option value="" className="text-stone-800">Pilih Tempat</option>
-                  <option value="Indoor" disabled={capacity.indoor.used >= capacity.indoor.total} className="text-stone-800">
-                    Indoor {getAreaStatus(capacity.indoor.used, capacity.indoor.total)}
-                  </option>
-                  <option value="Outdoor" disabled={capacity.outdoor.used >= capacity.outdoor.total} className="text-stone-800">
-                    Outdoor {getAreaStatus(capacity.outdoor.used, capacity.outdoor.total)}
-                  </option>
-                </select>
-              </div>
+            <div className="grid grid-cols-1 gap-4">
               <div>
                 <label className="block text-cream-200 text-sm mb-1.5">Jumlah Orang</label>
                 <select

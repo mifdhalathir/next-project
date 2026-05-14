@@ -128,11 +128,12 @@ export default function MenuSection() {
             const stock = inventory[item.name];
             const isSoldOut = stock !== undefined && stock <= 0;
             const isLowStock = stock !== undefined && stock > 0 && stock <= 3;
+            const isVip = typeof window !== 'undefined' && localStorage.getItem('karsa_status') === 'reserved';
 
             return (
               <div
                 key={item.id}
-                className="group relative bg-stone-900 rounded-[2rem] overflow-hidden shadow-xl transform transition-all duration-500 hover:-translate-y-1"
+                className={`group relative bg-stone-900 rounded-[2rem] overflow-hidden shadow-xl transform transition-all duration-500 hover:-translate-y-1 ${isVip ? 'ruby-border-glow' : ''}`}
                 data-aos="fade-up"
                 data-aos-delay={index * 100}
               >
@@ -150,6 +151,14 @@ export default function MenuSection() {
                         return <div className="absolute top-4 left-4 bg-red-500 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg z-10">SOLD OUT</div>;
                       } else if (isLowStock) {
                         return <div className="absolute top-4 left-4 bg-amber-500 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg z-10 animate-pulse">SISA {stock}</div>;
+                      }
+
+                      const area = typeof window !== 'undefined' ? localStorage.getItem('karsa_area') || 'Indoor' : 'Indoor';
+                      
+                      if (area === 'Indoor' && item.category === 'coffee') {
+                        return <div className="atmo-badge bg-amber-500 text-black shadow-[0_0_10px_rgba(245,158,11,0.5)]">📚 Buat Nugas</div>;
+                      } else if (area === 'Outdoor' && item.category === 'drinks') {
+                        return <div className="atmo-badge bg-green-500 text-white shadow-[0_0_10px_rgba(34,197,94,0.5)]">☀️ Segar di Luar</div>;
                       }
 
                       const hour = new Date().getHours();
