@@ -30,6 +30,7 @@ import LiveActivityFeed from "@/components/LiveActivityFeed";
 import OrderTrackerCard from "@/components/OrderTrackerCard";
 import LoyaltyCard from "@/components/LoyaltyCard";
 import CustomerReviewWall from "@/components/CustomerReviewWall";
+import AreaBanner from "@/components/AreaBanner";
 
 export default function Home() {
   useEffect(() => {
@@ -60,6 +61,7 @@ export default function Home() {
       <CustomCursor />
       <OfflineToast />
       <Navbar />
+      <AreaBanner />
       <main>
         <Hero />
         <QueueTracker />
