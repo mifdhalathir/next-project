@@ -5,31 +5,62 @@ import MagneticWrapper from "./MagneticWrapper";
 
 export default function Hero() {
   const [greeting, setGreeting] = useState("");
+  const [isNight, setIsNight] = useState(false);
 
   useEffect(() => {
-    const hour = new Date().getHours();
-    const userName = localStorage.getItem("karsa_user_name") || "";
-    const nameStr = userName ? `, ${userName}` : "";
+    const setDynamicVibe = () => {
+      const hour = new Date().getHours();
+      const userName = localStorage.getItem("karsa_user_name") || "";
+      const nameStr = userName ? `, ${userName}` : "";
 
-    if (hour >= 5 && hour < 15) {
-      setGreeting(`Selamat Pagi${nameStr}! Mau nugas apa hari ini?`);
-    } else if (hour >= 15 && hour < 19) {
-      setGreeting(`Senja di Karsa paling asik bareng Mocktail${nameStr}`);
-    } else {
-      setGreeting(`Lembur tugas${nameStr}? Kopi Susu Karsa siap nemenin`);
-    }
+      if (hour >= 6 && hour < 11) {
+        setGreeting(`Selamat Pagi 🌅${nameStr}`);
+        setIsNight(false);
+      } else if (hour >= 18 || hour < 6) {
+        setGreeting(`Selamat Malam 🌙${nameStr}`);
+        setIsNight(true);
+      } else {
+        setGreeting(`Selamat Siang${nameStr} ☀️`);
+        setIsNight(false);
+      }
+    };
+
+    setDynamicVibe();
+    const interval = setInterval(setDynamicVibe, 60000); // Check every minute
+    return () => clearInterval(interval);
   }, []);
 
   return (
-    <section id="home" className="relative h-screen flex items-center justify-center">
+    <section id="home" className={`relative h-screen flex items-center justify-center ${isNight ? 'bg-wood-900' : ''}`}>
       {/* Background Image */}
       <img
         src="/images/empty_cafe_interior.png"
         alt="Karsa Cafe Background"
-        className="fixed inset-0 w-full h-full object-cover -z-10"
+        className={`fixed inset-0 w-full h-full object-cover -z-10 transition-opacity duration-1000 ${isNight ? 'opacity-30' : 'opacity-100'}`}
       />
-      <div className="hero-overlay absolute inset-0"></div>
-      <div className="relative text-center px-4" data-aos="fade-right" data-aos-duration="1000">
+      <div className={`hero-overlay absolute inset-0 ${isNight ? 'bg-black/60' : ''}`}></div>
+      
+      {/* Starry Night Effect for Night Time */}
+      {isNight && (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+          {[...Array(50)].map((_, i) => (
+            <div 
+              key={i} 
+              className="absolute bg-white rounded-full animate-twinkle"
+              style={{
+                width: Math.random() * 3 + 'px',
+                height: Math.random() * 3 + 'px',
+                top: Math.random() * 100 + '%',
+                left: Math.random() * 100 + '%',
+                animationDelay: Math.random() * 5 + 's',
+                animationDuration: Math.random() * 3 + 2 + 's'
+              }}
+            ></div>
+          ))}
+        </div>
+      )}
+
+      <div className="relative text-center px-4 z-10" data-aos="fade-right" data-aos-duration="1000">
         <p className="text-amber-400 tracking-[.15em] text-sm mb-2 font-bold uppercase">
           {greeting}
         </p>

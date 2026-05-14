@@ -25,10 +25,18 @@ export default function DigitalReceipt({ order, isOpen, onClose }: DigitalReceip
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-y-auto bg-black/80 backdrop-blur-md transition-all duration-500 animate-in fade-in">
-      <div className="relative w-full max-w-md animate-in zoom-in-95 duration-300">
-        {/* Glassmorphism Card */}
-        <div className="relative overflow-hidden bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] p-8 text-white print:bg-white print:text-black print:rounded-none print:shadow-none print:border-none">
+    <div id="receipt-modal" className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-y-auto bg-black/80 backdrop-blur-md transition-all duration-500 animate-in fade-in">
+      {/* Container for roll animation */}
+      <div className="relative w-full max-w-md animate-[receiptRoll_1s_cubic-bezier(0.2,0.8,0.2,1)_forwards] origin-top">
+        {/* Print Machine Slot Simulation */}
+        <div className="absolute -top-4 left-4 right-4 h-8 bg-stone-900 rounded-full shadow-inner z-20 print:hidden border-b-4 border-stone-800"></div>
+
+        {/* Paper Receipt Card */}
+        <div className="relative bg-white text-stone-900 border-x border-b border-stone-200 rounded-b-3xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] pt-12 p-8 print:bg-white print:text-black print:rounded-none print:shadow-none print:border-none print:pt-0 mt-4">
+          
+          {/* Dashed cut line detail */}
+          <div className="absolute top-8 left-0 right-0 border-t-2 border-dashed border-stone-300 print:hidden"></div>
+          <div className="absolute top-6 right-4 text-[8px] text-stone-400 uppercase tracking-widest print:hidden">✂ cut here</div>
           
           {/* Decorative Elements */}
           <div className="absolute -top-24 -right-24 w-48 h-48 bg-amber-500/20 rounded-full blur-[80px]"></div>
@@ -37,51 +45,51 @@ export default function DigitalReceipt({ order, isOpen, onClose }: DigitalReceip
           {/* Receipt Content */}
           <div className="relative z-10">
             {/* Header */}
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-amber-500/20 border border-amber-500/30 mb-4 shadow-inner">
+            <div className="text-center mb-8 mt-4">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 mb-4 shadow-inner">
                 <span className="text-2xl">☕</span>
               </div>
-              <h2 className="font-display text-2xl font-black tracking-tighter uppercase mb-1">Karsa Kafe</h2>
-              <p className="text-[10px] text-amber-500/60 font-bold uppercase tracking-[0.3em]">Digital Receipt • Official</p>
+              <h2 className="font-display text-2xl font-black tracking-tighter uppercase mb-1 text-stone-900">Karsa Kafe</h2>
+              <p className="text-[10px] text-stone-500 font-bold uppercase tracking-[0.3em]">Digital Receipt • Official</p>
             </div>
 
             {/* Order Info Grid */}
-            <div className="grid grid-cols-2 gap-4 mb-8 p-4 bg-white/5 rounded-2xl border border-white/5">
+            <div className="grid grid-cols-2 gap-4 mb-8 p-4 bg-stone-50 rounded-2xl border border-stone-200">
               <div>
-                <p className="text-[9px] text-stone-400 uppercase tracking-widest mb-1">Order ID</p>
-                <p className="text-sm font-black text-amber-500">{order.id}</p>
+                <p className="text-[9px] text-stone-500 uppercase tracking-widest mb-1">Order ID</p>
+                <p className="text-sm font-black text-amber-600">{order.id}</p>
               </div>
               <div className="text-right">
-                <p className="text-[9px] text-stone-400 uppercase tracking-widest mb-1">Table No.</p>
-                <p className="text-sm font-black text-amber-500">#{order.tableNumber}</p>
+                <p className="text-[9px] text-stone-500 uppercase tracking-widest mb-1">Table No.</p>
+                <p className="text-sm font-black text-amber-600">#{order.tableNumber}</p>
               </div>
               <div>
-                <p className="text-[9px] text-stone-400 uppercase tracking-widest mb-1">Customer</p>
-                <p className="text-sm font-bold truncate">{order.customerName}</p>
+                <p className="text-[9px] text-stone-500 uppercase tracking-widest mb-1">Customer</p>
+                <p className="text-sm font-bold truncate text-stone-800">{order.customerName}</p>
               </div>
               <div className="text-right">
-                <p className="text-[9px] text-stone-400 uppercase tracking-widest mb-1">Date</p>
-                <p className="text-sm font-bold">{new Date(order.timestamp).toLocaleDateString('id-ID')}</p>
+                <p className="text-[9px] text-stone-500 uppercase tracking-widest mb-1">Date</p>
+                <p className="text-sm font-bold text-stone-800">{new Date(order.timestamp).toLocaleDateString('id-ID')}</p>
               </div>
             </div>
 
             {/* Items Table */}
             <div className="space-y-3 mb-8">
-              <p className="text-[9px] text-stone-400 uppercase tracking-widest border-b border-white/10 pb-2">Order Items</p>
+              <p className="text-[9px] text-stone-500 uppercase tracking-widest border-b border-stone-200 pb-2">Order Items</p>
               <div className="max-h-[150px] overflow-y-auto pr-2 custom-scrollbar">
                 {order.items.map((item, idx) => (
                   <div key={idx} className="flex justify-between items-center py-1">
                     <div className="flex items-center gap-3">
-                      <span className="text-[10px] font-black text-amber-500 bg-amber-500/10 w-6 h-6 flex items-center justify-center rounded-lg">{item.qty}x</span>
-                      <span className="text-sm font-medium">{item.name}</span>
+                      <span className="text-[10px] font-black text-amber-600 bg-amber-50 w-6 h-6 flex items-center justify-center rounded-lg">{item.qty}x</span>
+                      <span className="text-sm font-medium text-stone-800">{item.name}</span>
                     </div>
-                    <span className="text-sm font-bold">Rp {(item.price * item.qty).toLocaleString("id-ID")}</span>
+                    <span className="text-sm font-bold text-stone-900">Rp {(item.price * item.qty).toLocaleString("id-ID")}</span>
                   </div>
                 ))}
               </div>
-              <div className="border-t border-white/10 pt-4 flex justify-between items-center">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-500">Total Amount</span>
-                <span className="text-2xl font-black text-white tracking-tighter">Rp {order.total.toLocaleString("id-ID")}</span>
+              <div className="border-t border-stone-200 pt-4 flex justify-between items-center">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-600">Total Amount</span>
+                <span className="text-2xl font-black text-stone-900 tracking-tighter">Rp {order.total.toLocaleString("id-ID")}</span>
               </div>
             </div>
 
@@ -117,8 +125,12 @@ export default function DigitalReceipt({ order, isOpen, onClose }: DigitalReceip
           </div>
         </div>
 
-        {/* Print Only Styles */}
+        {/* Print Only & Keyframes Styles */}
         <style jsx global>{`
+          @keyframes receiptRoll {
+            0% { transform: translateY(-100%) scale(0.9); opacity: 0; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+          }
           @media print {
             body * {
               visibility: hidden;

@@ -76,11 +76,31 @@ body {
 
 /* Smooth hover pada kartu menu agar terangkat */
 .menu-card {
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
+    position: relative;
+    overflow: hidden;
 }
+
+/* Flashlight Effect */
+.menu-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle 300px at var(--cursor-x, 50%) var(--cursor-y, 50%), rgba(245, 158, 11, 0.25), transparent 80%) fixed;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.menu-card:hover::after {
+    opacity: 1;
+}
+
 .menu-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 20px rgba(245, 158, 11, 0.4);
+    border-color: rgba(245, 158, 11, 0.8) !important;
 }
 
 .menu-item { transition: opacity 0.3s, transform 0.3s; }
@@ -687,4 +707,18 @@ body.theme-reserved .nav-link.active { color: #E0115F !important; }
 @keyframes badgePop {
   0% { transform: scale(0) rotate(-10deg); opacity: 0; }
   100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+/* ─── SHIMMER SKELETON ─── */
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+
+/* ─── STARRY NIGHT ANIMATION ─── */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.1; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 10px rgba(255, 255, 255, 0.8); }
+}
+.animate-twinkle {
+  animation: twinkle infinite ease-in-out alternate;
 }

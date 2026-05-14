@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useCart } from "./CartProvider";
+import { playSound } from "./AudioWidget";
 
 const MENU_ITEMS = [
   // Snacks
@@ -41,15 +42,24 @@ export default function MenuSection() {
   const [filter, setFilter] = useState("all");
   const { cart, updateQty } = useCart();
   const [inventory, setInventory] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchInv = () => {
       try {
         const inv = JSON.parse(localStorage.getItem("karsa_inventory") || "{}");
         setInventory(inv);
-      } catch (e) {}
+        setLoading(false);
+      } catch (e) {
+        setLoading(false);
+      }
     };
-    fetchInv();
+    
+    // Simulate initial loading to show skeleton shimmer effect
+    setTimeout(() => {
+      fetchInv();
+    }, 1200);
+
     const interval = setInterval(fetchInv, 5000);
     window.addEventListener("storage", fetchInv);
     return () => {
@@ -123,7 +133,33 @@ export default function MenuSection() {
 
         {/* Menu Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {filteredItems.map((item, index) => {
+          {loading ? (
+            /* Skeleton Loading with Shimmer */
+            Array.from({ length: 8 }).map((_, idx) => (
+              <div key={`skeleton-${idx}`} className="bg-stone-800/50 rounded-[2rem] overflow-hidden shadow-xl animate-pulse">
+                <div className="h-44 bg-stone-700/50 relative overflow-hidden">
+                  <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_1.5s_infinite]"></div>
+                </div>
+                <div className="p-5 pb-6">
+                  <div className="h-5 bg-stone-700/50 rounded-md w-3/4 mb-2 relative overflow-hidden">
+                    <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_1.5s_infinite]"></div>
+                  </div>
+                  <div className="h-3 bg-stone-700/50 rounded-md w-full mb-1 relative overflow-hidden">
+                     <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_1.5s_infinite]"></div>
+                  </div>
+                  <div className="h-3 bg-stone-700/50 rounded-md w-5/6 mb-4 relative overflow-hidden">
+                     <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_1.5s_infinite]"></div>
+                  </div>
+                  <div className="flex justify-between items-center pt-4 border-t border-white/5">
+                    <div className="h-5 bg-stone-700/50 rounded-md w-1/3 relative overflow-hidden">
+                       <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_1.5s_infinite]"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            filteredItems.map((item, index) => {
             const qty = cart[item.name]?.qty || 0;
             const stock = inventory[item.name];
             const isSoldOut = stock !== undefined && stock <= 0;
@@ -179,9 +215,7 @@ export default function MenuSection() {
                     onClick={() => {
                       if (isSoldOut) return;
                       updateQty(item.name, qty + 1, item.price);
-                      if (typeof window !== "undefined" && window.navigator.vibrate) {
-                        window.navigator.vibrate(10);
-                      }
+                      playSound('click');
                     }}
                     disabled={isSoldOut}
                     className={`absolute top-4 right-4 w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 z-20 ${isSoldOut ? 'bg-stone-700 text-stone-500 cursor-not-allowed opacity-50' : 'bg-amber-600 hover:bg-amber-500 text-white hover:rotate-90 active:scale-90'}`}
@@ -223,7 +257,7 @@ export default function MenuSection() {
                 </div>
               </div>
             );
-          })}
+          }))}
         </div>
       </div>
     </section>

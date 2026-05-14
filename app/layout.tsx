@@ -28,6 +28,7 @@ export const viewport: Viewport = {
 
 import NotificationHub from "@/components/NotificationHub";
 import AtmosphereEngine from "@/components/AtmosphereEngine";
+import AudioWidget from "@/components/AudioWidget";
 
 export default function RootLayout({
   children,
@@ -49,6 +50,7 @@ export default function RootLayout({
         <div className="scanning-line"></div>
         <AtmosphereEngine />
         <NotificationHub />
+        <AudioWidget />
         {children}
       </body>
     </html>

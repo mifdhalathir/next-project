@@ -17,6 +17,9 @@ export default function CustomCursor() {
 
     const move = (e: MouseEvent) => {
       setPosition({ x: e.clientX, y: e.clientY });
+      // Set CSS variables for flashlight effect
+      document.documentElement.style.setProperty('--cursor-x', `${e.clientX}px`);
+      document.documentElement.style.setProperty('--cursor-y', `${e.clientY}px`);
     };
 
     const down = () => setIsClicking(true);
