@@ -18,6 +18,9 @@ export default function CustomerReviewWall() {
 
   useEffect(() => {
     loadReviews();
+    // Auto-fill name from logged-in user
+    const savedName = localStorage.getItem("karsa_user_name");
+    if (savedName && !nama) setNama(savedName);
     const interval = setInterval(loadReviews, 10000);
     return () => clearInterval(interval);
   }, []);

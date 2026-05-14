@@ -1,6 +1,7 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { addKarsaNotification } from './NotificationHub';
+import { addActivityLog } from './ActivityLog';
 
 export type CartItem = { name: string; price: number; qty: number };
 export type OrderStatus = "received" | "preparing" | "cooked" | "ready" | "completed";
@@ -51,13 +52,45 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const syncStatus = () => {
       if (!activeOrder) return;
+      
+      // Check PESANAN_HARI_INI first (this is what Kasir/Dapur actually updates)
+      const savedPesanan = localStorage.getItem("PESANAN_HARI_INI");
+      if (savedPesanan) {
+        try {
+          const pesanan: any[] = JSON.parse(savedPesanan);
+          const current = pesanan.find((p: any) => p.orderID === activeOrder.id);
+          if (current) {
+            // Map Kasir status strings to OrderStatus
+            const statusMap: Record<string, OrderStatus> = {
+              'Pending': 'received',
+              'Diracik': 'preparing',
+              'Preparing': 'preparing',
+              'Dikonfirmasi': 'ready',
+              'Ready': 'ready',
+              'Selesai': 'completed',
+            };
+            const mappedStatus = statusMap[current.status] || 'received';
+            
+            if (mappedStatus !== activeOrder.status) {
+              if (mappedStatus === "ready") {
+                const beep = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
+                beep.play().catch(e => console.log("Sound error:", e));
+                addKarsaNotification(`Pesananmu SIAP diantar/ambil! 🛎️`, "success");
+              }
+              setActiveOrder({ ...activeOrder, status: mappedStatus });
+            }
+            return; // found the order, no need to check karsa_orders
+          }
+        } catch (e) {}
+      }
+
+      // Fallback: check karsa_orders
       const savedOrders = localStorage.getItem("karsa_orders");
       if (savedOrders) {
         const orders: Order[] = JSON.parse(savedOrders);
         const current = orders.find(o => o.id === activeOrder.id);
         
         if (current && current.status !== activeOrder.status) {
-          // Play sound if status becomes "ready"
           if (current.status === "ready") {
             const beep = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
             beep.play().catch(e => console.log("Sound error:", e));
@@ -162,6 +195,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("karsa_orders", JSON.stringify([...existingOrders, newOrder]));
 
     addKarsaNotification(`Pesanan Baru Terkirim! Mohon Tunggu Ya! ☕`, "warning");
+    addActivityLog(`Order ${orderID} dari ${userName} (Meja ${tableNumber}) — Rp ${totalAmount.toLocaleString('id-ID')}`, "order");
     window.dispatchEvent(new Event("storage"));
 
     if (voucher) {
@@ -239,9 +273,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
     if (c === "KARSAVIP") {
       setVoucher({ type: "persen", discount: 20, code: c });
+      addActivityLog("Voucher KARSAVIP diaktifkan (Diskon 20%)", "voucher");
       return { success: true, message: `Voucher KARSAVIP aktif! Diskon 20%.` };
     } else if (c === "KOPIGRATIS") {
       setVoucher({ type: "flat", discount: 15000, code: c });
+      addActivityLog("Voucher KOPIGRATIS diaktifkan (Potongan Rp 15.000)", "voucher");
       return { success: true, message: `Voucher KOPIGRATIS aktif! Potongan Rp 15.000.` };
     }
     return { success: false, message: "Kode voucher tidak valid!" };

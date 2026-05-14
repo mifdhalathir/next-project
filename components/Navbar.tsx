@@ -51,7 +51,13 @@ export default function Navbar() {
 
   const handleLogout = () => {
     localStorage.removeItem("karsa_user_name");
+    localStorage.removeItem("karsa_table_number");
+    localStorage.removeItem("karsa_area");
+    localStorage.removeItem("karsa_user_avatar");
+    sessionStorage.removeItem("username");
+    sessionStorage.removeItem("karsa_voucher_used");
     setUserName(null);
+    setTableNumber(null);
     window.dispatchEvent(new Event("storage"));
   };
 
@@ -101,10 +107,10 @@ export default function Navbar() {
         {/* Right Side: Navigation & Actions */}
         <div className="flex items-center space-x-4 lg:space-x-8">
           <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
-            <Link href="#home" className="nav-link text-xs tracking-widest font-bold uppercase">HOME</Link>
-            <Link href="#menu" className="nav-link text-xs tracking-widest font-bold uppercase">MENU</Link>
-            <Link href="#reservasi" className="nav-link text-xs tracking-widest font-bold uppercase">RESERVASI</Link>
-            <Link href="#kontak" className="nav-link text-xs tracking-widest font-bold uppercase">KONTAK</Link>
+            <button onClick={() => document.getElementById('home')?.scrollIntoView({ behavior: 'smooth' })} className="nav-link text-xs tracking-widest font-bold uppercase">HOME</button>
+            <button onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })} className="nav-link text-xs tracking-widest font-bold uppercase">MENU</button>
+            <button onClick={() => document.getElementById('reservasi')?.scrollIntoView({ behavior: 'smooth' })} className="nav-link text-xs tracking-widest font-bold uppercase">RESERVASI</button>
+            <button onClick={() => document.getElementById('kontak')?.scrollIntoView({ behavior: 'smooth' })} className="nav-link text-xs tracking-widest font-bold uppercase">KONTAK</button>
           </div>
           <div className="flex items-center gap-4">
             <button
@@ -154,34 +160,30 @@ export default function Navbar() {
           isMobileMenuOpen ? "block" : "hidden"
         } md:hidden bg-wood-800/95 backdrop-blur px-4 pb-4 space-y-2`}
       >
-        <Link
-          href="#home"
-          onClick={() => setIsMobileMenuOpen(false)}
-          className="block text-cream-100 py-2 text-sm"
+        <button
+          onClick={() => { document.getElementById('home')?.scrollIntoView({ behavior: 'smooth' }); setIsMobileMenuOpen(false); }}
+          className="block text-cream-100 py-2 text-sm w-full text-left"
         >
           HOME
-        </Link>
-        <Link
-          href="#menu"
-          onClick={() => setIsMobileMenuOpen(false)}
-          className="block text-cream-100 py-2 text-sm"
+        </button>
+        <button
+          onClick={() => { document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' }); setIsMobileMenuOpen(false); }}
+          className="block text-cream-100 py-2 text-sm w-full text-left"
         >
           MENU
-        </Link>
-        <Link
-          href="#reservasi"
-          onClick={() => setIsMobileMenuOpen(false)}
-          className="block text-cream-100 py-2 text-sm"
+        </button>
+        <button
+          onClick={() => { document.getElementById('reservasi')?.scrollIntoView({ behavior: 'smooth' }); setIsMobileMenuOpen(false); }}
+          className="block text-cream-100 py-2 text-sm w-full text-left"
         >
           RESERVASI
-        </Link>
-        <Link
-          href="#kontak"
-          onClick={() => setIsMobileMenuOpen(false)}
-          className="block text-cream-100 py-2 text-sm"
+        </button>
+        <button
+          onClick={() => { document.getElementById('kontak')?.scrollIntoView({ behavior: 'smooth' }); setIsMobileMenuOpen(false); }}
+          className="block text-cream-100 py-2 text-sm w-full text-left"
         >
           KONTAK
-        </Link>
+        </button>
         {userName ? (
           <div className="pt-4 border-t border-white/5">
              <span className="block text-amber-500 text-xs font-black uppercase tracking-widest mb-1">{userName}</span>

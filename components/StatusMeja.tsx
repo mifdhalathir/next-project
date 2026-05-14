@@ -137,9 +137,9 @@ export default function StatusMeja() {
               {isWaitlist ? "Antrean saat ini sekitar 15 menit. Yuk amankan mejamu!" : "Meja tersedia di kedua area. Langsung gas ke lokasi!"}
             </p>
           </div>
-          <a href="#reservasi" className={`ml-auto px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${isWaitlist ? 'bg-red-600 text-white hover:bg-white hover:text-black' : 'bg-green-600 text-white hover:bg-white hover:text-black'}`}>
+          <button onClick={() => document.getElementById('reservasi')?.scrollIntoView({ behavior: 'smooth' })} className={`ml-auto px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${isWaitlist ? 'bg-red-600 text-white hover:bg-white hover:text-black' : 'bg-green-600 text-white hover:bg-white hover:text-black'}`}>
             {isWaitlist ? "Reservasi" : "Arahkan"}
-          </a>
+          </button>
         </div>
 
         <p className="text-center text-stone-600 text-[9px] font-bold uppercase tracking-[0.4em] mt-12 italic">

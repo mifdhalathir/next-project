@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Order, OrderStatus, Reservation } from "@/components/CartProvider";
 import { addKarsaNotification } from "@/components/NotificationHub";
+import ActivityLog, { addActivityLog } from "@/components/ActivityLog";
 import Chart from "chart.js/auto";
 
 export default function KasirPage() {
@@ -178,6 +179,8 @@ export default function KasirPage() {
             const stageMap: Record<string, string> = { 'Pending': '0', 'Diracik': '1', 'Dikonfirmasi': '2', 'Selesai': '2' };
             localStorage.setItem('karsa_order_stage', stageMap[nextStage] || '0');
             
+            addActivityLog(`Order ${orderId} → ${nextStage}`, "status");
+            
             window.dispatchEvent(new Event("storage"));
             loadData();
         }
@@ -202,6 +205,7 @@ export default function KasirPage() {
     else inv[name] = Math.max(0, 10 + delta);
     setInventory(inv);
     localStorage.setItem("karsa_inventory", JSON.stringify(inv));
+    addActivityLog(`Stok ${name} diubah (${delta > 0 ? '+' : ''}${delta}) → ${inv[name]}`, "inventory");
     window.dispatchEvent(new Event("storage"));
   };
 
@@ -434,6 +438,11 @@ export default function KasirPage() {
                <p className="text-xs text-stone-500 italic text-center mt-10">Belum ada data inventori disinkronkan.</p>
              )}
           </div>
+        </div>
+
+        {/* Activity Log Column - Below Inventory */}
+        <div className="col-span-12 mt-4">
+          <ActivityLog />
         </div>
 
       </main>

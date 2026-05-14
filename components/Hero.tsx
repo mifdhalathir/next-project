@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import MagneticWrapper from "./MagneticWrapper";
 
 export default function Hero() {
@@ -58,13 +57,13 @@ export default function Hero() {
           Tempat nugas, ngopi, dan diskusi paling nyaman untuk mahasiswa Air Tawar dan sekitarnya.
         </p>
         <MagneticWrapper>
-          <Link
-            href="#menu"
+          <button
+            onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })}
             className="blur-reveal inline-block bg-amber-700 hover:bg-amber-800 text-white px-8 py-3 rounded-full text-sm tracking-wider transition transform hover:scale-105"
             style={{ animationDelay: "3s" }}
           >
             Lihat Menu
-          </Link>
+          </button>
         </MagneticWrapper>
       </div>
     </section>

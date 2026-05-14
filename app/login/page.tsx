@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import PageTransition from "@/components/PageTransition";
 import CustomCursor from "@/components/CustomCursor";
 import { addKarsaNotification } from "@/components/NotificationHub";
+import { addActivityLog } from "@/components/ActivityLog";
 
 // Firebase configuration
 import { initializeApp, getApps, getApp } from "firebase/app";
@@ -60,6 +61,7 @@ export default function Login() {
       
       if (user) {
         setUsername(user.name);
+        addActivityLog(`Login manual: ${user.name}`, "login");
         setStep("table");
       } else {
         // Fallback for demo if no users exist yet
@@ -106,6 +108,7 @@ export default function Login() {
       users.push(newUser);
       localStorage.setItem('karsa_users', JSON.stringify(users));
 
+      addActivityLog(`User baru terdaftar: ${regName} (${regEmail})`, "login");
       alert('Pendaftaran Berhasil! Silakan Login, Sultan! 🎉');
       setStep("login");
       setIsProcessing(false);
@@ -156,6 +159,7 @@ export default function Login() {
       
       sessionStorage.setItem("username", username);
       addKarsaNotification(`Pelanggan ${username} telah Aktif (Area ${area}, Meja ${tableNumber})`, "info");
+      addActivityLog(`${username} login → Meja ${tableNumber} (${area})`, "login");
       window.dispatchEvent(new Event("storage")); 
       
       router.push("/");

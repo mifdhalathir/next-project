@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 import { useCart } from "./CartProvider";
 import DigitalReceipt from "./DigitalReceipt";
+import PaymentPicker, { type PaymentMethod } from "./PaymentPicker";
+import TaxServiceBreakdown, { calculateTaxService } from "./TaxServiceBreakdown";
+import { addActivityLog } from "./ActivityLog";
 
 export default function CartWidget() {
   const { cart, total, totalItems, updateQty, placeOrder, activeOrder, applyVoucher, voucherDiscount } = useCart();
@@ -11,6 +14,7 @@ export default function CartWidget() {
   const [showReceipt, setShowReceipt] = useState(false);
   const [voucherCode, setVoucherCode] = useState("");
   const [voucherMsg, setVoucherMsg] = useState({ text: "", isError: false });
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("tunai");
 
   useEffect(() => {
     const savedTable = localStorage.getItem("karsa_table_number");
@@ -27,9 +31,14 @@ export default function CartWidget() {
       alert("Silakan masukkan Nomor Meja terlebih dahulu!");
       return;
     }
+    // Save payment method to localStorage for receipt
+    localStorage.setItem("karsa_payment_method", paymentMethod);
+    const methodLabel = paymentMethod === 'tunai' ? 'Tunai' : paymentMethod === 'qris' ? 'QRIS' : 'Transfer Bank';
+    addActivityLog(`Pesanan baru via ${methodLabel} — Meja ${tableNumber}`, "payment");
+    
     placeOrder(tableNumber);
-    setIsOpen(false); // Close cart sidebar
-    setShowReceipt(true); // Show digital receipt modal
+    setIsOpen(false);
+    setShowReceipt(true);
   };
 
   return (
@@ -107,7 +116,7 @@ export default function CartWidget() {
               <h3 className="font-display text-2xl font-bold text-white">
                 Daftar Pesanan
               </h3>
-              <p className="text-stone-500 text-xs uppercase tracking-widest mt-1">Meja #01 • Karsa Kafe</p>
+              <p className="text-stone-500 text-xs uppercase tracking-widest mt-1">Meja #{tableNumber || '??'} • Karsa Kafe</p>
             </div>
             <button
               onClick={() => setIsOpen(false)}
@@ -240,6 +249,9 @@ export default function CartWidget() {
                   </div>
                 ))}
                 
+                {/* Payment Picker */}
+                <PaymentPicker selected={paymentMethod} onChange={setPaymentMethod} />
+
                 {/* Voucher Section */}
                 <div className="mt-6 p-5 bg-stone-800/50 border border-white/10 rounded-2xl">
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 mb-3">🎫 Punya Kode Voucher?</p>
@@ -276,26 +288,9 @@ export default function CartWidget() {
           <div className="p-8 bg-stone-900 border-t border-white/5">
             {!activeOrder && (
               <>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-stone-500 uppercase tracking-widest text-xs font-bold">Subtotal</span>
-                  <span className="font-bold text-sm text-stone-300">
-                    Rp {(total + voucherDiscount).toLocaleString("id-ID")}
-                  </span>
-                </div>
-                {voucherDiscount > 0 && (
-                  <div className="flex justify-between items-center mb-2 pb-2 border-b border-white/5">
-                    <span className="text-green-500 uppercase tracking-widest text-[10px] font-black">Diskon Voucher</span>
-                    <span className="font-bold text-sm text-green-500">
-                      - Rp {voucherDiscount.toLocaleString("id-ID")}
-                    </span>
-                  </div>
-                )}
-                <div className="flex justify-between items-center mb-6">
-                  <span className="text-white uppercase tracking-widest text-sm font-black">Total</span>
-                  <span className="font-black text-3xl text-amber-500 tracking-tighter">
-                    Rp {total.toLocaleString("id-ID")}
-                  </span>
-                </div>
+                {/* Tax & Service Breakdown */}
+                <TaxServiceBreakdown subtotal={total + voucherDiscount} voucherDiscount={voucherDiscount} />
+
                 <button
                   onClick={handlePlaceOrder}
                   disabled={total === 0}

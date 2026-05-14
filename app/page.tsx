@@ -31,6 +31,7 @@ import OrderTrackerCard from "@/components/OrderTrackerCard";
 import LoyaltyCard from "@/components/LoyaltyCard";
 import CustomerReviewWall from "@/components/CustomerReviewWall";
 import AreaBanner from "@/components/AreaBanner";
+import SmartRecommendation from "@/components/SmartRecommendation";
 
 export default function Home() {
   useEffect(() => {
@@ -68,6 +69,7 @@ export default function Home() {
         <RecentOrders />
         <CeritaKami />
         <MenuSection />
+        <SmartRecommendation />
         <LoyaltyCard />
         <ReservationForm />
         <TestimonialSlider />
