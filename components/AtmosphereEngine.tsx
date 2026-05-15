@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 export default function AtmosphereEngine() {
   const [area, setArea] = useState<string>("Indoor");
@@ -44,46 +44,53 @@ export default function AtmosphereEngine() {
     };
   }, []);
 
-  // Generate random particles
-  if (!mounted) return null;
+  const [particles, setParticles] = useState<React.ReactNode[]>([]);
 
-  const particles = Array.from({ length: 15 }).map((_, i) => {
-    if (area === "Outdoor") {
-      // Leaves
-      return (
-        <div
-          key={`leaf-${i}`}
-          className="leaf-particle"
-          style={{
-            left: `${Math.random() * 100}vw`,
-            top: `-${Math.random() * 20 + 10}vh`,
-            animationDuration: `${Math.random() * 10 + 15}s`,
-            animationDelay: `${Math.random() * 10}s`,
-            ['--lx' as string]: `${(Math.random() - 0.5) * 300}px`,
-            ['--lr' as string]: `${(Math.random() - 0.5) * 720}deg`,
-          }}
-        >
-          {["🍂", "🍃", "🍁"][Math.floor(Math.random() * 3)]}
-        </div>
-      );
-    } else {
-      // Dust
-      return (
-        <div
-          key={`dust-${i}`}
-          className="dust-particle"
-          style={{
-            left: `${Math.random() * 100}vw`,
-            top: `${Math.random() * 100}vh`,
-            animationDuration: `${Math.random() * 20 + 20}s`,
-            animationDelay: `${Math.random() * 15}s`,
-            ['--dx' as string]: `${(Math.random() - 0.5) * 200}px`,
-            ['--dy' as string]: `${-(Math.random() * 300 + 200)}px`,
-          }}
-        ></div>
-      );
-    }
-  });
+  useEffect(() => {
+    if (!mounted) return;
+    
+    const newParticles = Array.from({ length: 15 }).map((_, i) => {
+      if (area === "Outdoor") {
+        // Leaves
+        return (
+          <div
+            key={`leaf-${i}`}
+            className="leaf-particle"
+            style={{
+              left: `${Math.random() * 100}vw`,
+              top: `-${Math.random() * 20 + 10}vh`,
+              animationDuration: `${Math.random() * 10 + 15}s`,
+              animationDelay: `${Math.random() * 10}s`,
+              ['--lx' as string]: `${(Math.random() - 0.5) * 300}px`,
+              ['--lr' as string]: `${(Math.random() - 0.5) * 720}deg`,
+            }}
+          >
+            {["🍂", "🍃", "🍁"][Math.floor(Math.random() * 3)]}
+          </div>
+        );
+      } else {
+        // Dust
+        return (
+          <div
+            key={`dust-${i}`}
+            className="dust-particle"
+            style={{
+              left: `${Math.random() * 100}vw`,
+              top: `${Math.random() * 100}vh`,
+              animationDuration: `${Math.random() * 20 + 20}s`,
+              animationDelay: `${Math.random() * 15}s`,
+              ['--dx' as string]: `${(Math.random() - 0.5) * 200}px`,
+              ['--dy' as string]: `${-(Math.random() * 300 + 200)}px`,
+            }}
+          ></div>
+        );
+      }
+    });
+    
+    setParticles(newParticles);
+  }, [area, mounted]);
+
+  if (!mounted) return null;
 
   return (
     <div className="atmo-particles">

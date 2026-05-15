@@ -12,6 +12,7 @@ export default function CartWidget() {
   const { cart, total, totalItems, updateQty, placeOrder, activeOrder, applyVoucher, voucherDiscount } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const [tableNumber, setTableNumber] = useState("");
+  const [isVip, setIsVip] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
   const [voucherCode, setVoucherCode] = useState("");
   const [voucherMsg, setVoucherMsg] = useState({ text: "", isError: false });
@@ -22,6 +23,8 @@ export default function CartWidget() {
     if (savedTable) {
       setTableNumber(savedTable);
     }
+    const status = localStorage.getItem("karsa_status");
+    setIsVip(status === "reserved");
   }, []);
 
   const cartArray = Object.values(cart);
@@ -112,7 +115,7 @@ export default function CartWidget() {
         <div
           className={`w-full max-w-md bg-wood-900 h-full shadow-2xl flex flex-col transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${
             isOpen ? "translate-x-0" : "translate-x-full"
-          } ${typeof window !== 'undefined' && localStorage.getItem('karsa_status') === 'reserved' ? 'ruby-border-glow' : ''}`}
+          } ${isVip ? 'ruby-border-glow' : ''}`}
         >
           <div className="p-8 border-b border-white/5 flex justify-between items-center">
             <div>
