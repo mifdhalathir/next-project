@@ -44,6 +44,9 @@ export default function MenuSection() {
   const { cart, updateQty } = useCart();
   const [inventory, setInventory] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+  const [currentArea, setCurrentArea] = useState("Indoor");
+  const [isVip, setIsVip] = useState(false);
 
   useEffect(() => {
     const fetchInv = () => {
@@ -62,10 +65,21 @@ export default function MenuSection() {
     }, 1200);
 
     const interval = setInterval(fetchInv, 5000);
+
+    const syncState = () => {
+      setCurrentArea(localStorage.getItem("karsa_area") || "Indoor");
+      setIsVip(localStorage.getItem("karsa_status") === "reserved");
+    };
+    
+    setMounted(true);
+    syncState();
+
     window.addEventListener("storage", fetchInv);
+    window.addEventListener("storage", syncState);
     return () => {
       clearInterval(interval);
       window.removeEventListener("storage", fetchInv);
+      window.removeEventListener("storage", syncState);
     };
   }, []);
 
@@ -87,11 +101,10 @@ export default function MenuSection() {
           
           {/* [CORE SYSTEM] Area Banner */}
           {(() => {
-            if (typeof window === "undefined") return null;
-            const area = localStorage.getItem("karsa_area") || "Indoor";
+            if (!mounted) return null;
             return (
               <div className="mt-8 flex justify-center animate-in fade-in slide-in-from-top-4 duration-1000">
-                {area === "Outdoor" ? (
+                {currentArea === "Outdoor" ? (
                   <div className="flex items-center gap-4 px-6 py-4 rounded-[2rem] bg-green-500/10 border border-green-500/20 shadow-lg shadow-green-950/20">
                     <span className="text-3xl">🌿</span>
                     <div className="text-left">
@@ -237,7 +250,6 @@ export default function MenuSection() {
             const stock = inventory[item.name];
             const isSoldOut = stock !== undefined && stock <= 0;
             const isLowStock = stock !== undefined && stock > 0 && stock <= 3;
-            const isVip = typeof window !== 'undefined' && localStorage.getItem('karsa_status') === 'reserved';
 
             return (
               <div
@@ -262,11 +274,11 @@ export default function MenuSection() {
                         return <div className="absolute top-4 left-4 bg-amber-500 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg z-10 animate-pulse">SISA {stock}</div>;
                       }
 
-                      const area = typeof window !== 'undefined' ? localStorage.getItem('karsa_area') || 'Indoor' : 'Indoor';
-                      
-                      if (area === 'Indoor' && item.category === 'coffee') {
+                      if (!mounted) return null;
+
+                      if (currentArea === 'Indoor' && item.category === 'coffee') {
                         return <div className="atmo-badge bg-amber-500 text-black shadow-[0_0_10px_rgba(245,158,11,0.5)]">📚 Buat Nugas</div>;
-                      } else if (area === 'Outdoor' && item.category === 'drinks') {
+                      } else if (currentArea === 'Outdoor' && item.category === 'drinks') {
                         return <div className="atmo-badge bg-green-500 text-white shadow-[0_0_10px_rgba(34,197,94,0.5)]">☀️ Segar di Luar</div>;
                       }
 

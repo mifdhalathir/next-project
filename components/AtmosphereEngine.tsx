@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 export default function AtmosphereEngine() {
   const [area, setArea] = useState<string>("Indoor");
   const [isReserved, setIsReserved] = useState<boolean>(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const syncAtmosphere = () => {
@@ -27,6 +28,7 @@ export default function AtmosphereEngine() {
     };
 
     // Initial sync
+    setMounted(true);
     syncAtmosphere();
 
     // Listen for changes
@@ -43,6 +45,8 @@ export default function AtmosphereEngine() {
   }, []);
 
   // Generate random particles
+  if (!mounted) return null;
+
   const particles = Array.from({ length: 15 }).map((_, i) => {
     if (area === "Outdoor") {
       // Leaves

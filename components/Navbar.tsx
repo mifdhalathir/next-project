@@ -15,6 +15,9 @@ export default function Navbar() {
 
   const [userName, setUserName] = useState<string | null>(null);
   const [tableNumber, setTableNumber] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
+  const [area, setArea] = useState<string>("Indoor");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,7 +32,11 @@ export default function Navbar() {
     const checkUser = () => {
       setUserName(localStorage.getItem("karsa_user_name"));
       setTableNumber(localStorage.getItem("karsa_table_number"));
+      setStatus(localStorage.getItem("karsa_status"));
+      setArea(localStorage.getItem("karsa_area") || "Indoor");
     };
+
+    setMounted(true);
 
     checkUser();
     window.addEventListener("scroll", handleScroll);
@@ -135,8 +142,7 @@ export default function Navbar() {
               <div className="flex items-center gap-4">
                 <div className="flex flex-col items-end">
                   {(() => {
-                    const status = typeof window !== 'undefined' ? localStorage.getItem("karsa_status") : null;
-                    const area = typeof window !== 'undefined' ? localStorage.getItem("karsa_area") || "Indoor" : "Indoor";
+                    if (!mounted) return null;
                     const isVip = status === "reserved";
                     
                     if (isVip) {
