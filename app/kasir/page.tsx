@@ -71,7 +71,7 @@ export default function KasirPage() {
         const parsedOrders: any[] = JSON.parse(savedOrders);
         const mappedOrders: Order[] = parsedOrders.map(p => ({
             id: p.orderID,
-            tableNumber: p.meja.replace('Meja ', ''),
+            tableNumber: String(p.meja || "").replace(/[^\d]/g, ''),
             customerName: p.nama,
             items: p.items.map((it: any) => ({ name: it.nama, price: it.harga, qty: it.qty })),
             total: p.totalHarga,
@@ -102,7 +102,7 @@ export default function KasirPage() {
         
         let ind = 0, out = 0;
         parsedOrders.filter(p => p.status !== 'Selesai').forEach(p => {
-            const t = parseInt(p.meja.replace('Meja ', ''));
+            const t = parseInt(String(p.meja || "").replace(/[^\d]/g, ''));
             if (!isNaN(t)) {
                 if (t <= 10) ind++;
                 else if (t <= 15) out++;
@@ -237,18 +237,19 @@ export default function KasirPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadData();
-    const handleStorage = (e: StorageEvent) => {
       if (e.key === "PESANAN_HARI_INI" || e.key === "karsa_pesanan_masuk" || e.key === "karsa_inventory") {
         loadData();
       }
     };
+    const handleMouseMove = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY });
+
     window.addEventListener("storage", handleStorage);
-    window.addEventListener("mousemove", (e) => setMousePos({ x: e.clientX, y: e.clientY }));
+    window.addEventListener("mousemove", handleMouseMove);
     const interval = setInterval(loadData, 3000);
     const timeInterval = setInterval(() => setCurrentTime(Date.now()), 10000);
     return () => {
       window.removeEventListener("storage", handleStorage);
-      window.removeEventListener("mousemove", (e) => setMousePos({ x: e.clientX, y: e.clientY }));
+      window.removeEventListener("mousemove", handleMouseMove);
       clearInterval(interval);
       clearInterval(timeInterval);
       if (chartInstance.current) chartInstance.current.destroy();

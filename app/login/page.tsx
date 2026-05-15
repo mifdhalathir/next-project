@@ -46,7 +46,7 @@ export default function Login() {
         const parsed = JSON.parse(savedOrders);
         parsed.forEach((p: { status: string; meja: string }) => {
             if (p.status !== "Selesai") {
-                const t = parseInt(p.meja.replace('Meja ', ''));
+                const t = parseInt(String(p.meja || "").replace(/[^\d]/g, ''));
                 if (!isNaN(t)) activeTables.push(t);
             }
         });

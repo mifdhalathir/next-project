@@ -30,7 +30,7 @@ export default function DapurPage() {
         .filter(p => p.status === "Pending" || p.status === "Preparing" || p.status === "Diracik")
         .map(p => ({
             id: p.orderID,
-            tableNumber: p.meja.replace('Meja ', ''),
+            tableNumber: String(p.meja || "").replace(/[^\d]/g, ''),
             customerName: p.nama,
             items: p.items.map((it: any) => ({ name: it.nama, price: it.harga, qty: it.qty })),
             total: p.totalHarga,
@@ -56,14 +56,17 @@ export default function DapurPage() {
     setCurrentTime(Date.now());
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadData();
+
+    const handleMouseMove = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY });
+
     window.addEventListener("storage", loadData);
-    window.addEventListener("mousemove", (e) => setMousePos({ x: e.clientX, y: e.clientY }));
+    window.addEventListener("mousemove", handleMouseMove);
     const interval = setInterval(loadData, 2000);
     const timeInterval = setInterval(() => setCurrentTime(Date.now()), 60000);
     
     return () => {
       window.removeEventListener("storage", loadData);
-      window.removeEventListener("mousemove", (e) => setMousePos({ x: e.clientX, y: e.clientY }));
+      window.removeEventListener("mousemove", handleMouseMove);
       clearInterval(interval);
       clearInterval(timeInterval);
     };
