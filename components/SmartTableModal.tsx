@@ -69,7 +69,7 @@ export default function SmartTableModal() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-[8px] transition-all duration-500">
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-[4px] transition-all duration-500">
       <div className="bg-[#111] border border-amber-500/30 rounded-[2rem] p-8 relative z-10 w-full max-w-xl shadow-[0_0_50px_rgba(245,158,11,0.2)] animate-in zoom-in-95 fade-in duration-500">
         
         {/* Header */}

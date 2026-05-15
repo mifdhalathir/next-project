@@ -90,7 +90,7 @@ export default function StatusMeja() {
       <style jsx>{`
         .glass-card {
           background: rgba(255, 255, 255, 0.02);
-          backdrop-filter: blur(12px);
+          backdrop-filter: blur(6px);
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
       `}</style>

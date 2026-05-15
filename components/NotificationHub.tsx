@@ -59,7 +59,7 @@ export default function NotificationHub() {
         {notifications.slice(0, 5).map((n) => (
           <div 
             key={n.id}
-            className={`pointer-events-auto p-4 rounded-2xl border backdrop-blur-xl shadow-2xl transition-all duration-500 animate-in slide-in-from-right fade-in ${
+            className={`pointer-events-auto p-4 rounded-2xl border backdrop-blur-md shadow-2xl transition-all duration-500 animate-in slide-in-from-right fade-in ${
               n.type === 'alert' ? 'bg-red-500/90 border-white text-white scale-105' :
               n.type === 'success' ? 'bg-green-600/90 border-white/20 text-white' :
               'bg-amber-500/90 border-white/20 text-white'
@@ -77,7 +77,7 @@ export default function NotificationHub() {
       {/* Full Screen Ready Modal for Customer */}
       {activeAlert && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 animate-in fade-in zoom-in duration-500">
-           <div className="absolute inset-0 bg-amber-600/20 backdrop-blur-3xl"></div>
+           <div className="absolute inset-0 bg-amber-600/20 backdrop-blur-md"></div>
            <div className="relative bg-white text-stone-900 p-10 rounded-[3rem] shadow-2xl text-center max-w-sm border-4 border-amber-500 animate-bounce-short">
               <div className="text-6xl mb-6">🔔</div>
               <h2 className="font-display text-3xl font-black mb-2 tracking-tighter italic">PESANAN READY!</h2>

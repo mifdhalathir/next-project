@@ -715,8 +715,8 @@ export default function KasirPage() {
         /* Cyber-Industrial Glassmorphism Level 2 (Amber Gold Vibe) */
         .cyber-glass-amber { 
           background: rgba(15, 10, 0, 0.5); 
-          backdrop-filter: blur(12px); 
-          -webkit-backdrop-filter: blur(12px); 
+          backdrop-filter: blur(6px); 
+          -webkit-backdrop-filter: blur(6px); 
           border: 1px solid rgba(255, 191, 0, 0.15);
           box-shadow: inset 0 0 20px rgba(255, 191, 0, 0.05);
           position: relative;

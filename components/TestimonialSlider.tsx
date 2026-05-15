@@ -118,7 +118,7 @@ export default function TestimonialSlider() {
       <style jsx>{`
         .glass-card {
           background: rgba(255, 255, 255, 0.02);
-          backdrop-filter: blur(24px);
+          backdrop-filter: blur(10px);
           box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
         }
       `}</style>

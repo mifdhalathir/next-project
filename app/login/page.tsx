@@ -218,7 +218,7 @@ export default function Login() {
       {/* Table Map Modal */}
       {showMapModal && (
         <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setShowMapModal(false)}></div>
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowMapModal(false)}></div>
             <div className="bg-[#111] border border-amber-500/30 rounded-3xl p-8 relative z-10 w-full max-w-2xl shadow-[0_0_50px_rgba(245,158,11,0.2)] animate-in zoom-in-95 duration-300">
                 <button onClick={() => setShowMapModal(false)} className="absolute top-4 right-6 text-white/50 hover:text-white text-2xl">×</button>
                 <h2 className="text-xl font-display font-black text-white uppercase tracking-widest mb-6 text-center">🗺️ Denah Meja Interaktif</h2>
@@ -282,7 +282,7 @@ export default function Login() {
           className={`relative z-10 w-full max-w-[420px] mx-4 transition-all duration-700 ${shake ? 'animate-shake' : ''}`}
           data-aos="zoom-in"
         >
-          <div className="bg-[#151515]/80 backdrop-blur-[12px] border border-white/5 rounded-[2rem] px-8 py-10 shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
+          <div className="bg-[#151515]/80 backdrop-blur-[6px] border border-white/5 rounded-[2rem] px-8 py-10 shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
             
             {/* Header / Logo */}
             <div className="text-center mb-8">
@@ -407,7 +407,7 @@ export default function Login() {
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         placeholder="Masukkan nama Anda"
-                        className="w-full bg-[#1A1A1A]/80 backdrop-blur-[8px] border border-[#333] rounded-[1rem] text-white placeholder-stone-500 px-5 py-4 text-sm focus:outline-none focus:border-amber-500 focus:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all font-medium"
+                        className="w-full bg-[#1A1A1A]/80 backdrop-blur-[4px] border border-[#333] rounded-[1rem] text-white placeholder-stone-500 px-5 py-4 text-sm focus:outline-none focus:border-amber-500 focus:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all font-medium"
                     />
                 </div>
 
@@ -422,7 +422,7 @@ export default function Login() {
                     {/* Indoor Card */}
                     <div 
                         onClick={() => setArea('Indoor')}
-                        className={`flex-1 relative overflow-hidden p-4 rounded-[20px] border cursor-pointer transition-all duration-300 backdrop-blur-[8px] flex flex-col items-center justify-center gap-2 ${
+                        className={`flex-1 relative overflow-hidden p-4 rounded-[20px] border cursor-pointer transition-all duration-300 backdrop-blur-[4px] flex flex-col items-center justify-center gap-2 ${
                             area === 'Indoor' 
                             ? 'bg-amber-500/10 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.2)]' 
                             : 'bg-[#1A1A1A]/80 border-[#333] hover:border-amber-500/50'
@@ -440,7 +440,7 @@ export default function Login() {
                     {/* Outdoor Card */}
                     <div 
                         onClick={() => setArea('Outdoor')}
-                        className={`flex-1 relative overflow-hidden p-4 rounded-[20px] border cursor-pointer transition-all duration-300 backdrop-blur-[8px] flex flex-col items-center justify-center gap-2 ${
+                        className={`flex-1 relative overflow-hidden p-4 rounded-[20px] border cursor-pointer transition-all duration-300 backdrop-blur-[4px] flex flex-col items-center justify-center gap-2 ${
                             area === 'Outdoor' 
                             ? 'bg-amber-500/10 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.2)]' 
                             : 'bg-[#1A1A1A]/80 border-[#333] hover:border-amber-500/50'
@@ -460,7 +460,7 @@ export default function Login() {
                 <button
                     type="button"
                     onClick={() => setShowMapModal(true)}
-                    className="w-full bg-[#1A1A1A]/80 border border-dashed border-[#444] hover:border-amber-500 hover:text-amber-500 hover:bg-amber-500/5 text-stone-300 py-3 rounded-[1rem] text-[11px] font-bold tracking-[0.1em] uppercase transition-all backdrop-blur-[8px]"
+                    className="w-full bg-[#1A1A1A]/80 border border-dashed border-[#444] hover:border-amber-500 hover:text-amber-500 hover:bg-amber-500/5 text-stone-300 py-3 rounded-[1rem] text-[11px] font-bold tracking-[0.1em] uppercase transition-all backdrop-blur-[4px]"
                 >
                     🗺️ Lihat Peta Meja {tableNumber ? `(Terpilih: Meja ${tableNumber})` : ''}
                 </button>
@@ -468,7 +468,7 @@ export default function Login() {
                 {/* Jumlah Orang Input */}
                 <div>
                   <label className="block text-stone-200 text-[10px] font-bold uppercase tracking-widest mb-2">Jumlah Orang</label>
-                  <div className="flex bg-[#1A1A1A]/80 border border-[#333] rounded-[1rem] overflow-hidden backdrop-blur-[10px]">
+                  <div className="flex bg-[#1A1A1A]/80 border border-[#333] rounded-[1rem] overflow-hidden backdrop-blur-[4px]">
                       <button type="button" onClick={() => setGuests(Math.max(1, guests - 1))} className="w-12 h-12 flex items-center justify-center text-stone-400 hover:bg-white/5 hover:text-amber-500 transition-colors">-</button>
                       <input 
                           type="number" 
