@@ -14,13 +14,6 @@ export default function TestimonialSlider() {
   const [current, setCurrent] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      handleNext();
-    }, 6000);
-    return () => clearInterval(timer);
-  }, [current]);
-
   const changeSlide = (newIndex: number) => {
     setIsAnimating(true);
     setTimeout(() => {
@@ -36,6 +29,13 @@ export default function TestimonialSlider() {
   const handleNext = () => {
     changeSlide((current + 1) % TESTIMONIALS.length);
   };
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      handleNext();
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [current]);
 
   const t = TESTIMONIALS[current];
   const stars = '★'.repeat(t.rating) + '☆'.repeat(5 - t.rating);
