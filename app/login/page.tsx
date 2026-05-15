@@ -51,23 +51,13 @@ export default function Login() {
                     if (!isNaN(t)) activeTables.push(t);
                 }
             });
-        } catch(e) {
-            console.error("Failed to parse PESANAN_HARI_INI", e);
+        } catch(_e) {
+            console.error("Failed to parse PESANAN_HARI_INI");
         }
     }
     
-    // Also check reservations
-    const savedRes = localStorage.getItem("karsa_pesanan_masuk");
-    if (savedRes) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const parsedRes = JSON.parse(savedRes);
-        // We pseudo map reservations to tables 1-12 in Kasir, but here let's just mock active tables
-        // If we want exact mapping, we need strict table assignment.
-    }
-
     setOccupiedTables(activeTables);
     
-    // Assume Tables 1-10 are Indoor, 11-15 are Outdoor
     const indoor = activeTables.filter(t => t >= 1 && t <= 10).length;
     const outdoor = activeTables.filter(t => t >= 11 && t <= 15).length;
     
@@ -77,8 +67,9 @@ export default function Login() {
 
   useEffect(() => {
     if (step === "table") {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        countTableStatus();
+        requestAnimationFrame(() => {
+            countTableStatus();
+        });
     }
   }, [step]);
 
@@ -95,11 +86,10 @@ export default function Login() {
 
     setIsProcessing(true);
     setTimeout(() => {
-      // Verify user from localStorage
-      let users = [];
-      try { users = JSON.parse(localStorage.getItem('karsa_users') || '[]'); } catch(e) {}
+      let users: { name: string; email: string; password: string }[] = [];
+      try { users = JSON.parse(localStorage.getItem('karsa_users') || '[]'); } catch(_e) {}
       
-      const user = users.find((u: any) => (u.name === username || u.email === username) && u.password === password);
+      const user = users.find(u => (u.name === username || u.email === username) && u.password === password);
       
       if (user) {
         setUsername(user.name);
@@ -137,10 +127,10 @@ export default function Login() {
 
     setIsProcessing(true);
     setTimeout(() => {
-      let users = [];
-      try { users = JSON.parse(localStorage.getItem('karsa_users') || '[]'); } catch(e) {}
+      let users: { name: string; email: string; password: string }[] = [];
+      try { users = JSON.parse(localStorage.getItem('karsa_users') || '[]'); } catch(_e) {}
 
-      if (users.some((u: any) => u.email === regEmail)) {
+      if (users.some(u => u.email === regEmail)) {
         setError("Email ini sudah terdaftar, Ngab!");
         setIsProcessing(false);
         return;
@@ -170,11 +160,11 @@ export default function Login() {
       addKarsaNotification(`Selamat datang, ${user.displayName}! 👋`, "success");
       
       setStep("table");
-    } catch (err: any) {
-      if (err.code === "auth/popup-closed-by-user") {
+    } catch (err: unknown) {
+      if (err instanceof Error && (err as any).code === "auth/popup-closed-by-user") {
         setError("Login dibatalkan, Sultan.");
       } else {
-        setError("Google Login Gagal: " + err.message);
+        setError("Google Login Gagal: " + (err instanceof Error ? err.message : String(err)));
       }
       setShake(true);
       setTimeout(() => setShake(false), 500);

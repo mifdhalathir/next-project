@@ -36,8 +36,9 @@ export default function Navbar() {
       setArea(localStorage.getItem("karsa_area") || "Indoor");
     };
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
+    requestAnimationFrame(() => {
+        setMounted(true);
+    });
 
     checkUser();
     window.addEventListener("scroll", handleScroll);
@@ -56,12 +57,14 @@ export default function Navbar() {
     // Default to dark mode (true) if no preference is stored
     if (stored === "false") {
       document.documentElement.classList.remove("dark");
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setIsDark(false);
+      requestAnimationFrame(() => {
+        setIsDark(false);
+      });
     } else {
       document.documentElement.classList.add("dark");
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setIsDark(true);
+      requestAnimationFrame(() => {
+        setIsDark(true);
+      });
       if (stored === null) localStorage.setItem("darkMode", "true");
     }
   }, []);

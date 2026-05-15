@@ -52,8 +52,9 @@ export default function Hero() {
         delay: Math.random() * 5 + 's',
         duration: Math.random() * 3 + 2 + 's'
       }));
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setStars(newStars);
+      requestAnimationFrame(() => {
+        setStars(newStars);
+      });
     }
   }, [isNight]);
 

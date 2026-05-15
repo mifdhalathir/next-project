@@ -32,8 +32,9 @@ export default function NotificationHub() {
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadNotifications();
+    requestAnimationFrame(() => {
+        loadNotifications();
+    });
     window.addEventListener("storage", loadNotifications);
     const interval = setInterval(loadNotifications, 2000);
     return () => {

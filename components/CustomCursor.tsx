@@ -14,8 +14,9 @@ export default function CustomCursor() {
     }
     if (typeof window === 'undefined') return;
     
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsVisible(true);
+    requestAnimationFrame(() => {
+      setIsVisible(true);
+    });
 
     const move = (e: MouseEvent) => {
       setPosition({ x: e.clientX, y: e.clientY });
