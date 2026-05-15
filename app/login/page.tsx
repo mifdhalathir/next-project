@@ -274,15 +274,15 @@ export default function Login() {
 
       <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-stone-950 selection:bg-amber-500 selection:text-black">
         {/* Glow ambient background as requested by Dark Glassmorphism & Amber Glow */}
-        <div className="absolute top-1/4 -left-32 w-[600px] h-[600px] bg-amber-600/10 rounded-full blur-[150px] opacity-70 pointer-events-none"></div>
-        <div className="absolute bottom-1/4 -right-32 w-[600px] h-[600px] bg-amber-900/20 rounded-full blur-[150px] opacity-70 pointer-events-none"></div>
+        <div className="absolute top-1/4 -left-32 w-[600px] h-[600px] bg-[radial-gradient(circle,_rgba(217,119,6,0.15)_0%,_transparent_70%)] pointer-events-none"></div>
+        <div className="absolute bottom-1/4 -right-32 w-[600px] h-[600px] bg-[radial-gradient(circle,_rgba(120,53,15,0.2)_0%,_transparent_70%)] pointer-events-none"></div>
 
         {/* Form Container */}
         <div 
           className={`relative z-10 w-full max-w-[420px] mx-4 transition-all duration-700 ${shake ? 'animate-shake' : ''}`}
           data-aos="zoom-in"
         >
-          <div className="bg-[#151515]/80 backdrop-blur-[3px] border border-white/5 rounded-[2rem] px-8 py-10 shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
+          <div className="bg-[#151515] border border-white/5 rounded-[2rem] px-8 py-10 shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
             
             {/* Header / Logo */}
             <div className="text-center mb-8">
@@ -407,7 +407,7 @@ export default function Login() {
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         placeholder="Masukkan nama Anda"
-                        className="w-full bg-[#1A1A1A]/80 backdrop-blur-[2px] border border-[#333] rounded-[1rem] text-white placeholder-stone-500 px-5 py-4 text-sm focus:outline-none focus:border-amber-500 focus:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all font-medium"
+                        className="w-full bg-[#1A1A1A] border border-[#333] rounded-[1rem] text-white placeholder-stone-500 px-5 py-4 text-sm focus:outline-none focus:border-amber-500 focus:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all font-medium"
                     />
                 </div>
 
@@ -422,7 +422,7 @@ export default function Login() {
                     {/* Indoor Card */}
                     <div 
                         onClick={() => setArea('Indoor')}
-                        className={`flex-1 relative overflow-hidden p-4 rounded-[20px] border cursor-pointer transition-all duration-300 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2 ${
+                        className={`flex-1 relative overflow-hidden p-4 rounded-[20px] border cursor-pointer transition-all duration-300 flex flex-col items-center justify-center gap-2 ${
                             area === 'Indoor' 
                             ? 'bg-amber-500/10 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.2)]' 
                             : 'bg-[#1A1A1A]/80 border-[#333] hover:border-amber-500/50'
@@ -440,7 +440,7 @@ export default function Login() {
                     {/* Outdoor Card */}
                     <div 
                         onClick={() => setArea('Outdoor')}
-                        className={`flex-1 relative overflow-hidden p-4 rounded-[20px] border cursor-pointer transition-all duration-300 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2 ${
+                        className={`flex-1 relative overflow-hidden p-4 rounded-[20px] border cursor-pointer transition-all duration-300 flex flex-col items-center justify-center gap-2 ${
                             area === 'Outdoor' 
                             ? 'bg-amber-500/10 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.2)]' 
                             : 'bg-[#1A1A1A]/80 border-[#333] hover:border-amber-500/50'
@@ -460,7 +460,7 @@ export default function Login() {
                 <button
                     type="button"
                     onClick={() => setShowMapModal(true)}
-                    className="w-full bg-[#1A1A1A]/80 border border-dashed border-[#444] hover:border-amber-500 hover:text-amber-500 hover:bg-amber-500/5 text-stone-300 py-3 rounded-[1rem] text-[11px] font-bold tracking-[0.1em] uppercase transition-all backdrop-blur-[2px]"
+                    className="w-full bg-[#1A1A1A] border border-dashed border-[#444] hover:border-amber-500 hover:text-amber-500 hover:bg-amber-500/5 text-stone-300 py-3 rounded-[1rem] text-[11px] font-bold tracking-[0.1em] uppercase transition-all"
                 >
                     🗺️ Lihat Peta Meja {tableNumber ? `(Terpilih: Meja ${tableNumber})` : ''}
                 </button>
@@ -468,7 +468,7 @@ export default function Login() {
                 {/* Jumlah Orang Input */}
                 <div>
                   <label className="block text-stone-200 text-[10px] font-bold uppercase tracking-widest mb-2">Jumlah Orang</label>
-                  <div className="flex bg-[#1A1A1A]/80 border border-[#333] rounded-[1rem] overflow-hidden backdrop-blur-[2px]">
+                  <div className="flex bg-[#1A1A1A] border border-[#333] rounded-[1rem] overflow-hidden">
                       <button type="button" onClick={() => setGuests(Math.max(1, guests - 1))} className="w-12 h-12 flex items-center justify-center text-stone-400 hover:bg-white/5 hover:text-amber-500 transition-colors">-</button>
                       <input 
                           type="number" 
