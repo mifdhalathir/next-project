@@ -237,6 +237,7 @@ export default function KasirPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadData();
+    const handleStorage = (e: StorageEvent) => {
       if (e.key === "PESANAN_HARI_INI" || e.key === "karsa_pesanan_masuk" || e.key === "karsa_inventory") {
         loadData();
       }
