@@ -114,7 +114,7 @@ export default function CartWidget() {
         }}
       >
         <div
-          className={`w-full max-w-md bg-wood-900 h-full shadow-2xl flex flex-col transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${
+          className={`w-full max-w-md bg-stone-900 h-full shadow-2xl flex flex-col transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${
             isOpen ? "translate-x-0" : "translate-x-full"
           } ${isVip ? 'ruby-border-glow' : ''}`}
         >
@@ -163,8 +163,8 @@ export default function CartWidget() {
                       className="h-full bg-amber-600 transition-all duration-1000" 
                       style={{ 
                         width: activeOrder.status === "received" ? "25%" : 
-                               activeOrder.status === "preparing" ? "50%" : 
-                               activeOrder.status === "cooked" ? "75%" : "100%" 
+                                activeOrder.status === "preparing" ? "50%" : 
+                                activeOrder.status === "cooked" ? "75%" : "100%" 
                       }}
                     ></div>
                   </div>
@@ -325,6 +325,5 @@ export default function CartWidget() {
         onClose={() => setShowReceipt(false)} 
       />
     </>
-
   );
 }

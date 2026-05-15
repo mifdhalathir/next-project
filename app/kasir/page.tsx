@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Order, OrderStatus, Reservation } from "@/components/CartProvider";
 import ActivityLog, { addActivityLog } from "@/components/ActivityLog";
 import Chart from "chart.js/auto";

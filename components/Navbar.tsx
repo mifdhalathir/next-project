@@ -5,7 +5,6 @@ import Link from "next/link";
 import SocialIcons from "./SocialIcons";
 import MagneticWrapper from "./MagneticWrapper";
 
-
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -190,20 +189,21 @@ export default function Navbar() {
                   </Link>
                 </MagneticWrapper>
               </div>
-
             )}
           </div>
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden text-white text-2xl p-2"
+          >
+            &#9776;
+          </button>
         </div>
-      </div>  <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="md:hidden text-white text-2xl p-2"
-        >
-          &#9776;
-        </button>
+      </div>
+      
       <div
         className={`${
           isMobileMenuOpen ? "block" : "hidden"
-        } md:hidden bg-wood-800/95 backdrop-blur px-4 pb-4 space-y-2`}
+        } md:hidden bg-stone-800/95 backdrop-blur px-4 pb-4 space-y-2`}
       >
         <button
           onClick={() => { document.getElementById('home')?.scrollIntoView({ behavior: 'smooth' }); setIsMobileMenuOpen(false); }}

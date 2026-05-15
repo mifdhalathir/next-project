@@ -111,7 +111,7 @@ export const addKarsaNotification = (message: string, type: KarsaNotification["t
     try {
       parsed = saved ? JSON.parse(saved) : [];
       if (!Array.isArray(parsed)) parsed = [];
-    } catch (e) {
+    } catch {
       parsed = [];
     }
 
