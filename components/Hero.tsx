@@ -41,12 +41,13 @@ export default function Hero() {
       setMounted(true);
       setDynamicVibe();
     });
-    const interval = setInterval(setDynamicVibe, 60000); // Check every minute
+
+    const interval = setInterval(setDynamicVibe, 60000);
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    if (isNight) {
+    if (isNight && mounted) {
       const newStars = [...Array(50)].map((_, i) => ({
         id: i,
         width: Math.random() * 3 + 'px',
@@ -60,13 +61,12 @@ export default function Hero() {
         setStars(newStars);
       });
     }
-  }, [isNight]);
+  }, [isNight, mounted]);
 
   if (!mounted) return <div className="h-screen bg-[#02050A]"></div>;
 
   return (
     <section id="home" className={`relative h-screen flex items-center justify-center ${isNight ? 'bg-wood-900' : ''}`}>
-      {/* Background Image */}
       <img
         src="/images/empty_cafe_interior.png"
         alt="Karsa Cafe Background"
@@ -74,7 +74,6 @@ export default function Hero() {
       />
       <div className={`hero-overlay absolute inset-0 ${isNight ? 'bg-black/60' : ''}`}></div>
       
-      {/* Starry Night Effect for Night Time */}
       {isNight && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
           {stars.map((star) => (
@@ -94,38 +93,20 @@ export default function Hero() {
         </div>
       )}
 
-      <div className="relative text-center px-4 z-10" data-aos="fade-right" data-aos-duration="1000">
-        <p className="text-amber-400 tracking-[.15em] text-sm mb-2 font-bold uppercase">
-          {greeting}
-        </p>
-        <p
-          className="text-amber-400/80 tracking-[.35em] text-xs mb-4 uppercase blur-reveal"
-          style={{ animationDelay: "0.5s" }}
-        >
-          Est. 2024 &bull; Padang
-        </p>
-        <h1 className="font-display text-4xl sm:text-5xl md:text-6xl text-white font-bold leading-tight mb-6 flex flex-col items-center">
-          <span className="typewriter border-r-4 border-amber-400 overflow-hidden whitespace-nowrap inline-block">
-            Ruang Inspirasi
-          </span>
-          <span
-            className="blur-reveal block text-3xl sm:text-4xl mt-2 text-cream-200"
-            style={{ animationDelay: "2s" }}
-          >
-            di Air Tawar
-          </span>
+      <div className="relative text-center px-4 z-10" data-aos="fade-right">
+        <p className="text-amber-400 tracking-[.15em] text-sm mb-2 font-bold uppercase">{greeting}</p>
+        <p className="text-amber-400/80 tracking-[.35em] text-xs mb-4 uppercase">Est. 2024 &bull; Padang</p>
+        <h1 className="font-display text-4xl sm:text-5xl md:text-6xl text-white font-bold mb-6">
+          <span className="typewriter border-r-4 border-amber-400 overflow-hidden whitespace-nowrap inline-block">Ruang Inspirasi</span>
+          <span className="block text-3xl sm:text-4xl mt-2 text-cream-200">di Air Tawar</span>
         </h1>
-        <p
-          className="blur-reveal text-cream-200 text-lg md:text-xl max-w-xl mx-auto mb-8"
-          style={{ animationDelay: "2.5s" }}
-        >
+        <p className="text-cream-200 text-lg md:text-xl max-w-xl mx-auto mb-8">
           Tempat nugas, ngopi, dan diskusi paling nyaman untuk mahasiswa Air Tawar dan sekitarnya.
         </p>
         <MagneticWrapper>
           <button
             onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })}
-            className="blur-reveal inline-block bg-amber-700 hover:bg-amber-800 text-white px-8 py-3 rounded-full text-sm tracking-wider transition transform hover:scale-105"
-            style={{ animationDelay: "3s" }}
+            className="inline-block bg-amber-700 hover:bg-amber-800 text-white px-8 py-3 rounded-full text-sm tracking-wider transition transform hover:scale-105"
           >
             Lihat Menu
           </button>

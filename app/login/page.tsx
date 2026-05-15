@@ -48,6 +48,7 @@ export default function Login() {
             parsed.forEach((p: { status: string; meja: string }) => {
                 if (p.status !== "Selesai") {
                     const t = parseInt(String(p.meja || "").replace(/[^\d]/g, ''));
+                    
                     if (!isNaN(t)) activeTables.push(t);
                 }
             });
@@ -148,6 +149,12 @@ export default function Login() {
   };
 
   const handleGoogleLogin = async () => {
+    if (!auth || !googleProvider) {
+      setError("Fitur Google Login belum dikonfigurasi (Firebase API Key Kosong). Hubungi Admin! 🛠️");
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+      return;
+    }
     try {
       setIsProcessing(true);
       const result = await signInWithPopup(auth, googleProvider);
