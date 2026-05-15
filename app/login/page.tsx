@@ -282,7 +282,7 @@ export default function Login() {
           className={`relative z-10 w-full max-w-[420px] mx-4 transition-all duration-700 ${shake ? 'animate-shake' : ''}`}
           data-aos="zoom-in"
         >
-          <div className="bg-[#151515]/80 backdrop-blur-[20px] border border-white/5 rounded-[2rem] px-8 py-10 shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
+          <div className="bg-[#151515]/80 backdrop-blur-[12px] border border-white/5 rounded-[2rem] px-8 py-10 shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
             
             {/* Header / Logo */}
             <div className="text-center mb-8">
@@ -291,7 +291,7 @@ export default function Login() {
                 <img 
                   src="/images/logo.png" 
                   alt="Logo" 
-                  className="relative w-full h-full object-contain brightness-0 invert drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]"
+                  className="relative w-full h-full object-contain brightness-0 invert drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]"
                   onError={(e) => { e.currentTarget.style.display = 'none'; }}
                 />
               </div>
@@ -407,7 +407,7 @@ export default function Login() {
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         placeholder="Masukkan nama Anda"
-                        className="w-full bg-[#1A1A1A]/80 backdrop-blur-[10px] border border-[#333] rounded-[1rem] text-white placeholder-stone-500 px-5 py-4 text-sm focus:outline-none focus:border-amber-500 focus:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all font-medium"
+                        className="w-full bg-[#1A1A1A]/80 backdrop-blur-[8px] border border-[#333] rounded-[1rem] text-white placeholder-stone-500 px-5 py-4 text-sm focus:outline-none focus:border-amber-500 focus:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all font-medium"
                     />
                 </div>
 
@@ -422,7 +422,7 @@ export default function Login() {
                     {/* Indoor Card */}
                     <div 
                         onClick={() => setArea('Indoor')}
-                        className={`flex-1 relative overflow-hidden p-4 rounded-[20px] border cursor-pointer transition-all duration-300 backdrop-blur-[10px] flex flex-col items-center justify-center gap-2 ${
+                        className={`flex-1 relative overflow-hidden p-4 rounded-[20px] border cursor-pointer transition-all duration-300 backdrop-blur-[8px] flex flex-col items-center justify-center gap-2 ${
                             area === 'Indoor' 
                             ? 'bg-amber-500/10 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.2)]' 
                             : 'bg-[#1A1A1A]/80 border-[#333] hover:border-amber-500/50'
@@ -440,7 +440,7 @@ export default function Login() {
                     {/* Outdoor Card */}
                     <div 
                         onClick={() => setArea('Outdoor')}
-                        className={`flex-1 relative overflow-hidden p-4 rounded-[20px] border cursor-pointer transition-all duration-300 backdrop-blur-[10px] flex flex-col items-center justify-center gap-2 ${
+                        className={`flex-1 relative overflow-hidden p-4 rounded-[20px] border cursor-pointer transition-all duration-300 backdrop-blur-[8px] flex flex-col items-center justify-center gap-2 ${
                             area === 'Outdoor' 
                             ? 'bg-amber-500/10 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.2)]' 
                             : 'bg-[#1A1A1A]/80 border-[#333] hover:border-amber-500/50'
@@ -460,7 +460,7 @@ export default function Login() {
                 <button
                     type="button"
                     onClick={() => setShowMapModal(true)}
-                    className="w-full bg-[#1A1A1A]/80 border border-dashed border-[#444] hover:border-amber-500 hover:text-amber-500 hover:bg-amber-500/5 text-stone-300 py-3 rounded-[1rem] text-[11px] font-bold tracking-[0.1em] uppercase transition-all backdrop-blur-[10px]"
+                    className="w-full bg-[#1A1A1A]/80 border border-dashed border-[#444] hover:border-amber-500 hover:text-amber-500 hover:bg-amber-500/5 text-stone-300 py-3 rounded-[1rem] text-[11px] font-bold tracking-[0.1em] uppercase transition-all backdrop-blur-[8px]"
                 >
                     🗺️ Lihat Peta Meja {tableNumber ? `(Terpilih: Meja ${tableNumber})` : ''}
                 </button>

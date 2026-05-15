@@ -51,7 +51,9 @@ export default function RootLayout({
         <AtmosphereEngine />
         <NotificationHub />
         <AudioWidget />
-        {children}
+        <main className="relative z-10">
+          {children}
+        </main>
       </body>
     </html>
   );

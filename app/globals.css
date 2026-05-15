@@ -45,15 +45,15 @@ body {
 /* Advanced Glassmorphism Reservasi Form */
 .glass-form {
     background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.4);
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
 }
 .dark .glass-form {
     background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.15);
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 }
@@ -455,7 +455,7 @@ body {
   height: 2px;
   background: linear-gradient(to right, transparent, rgba(245, 158, 11, 0.4), transparent);
   opacity: 0.1;
-  z-index: 1; /* Move to a low level but above background */
+  z-index: -1; /* Move to a low level but below background */
   pointer-events: none;
   animation: scan 8s linear infinite;
 }
@@ -497,7 +497,7 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   opacity: 0.05; /* Increased opacity for visibility */
   pointer-events: none;
-  z-index: 10; /* Bring to front but below interactive elements */
+  z-index: -1; /* Move behind all content */
   mix-blend-mode: overlay;
 }
 
@@ -507,8 +507,8 @@ body {
   width: 60vw;
   height: 60vw;
   background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%); /* Increased vibrancy */
-  filter: blur(100px);
-  z-index: 1; /* Move above body background */
+  filter: blur(80px); /* Slightly reduced blur */
+  z-index: -2; /* Move behind all content */
   pointer-events: none;
   animation: float-aura 30s infinite alternate ease-in-out;
 }

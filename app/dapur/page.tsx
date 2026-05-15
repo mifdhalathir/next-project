@@ -280,8 +280,8 @@ export default function DapurPage() {
         /* Cyber-Industrial Glassmorphism Level 2 */
         .cyber-glass { 
           background: rgba(10, 15, 25, 0.4); 
-          backdrop-filter: blur(25px); 
-          -webkit-backdrop-filter: blur(25px); 
+          backdrop-filter: blur(12px); 
+          -webkit-backdrop-filter: blur(12px); 
           border: 1px solid rgba(0, 242, 255, 0.1);
           box-shadow: inset 0 0 20px rgba(0, 242, 255, 0.05);
           position: relative;
@@ -301,7 +301,7 @@ export default function DapurPage() {
 
         .cyber-card {
             background: rgba(5, 10, 15, 0.6);
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(12px);
             border-width: 1px;
             border-style: solid;
         }
