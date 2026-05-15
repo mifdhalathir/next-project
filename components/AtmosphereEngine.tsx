@@ -6,19 +6,18 @@ export default function AtmosphereEngine() {
   const [area, setArea] = useState<string>("Indoor");
   const [isReserved, setIsReserved] = useState<boolean>(false);
   const [mounted, setMounted] = useState(false);
+  const [particles, setParticles] = useState<React.ReactNode[]>([]);
 
   useEffect(() => {
     const syncAtmosphere = () => {
       const storedArea = localStorage.getItem("karsa_area") || "Indoor";
-      const storedStatus = localStorage.getItem("karsa_status"); // For reservation check later
+      const storedStatus = localStorage.getItem("karsa_status");
       
       setArea(storedArea);
-      // Determine if user is VIP / reserved (mock logic for now, adjust based on actual login data)
       const username = localStorage.getItem("karsa_user_name");
       const isVip = username && storedStatus === "reserved";
       setIsReserved(!!isVip);
 
-      // Apply classes to body
       document.body.classList.remove("theme-outdoor", "theme-reserved");
       if (isVip) {
         document.body.classList.add("theme-reserved");
@@ -27,14 +26,10 @@ export default function AtmosphereEngine() {
       }
     };
 
-    // Initial sync
     setMounted(true);
     syncAtmosphere();
 
-    // Listen for changes
     window.addEventListener("storage", syncAtmosphere);
-    
-    // Custom event for internal state changes not caught by 'storage' event
     const handleAtmosphereChange = () => syncAtmosphere();
     window.addEventListener("karsa_atmosphere_update", handleAtmosphereChange);
 
@@ -44,14 +39,11 @@ export default function AtmosphereEngine() {
     };
   }, []);
 
-  const [particles, setParticles] = useState<React.ReactNode[]>([]);
-
   useEffect(() => {
     if (!mounted) return;
     
     const newParticles = Array.from({ length: 15 }).map((_, i) => {
       if (area === "Outdoor") {
-        // Leaves
         return (
           <div
             key={`leaf-${i}`}
@@ -69,7 +61,6 @@ export default function AtmosphereEngine() {
           </div>
         );
       } else {
-        // Dust
         return (
           <div
             key={`dust-${i}`}
