@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 export type KarsaNotification = {
   id: string;
@@ -13,23 +13,27 @@ export default function NotificationHub() {
   const [notifications, setNotifications] = useState<KarsaNotification[]>([]);
   const [activeAlert, setActiveAlert] = useState<string | null>(null);
 
-  const loadNotifications = () => {
+  const loadNotifications = useCallback(() => {
     const saved = localStorage.getItem("karsa_notifications");
     if (saved) {
-      const parsed: KarsaNotification[] = JSON.parse(saved);
-      const now = Date.now();
-      // Only show notifications from the last 1 minute for a clean chat feel
-      const recent = parsed.filter(n => now - n.timestamp < 60000);
-      setNotifications(recent.sort((a, b) => b.timestamp - a.timestamp));
+      try {
+        const parsed: KarsaNotification[] = JSON.parse(saved);
+        const now = Date.now();
+        // Only show notifications from the last 1 minute for a clean chat feel
+        const recent = parsed.filter(n => now - n.timestamp < 60000);
+        setNotifications(recent.sort((a, b) => b.timestamp - a.timestamp));
 
-      // Check for specialized "Call" alert for THIS specific user
-      const currentUserName = localStorage.getItem("karsa_user_name");
-      const lastCall = recent.find(n => n.type === "alert" && n.message.includes(currentUserName || "___"));
-      if (lastCall && (!activeAlert || activeAlert !== lastCall.id)) {
-         setActiveAlert(lastCall.id);
+        // Check for specialized "Call" alert for THIS specific user
+        const currentUserName = localStorage.getItem("karsa_user_name");
+        const lastCall = recent.find(n => n.type === "alert" && n.message.includes(currentUserName || "___"));
+        if (lastCall && (!activeAlert || activeAlert !== lastCall.id)) {
+           setActiveAlert(lastCall.id);
+        }
+      } catch {
+        // Ignored
       }
     }
-  };
+  }, [activeAlert]);
 
   useEffect(() => {
     requestAnimationFrame(() => {
@@ -41,7 +45,7 @@ export default function NotificationHub() {
       window.removeEventListener("storage", loadNotifications);
       clearInterval(interval);
     };
-  }, [activeAlert]);
+  }, [loadNotifications]);
 
   const removeNotification = (id: string) => {
     setNotifications(prev => prev.filter(n => n.id !== id));

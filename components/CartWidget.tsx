@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useCart } from "./CartProvider";
 import DigitalReceipt from "./DigitalReceipt";
 import PaymentPicker, { type PaymentMethod } from "./PaymentPicker";
-import TaxServiceBreakdown, { calculateTaxService } from "./TaxServiceBreakdown";
+import TaxServiceBreakdown from "./TaxServiceBreakdown";
 import { addActivityLog } from "./ActivityLog";
 import { playSound } from "./AudioWidget";
 
@@ -20,13 +20,12 @@ export default function CartWidget() {
 
   useEffect(() => {
     const savedTable = localStorage.getItem("karsa_table_number");
-    if (savedTable) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setTableNumber(savedTable);
-    }
     const status = localStorage.getItem("karsa_status");
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsVip(status === "reserved");
+    
+    requestAnimationFrame(() => {
+        if (savedTable) setTableNumber(savedTable);
+        setIsVip(status === "reserved");
+    });
   }, []);
 
   const cartArray = Object.values(cart);

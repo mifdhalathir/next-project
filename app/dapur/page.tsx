@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Order, OrderStatus } from "@/components/CartProvider";
 import { addKarsaNotification } from "@/components/NotificationHub";
 import { addActivityLog } from "@/components/ActivityLog";
@@ -10,6 +10,16 @@ export default function DapurPage() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({});
   const [currentTime, setCurrentTime] = useState(0);
+
+  interface RawOrder {
+    orderID: string;
+    meja: string;
+    nama: string;
+    items: { nama: string; harga: number; qty: number }[];
+    totalHarga: number;
+    status: string;
+    id: number;
+  }
 
   const playDing = () => {
     try {
@@ -26,14 +36,14 @@ export default function DapurPage() {
     const savedOrders = localStorage.getItem("PESANAN_HARI_INI");
     if (savedOrders) {
       try {
-        const parsedOrders: any[] = JSON.parse(savedOrders);
+        const parsedOrders: RawOrder[] = JSON.parse(savedOrders);
         const kitchenOrders: Order[] = parsedOrders
           .filter(p => p.status === "Pending" || p.status === "Preparing" || p.status === "Diracik")
           .map(p => ({
               id: p.orderID,
               tableNumber: String(p.meja || "").replace(/[^\d]/g, ''),
               customerName: p.nama,
-              items: p.items.map((it: any) => ({ name: it.nama, price: it.harga, qty: it.qty })),
+              items: p.items.map(it => ({ name: it.nama, price: it.harga, qty: it.qty })),
               total: p.totalHarga,
               status: (p.status === 'Pending' ? 'received' : 'preparing') as OrderStatus,
               timestamp: p.id
@@ -57,9 +67,10 @@ export default function DapurPage() {
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setCurrentTime(Date.now());
-    loadData();
+    requestAnimationFrame(() => {
+        setCurrentTime(Date.now());
+        loadData();
+    });
 
     const handleMouseMove = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY });
 
@@ -81,7 +92,7 @@ export default function DapurPage() {
     const savedOrders = localStorage.getItem("PESANAN_HARI_INI");
 
     if (savedOrders) {
-      let pesananHariIni: any[] = JSON.parse(savedOrders);
+      let pesananHariIni: RawOrder[] = JSON.parse(savedOrders);
       const mappedStatus = newStatus === 'preparing' ? 'Diracik' : (newStatus === 'cooked' ? 'Dikonfirmasi' : 'Pending');
 
       pesananHariIni = pesananHariIni.map(p => {

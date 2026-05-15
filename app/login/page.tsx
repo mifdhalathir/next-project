@@ -51,7 +51,7 @@ export default function Login() {
                     if (!isNaN(t)) activeTables.push(t);
                 }
             });
-        } catch(_e) {
+        } catch {
             console.error("Failed to parse PESANAN_HARI_INI");
         }
     }
@@ -87,7 +87,7 @@ export default function Login() {
     setIsProcessing(true);
     setTimeout(() => {
       let users: { name: string; email: string; password: string }[] = [];
-      try { users = JSON.parse(localStorage.getItem('karsa_users') || '[]'); } catch(_e) {}
+      try { users = JSON.parse(localStorage.getItem('karsa_users') || '[]'); } catch { console.error("Failed to parse users"); }
       
       const user = users.find(u => (u.name === username || u.email === username) && u.password === password);
       
@@ -128,7 +128,7 @@ export default function Login() {
     setIsProcessing(true);
     setTimeout(() => {
       let users: { name: string; email: string; password: string }[] = [];
-      try { users = JSON.parse(localStorage.getItem('karsa_users') || '[]'); } catch(_e) {}
+      try { users = JSON.parse(localStorage.getItem('karsa_users') || '[]'); } catch { console.error("Failed to parse users"); }
 
       if (users.some(u => u.email === regEmail)) {
         setError("Email ini sudah terdaftar, Ngab!");
@@ -161,10 +161,11 @@ export default function Login() {
       
       setStep("table");
     } catch (err: unknown) {
-      if (err instanceof Error && (err as any).code === "auth/popup-closed-by-user") {
+      const firebaseError = err as { code?: string; message?: string };
+      if (firebaseError.code === "auth/popup-closed-by-user") {
         setError("Login dibatalkan, Sultan.");
       } else {
-        setError("Google Login Gagal: " + (err instanceof Error ? err.message : String(err)));
+        setError("Google Login Gagal: " + (firebaseError.message || String(err)));
       }
       setShake(true);
       setTimeout(() => setShake(false), 500);

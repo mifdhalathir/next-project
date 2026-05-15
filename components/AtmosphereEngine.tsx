@@ -37,9 +37,10 @@ export default function AtmosphereEngine() {
       }
     };
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
-    syncAtmosphere();
+    requestAnimationFrame(() => {
+        setMounted(true);
+        syncAtmosphere();
+    });
 
     window.addEventListener("storage", syncAtmosphere);
     const handleAtmosphereChange = () => syncAtmosphere();
@@ -79,8 +80,9 @@ export default function AtmosphereEngine() {
       }
     });
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setParticleData(newParticles);
+    requestAnimationFrame(() => {
+        setParticleData(newParticles);
+    });
   }, [area, mounted]);
 
   if (!mounted) return null;

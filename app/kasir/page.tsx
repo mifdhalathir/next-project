@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Order, OrderStatus, Reservation } from "@/components/CartProvider";
-import { addKarsaNotification } from "@/components/NotificationHub";
 import ActivityLog, { addActivityLog } from "@/components/ActivityLog";
 import Chart from "chart.js/auto";
 
@@ -58,6 +57,28 @@ export default function KasirPage() {
   const [outdoorCapacity, setOutdoorCapacity] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
 
+  interface RawOrder {
+    orderID: string;
+    meja: string;
+    nama: string;
+    items: { nama: string; harga: number; qty: number }[];
+    totalHarga: number;
+    status: string;
+    id: number;
+    jam?: string;
+  }
+
+  interface RawReservation {
+    id: number;
+    nama: string;
+    tanggal: string;
+    jam: string;
+    jumlah: number;
+    catatan: string;
+    status: string;
+    orderID?: string;
+  }
+
   const rawTotalRevenue = Number(typeof window !== "undefined" ? localStorage.getItem("karsa_revenue") || 0 : 0);
   const animatedRevenue = useRunningNumber(rawTotalRevenue, 1500);
 
@@ -69,12 +90,12 @@ export default function KasirPage() {
       const savedReviews = localStorage.getItem("karsa_reviews");
       
       if (savedOrders) {
-        const parsedOrders: any[] = JSON.parse(savedOrders);
+        const parsedOrders: RawOrder[] = JSON.parse(savedOrders);
         const mappedOrders: Order[] = parsedOrders.map(p => ({
             id: p.orderID,
             tableNumber: String(p.meja || "").replace(/[^\d]/g, ''),
             customerName: p.nama,
-            items: p.items.map((it: any) => ({ name: it.nama, price: it.harga, qty: it.qty })),
+            items: p.items.map(it => ({ name: it.nama, price: it.harga, qty: it.qty })),
             total: p.totalHarga,
             status: p.status === 'Pending' ? 'received' : 
                    (p.status === 'Diracik' ? 'preparing' : 
@@ -92,7 +113,7 @@ export default function KasirPage() {
         
         const itemCounts: Record<string, number> = {};
         completed.forEach(p => {
-            p.items.forEach((it: any) => {
+            p.items.forEach(it => {
                 itemCounts[it.nama] = (itemCounts[it.nama] || 0) + it.qty;
             });
         });
@@ -122,14 +143,14 @@ export default function KasirPage() {
       }
 
       if (savedRes) {
-        let parsedRes: any[] = JSON.parse(savedRes);
+        const parsedRes: RawReservation[] = JSON.parse(savedRes);
         const resList: Reservation[] = parsedRes.filter(p => !p.orderID).map(p => ({
             id: String(p.id),
             name: p.nama,
             time: `${p.tanggal} ${p.jam}`,
             guests: p.jumlah,
             notes: p.catatan,
-            status: p.status === 'menunggu' ? 'pending' : (p.status === 'selesai' ? 'arrived' : 'cancelled' as any),
+            status: (p.status === 'menunggu' ? 'pending' : (p.status === 'selesai' ? 'arrived' : 'cancelled')) as "pending" | "arrived" | "cancelled",
             timestamp: p.id
         }));
         setReservations(resList);
@@ -141,7 +162,7 @@ export default function KasirPage() {
       }
 
       if (savedReviews) {
-        const parsedReviews: any[] = JSON.parse(savedReviews);
+        const parsedReviews: { rating: number }[] = JSON.parse(savedReviews);
         if (parsedReviews.length > 0) {
             const total = parsedReviews.reduce((sum, r) => sum + r.rating, 0);
             setAvgRating(total / parsedReviews.length);
@@ -169,7 +190,7 @@ export default function KasirPage() {
         newAlerts[name] = true;
         newToasts.push({ name, stock });
         changed = true;
-        try { new Audio('https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3?filename=service-bell-ring-14610.mp3').play().catch(()=>{}); } catch(e){}
+        try { new Audio('https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3?filename=service-bell-ring-14610.mp3').play().catch(()=>{}); } catch { console.error("Audio failed"); }
       }
       if (stock >= 5 && newAlerts[name]) {
         delete newAlerts[name];
@@ -189,7 +210,7 @@ export default function KasirPage() {
     setLowStockToasts(t);
   };
 
-  const updateChart = (pesanan: any[]) => {
+  const updateChart = (pesanan: RawOrder[]) => {
     if (!chartRef.current) return;
     const selesai = pesanan.filter(p => p.status === 'Selesai');
     const hourData = new Array(24).fill(0);
@@ -269,7 +290,7 @@ export default function KasirPage() {
     try {
       const savedOrders = localStorage.getItem("PESANAN_HARI_INI");
       if (savedOrders) {
-        let pesananHariIni: any[] = JSON.parse(savedOrders);
+        let pesananHariIni: RawOrder[] = JSON.parse(savedOrders);
         const order = pesananHariIni.find(p => p.orderID === orderId);
         if (!order) return;
         
@@ -333,7 +354,7 @@ export default function KasirPage() {
   const updateReservation = (id: string, status: "arrived" | "cancelled") => {
     const savedRes = localStorage.getItem("karsa_pesanan_masuk");
     if (savedRes) {
-        let parsed: any[] = JSON.parse(savedRes);
+        let parsed: RawReservation[] = JSON.parse(savedRes);
         parsed = parsed.map(p => String(p.id) === id ? { ...p, status: status === 'arrived' ? 'dikonfirmasi' : 'batal' } : p);
         localStorage.setItem("karsa_pesanan_masuk", JSON.stringify(parsed));
         window.dispatchEvent(new Event("storage"));
@@ -341,11 +362,12 @@ export default function KasirPage() {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const deleteReservation = (id: string) => {
     if (!confirm("Hapus permanen data reservasi ini?")) return;
     const savedRes = localStorage.getItem("karsa_pesanan_masuk");
     if (savedRes) {
-        let parsed: any[] = JSON.parse(savedRes);
+        let parsed: RawReservation[] = JSON.parse(savedRes);
         parsed = parsed.filter(p => String(p.id) !== id);
         localStorage.setItem("karsa_pesanan_masuk", JSON.stringify(parsed));
         window.dispatchEvent(new Event("storage"));

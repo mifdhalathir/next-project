@@ -54,7 +54,7 @@ export default function MenuSection() {
         const inv = JSON.parse(localStorage.getItem("karsa_inventory") || "{}");
         setInventory(inv);
         setLoading(false);
-      } catch (e) {
+      } catch {
         setLoading(false);
       }
     };
@@ -71,9 +71,10 @@ export default function MenuSection() {
       setIsVip(localStorage.getItem("karsa_status") === "reserved");
     };
     
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
-    syncState();
+    requestAnimationFrame(() => {
+        setMounted(true);
+        syncState();
+    });
 
     window.addEventListener("storage", fetchInv);
     window.addEventListener("storage", syncState);
