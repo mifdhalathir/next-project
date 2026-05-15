@@ -17,6 +17,7 @@ export default function Hero() {
   const [greeting, setGreeting] = useState("");
   const [isNight, setIsNight] = useState(false);
   const [stars, setStars] = useState<Star[]>([]);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const setDynamicVibe = () => {
@@ -36,7 +37,10 @@ export default function Hero() {
       }
     };
 
-    setDynamicVibe();
+    requestAnimationFrame(() => {
+      setMounted(true);
+      setDynamicVibe();
+    });
     const interval = setInterval(setDynamicVibe, 60000); // Check every minute
     return () => clearInterval(interval);
   }, []);
@@ -57,6 +61,8 @@ export default function Hero() {
       });
     }
   }, [isNight]);
+
+  if (!mounted) return <div className="h-screen bg-[#02050A]"></div>;
 
   return (
     <section id="home" className={`relative h-screen flex items-center justify-center ${isNight ? 'bg-wood-900' : ''}`}>

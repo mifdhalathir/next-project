@@ -36,10 +36,10 @@ export default function Navbar() {
     };
 
     requestAnimationFrame(() => {
-        setMounted(true);
+      setMounted(true);
+      checkUser();
     });
-
-    checkUser();
+    
     window.addEventListener("scroll", handleScroll);
     window.addEventListener("storage", checkUser);
     

@@ -41,16 +41,15 @@ export default function ReservationForm() {
 
     try {
       const savedCap = localStorage.getItem('karsa_area_capacity');
-      if (savedCap) setCapacity(JSON.parse(savedCap));
-    } catch(e) {}
+      if (savedCap) {
+        requestAnimationFrame(() => {
+          setCapacity(JSON.parse(savedCap));
+        });
+      }
+    } catch {
+      // Ignore
+    }
   }, []);
-
-  const getAreaStatus = (used: number, total: number) => {
-    const isFull = used >= total;
-    if (isFull) return "(Penuh)";
-    const pct = (used / total) * 100;
-    return `(${used}/${total} Meja) - ${pct > 50 ? 'Rame' : 'Sepi'}`;
-  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

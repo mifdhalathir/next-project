@@ -6,73 +6,51 @@ interface TaxServiceBreakdownProps {
 }
 
 export function calculateTaxService(subtotal: number, voucherDiscount: number = 0) {
-  const afterDiscount = subtotal - voucherDiscount;
-  const serviceFee = Math.round(afterDiscount * 0.05);   // Service Charge 5%
-  const taxPB1 = Math.round(afterDiscount * 0.10);       // PB1 Tax 10%
-  const grandTotal = afterDiscount + serviceFee + taxPB1;
+  const afterDiscountValue = subtotal - voucherDiscount;
+  const serviceFee = Math.round(afterDiscountValue * 0.05);   // Service Charge 5%
+  const taxPB1 = Math.round(afterDiscountValue * 0.10);       // PB1 Tax 10%
+  const grandTotal = afterDiscountValue + serviceFee + taxPB1;
   
-  return { afterDiscount, serviceFee, taxPB1, grandTotal };
+  return { afterDiscount: afterDiscountValue, serviceFee, taxPB1, grandTotal };
 }
 
 export default function TaxServiceBreakdown({ subtotal, voucherDiscount }: TaxServiceBreakdownProps) {
   const { afterDiscount, serviceFee, taxPB1, grandTotal } = calculateTaxService(subtotal, voucherDiscount);
 
-  if (subtotal <= 0) return null;
-
   return (
-    <div className="space-y-2 mb-4 p-4 bg-white/[0.03] rounded-xl border border-white/5">
-      <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-500 mb-3">📊 Rincian Biaya</p>
-
-      <div className="flex justify-between items-center">
-        <span className="text-[11px] text-stone-400">Subtotal</span>
-        <span className="text-xs font-bold text-stone-300">
-          Rp {subtotal.toLocaleString("id-ID")}
-        </span>
+    <div className="space-y-3 p-6 bg-stone-900/50 rounded-2xl border border-white/5 backdrop-blur-md">
+      <div className="flex justify-between text-xs text-stone-400 font-medium">
+        <span>Subtotal</span>
+        <span>Rp {subtotal.toLocaleString("id-ID")}</span>
       </div>
-
+      
       {voucherDiscount > 0 && (
-        <div className="flex justify-between items-center">
-          <span className="text-[11px] text-green-500">Diskon Voucher</span>
-          <span className="text-xs font-bold text-green-500">
-            - Rp {voucherDiscount.toLocaleString("id-ID")}
-          </span>
+        <div className="flex justify-between text-xs text-green-500 font-bold">
+          <span>Voucher Diskon</span>
+          <span>-Rp {voucherDiscount.toLocaleString("id-ID")}</span>
         </div>
       )}
 
-      <div className="border-t border-white/5 my-2"></div>
-
-      <div className="flex justify-between items-center">
-        <span className="text-[11px] text-stone-400 flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span>
-          Service Charge (5%)
-        </span>
-        <span className="text-xs font-bold text-stone-300">
-          + Rp {serviceFee.toLocaleString("id-ID")}
-        </span>
+      <div className="flex justify-between text-xs text-stone-300 font-bold border-t border-white/5 pt-3">
+        <span>Setelah Diskon</span>
+        <span>Rp {afterDiscount.toLocaleString("id-ID")}</span>
       </div>
 
-      <div className="flex justify-between items-center">
-        <span className="text-[11px] text-stone-400 flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block"></span>
-          PB1 / Pajak (10%)
-        </span>
-        <span className="text-xs font-bold text-stone-300">
-          + Rp {taxPB1.toLocaleString("id-ID")}
-        </span>
+      <div className="flex justify-between text-xs text-stone-400">
+        <span>Service Charge (5%)</span>
+        <span>Rp {serviceFee.toLocaleString("id-ID")}</span>
+      </div>
+      <div className="flex justify-between text-xs text-stone-400">
+        <span>PB1 Tax (10%)</span>
+        <span>Rp {taxPB1.toLocaleString("id-ID")}</span>
       </div>
 
-      <div className="border-t border-amber-500/20 my-2 pt-2">
-        <div className="flex justify-between items-center">
-          <span className="text-xs font-black uppercase tracking-widest text-amber-500">Grand Total</span>
-          <span className="text-xl font-black text-amber-500 tracking-tighter">
-            Rp {grandTotal.toLocaleString("id-ID")}
-          </span>
-        </div>
+      <div className="flex justify-between items-center pt-4 border-t border-white/10">
+        <span className="text-sm font-black text-white uppercase tracking-widest">Total Bayar</span>
+        <span className="text-xl font-black text-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.3)]">
+          Rp {grandTotal.toLocaleString("id-ID")}
+        </span>
       </div>
-
-      <p className="text-[8px] text-stone-600 text-center italic mt-1">
-        * Harga sudah termasuk PB1 10% dan service charge 5%
-      </p>
     </div>
   );
 }

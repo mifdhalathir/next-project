@@ -88,7 +88,9 @@ export default function SmartRecommendation() {
       }
     }
 
-    setRecommendations(recs.slice(0, 3));
+    requestAnimationFrame(() => {
+      setRecommendations(recs.slice(0, 3));
+    });
   }, [cart]);
 
   if (recommendations.length === 0 || !isVisible) return null;

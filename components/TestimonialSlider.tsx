@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 const TESTIMONIALS = [
   { name: 'Rina Putri', major: 'Mahasiswa Sastra Inggris UNP', rating: 5, text: 'Tempatnya cozy banget! WiFi kencang, colokan banyak, dan kopinya enak. Cocok banget buat nugas sampai malam.', avatar: '👩‍🎓' },
@@ -14,28 +14,28 @@ export default function TestimonialSlider() {
   const [current, setCurrent] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  const changeSlide = (newIndex: number) => {
+  const changeSlide = useCallback((newIndex: number) => {
     setIsAnimating(true);
     setTimeout(() => {
       setCurrent(newIndex);
       setIsAnimating(false);
     }, 500);
-  };
+  }, []);
 
-  const handlePrev = () => {
-    changeSlide((current - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
-  };
+  const handlePrev = useCallback(() => {
+    setCurrent(prev => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
+  }, []);
 
-  const handleNext = () => {
-    changeSlide((current + 1) % TESTIMONIALS.length);
-  };
+  const handleNext = useCallback(() => {
+    setCurrent(prev => (prev + 1) % TESTIMONIALS.length);
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
       handleNext();
     }, 6000);
     return () => clearInterval(timer);
-  }, [current]);
+  }, [current, handleNext]);
 
   const t = TESTIMONIALS[current];
   const stars = '★'.repeat(t.rating) + '☆'.repeat(5 - t.rating);
