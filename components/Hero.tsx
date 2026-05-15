@@ -3,9 +3,20 @@
 import { useEffect, useState } from "react";
 import MagneticWrapper from "./MagneticWrapper";
 
+interface Star {
+  id: number;
+  width: string;
+  height: string;
+  top: string;
+  left: string;
+  delay: string;
+  duration: string;
+}
+
 export default function Hero() {
   const [greeting, setGreeting] = useState("");
   const [isNight, setIsNight] = useState(false);
+  const [stars, setStars] = useState<Star[]>([]);
 
   useEffect(() => {
     const setDynamicVibe = () => {
@@ -30,6 +41,21 @@ export default function Hero() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    if (isNight) {
+      const newStars = [...Array(50)].map((_, i) => ({
+        id: i,
+        width: Math.random() * 3 + 'px',
+        height: Math.random() * 3 + 'px',
+        top: Math.random() * 100 + '%',
+        left: Math.random() * 100 + '%',
+        delay: Math.random() * 5 + 's',
+        duration: Math.random() * 3 + 2 + 's'
+      }));
+      setStars(newStars);
+    }
+  }, [isNight]);
+
   return (
     <section id="home" className={`relative h-screen flex items-center justify-center ${isNight ? 'bg-wood-900' : ''}`}>
       {/* Background Image */}
@@ -43,17 +69,17 @@ export default function Hero() {
       {/* Starry Night Effect for Night Time */}
       {isNight && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-          {[...Array(50)].map((_, i) => (
+          {stars.map((star) => (
             <div 
-              key={i} 
+              key={star.id} 
               className="absolute bg-white rounded-full animate-twinkle"
               style={{
-                width: Math.random() * 3 + 'px',
-                height: Math.random() * 3 + 'px',
-                top: Math.random() * 100 + '%',
-                left: Math.random() * 100 + '%',
-                animationDelay: Math.random() * 5 + 's',
-                animationDuration: Math.random() * 3 + 2 + 's'
+                width: star.width,
+                height: star.height,
+                top: star.top,
+                left: star.left,
+                animationDelay: star.delay,
+                animationDuration: star.duration
               }}
             ></div>
           ))}

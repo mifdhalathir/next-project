@@ -39,18 +39,12 @@ export default function Login() {
 
   const router = useRouter();
 
-  useEffect(() => {
-    if (step === "table") {
-        countTableStatus();
-    }
-  }, [step]);
-
   const countTableStatus = () => {
     const savedOrders = localStorage.getItem("PESANAN_HARI_INI");
     const activeTables: number[] = [];
     if (savedOrders) {
         const parsed = JSON.parse(savedOrders);
-        parsed.forEach((p:any) => {
+        parsed.forEach((p: { status: string; meja: string }) => {
             if (p.status !== "Selesai") {
                 const t = parseInt(p.meja.replace('Meja ', ''));
                 if (!isNaN(t)) activeTables.push(t);
@@ -61,6 +55,7 @@ export default function Login() {
     // Also check reservations
     const savedRes = localStorage.getItem("karsa_pesanan_masuk");
     if (savedRes) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const parsedRes = JSON.parse(savedRes);
         // We pseudo map reservations to tables 1-12 in Kasir, but here let's just mock active tables
         // If we want exact mapping, we need strict table assignment.
@@ -75,6 +70,12 @@ export default function Login() {
     setIndoorOccupied(indoor);
     setOutdoorOccupied(outdoor);
   };
+
+  useEffect(() => {
+    if (step === "table") {
+        countTableStatus();
+    }
+  }, [step]);
 
   const handleManualLogin = (e: React.FormEvent) => {
     e.preventDefault();

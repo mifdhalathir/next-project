@@ -55,6 +55,7 @@ export default function KasirPage() {
   const [pendingResCount, setPendingResCount] = useState(0);
   const [indoorCapacity, setIndoorCapacity] = useState(0);
   const [outdoorCapacity, setOutdoorCapacity] = useState(0);
+  const [currentTime, setCurrentTime] = useState(Date.now());
 
   const rawTotalRevenue = Number(typeof window !== "undefined" ? localStorage.getItem("karsa_revenue") || 0 : 0);
   const animatedRevenue = useRunningNumber(rawTotalRevenue, 1500);
@@ -234,6 +235,7 @@ export default function KasirPage() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadData();
     const handleStorage = (e: StorageEvent) => {
       if (e.key === "PESANAN_HARI_INI" || e.key === "karsa_pesanan_masuk" || e.key === "karsa_inventory") {
@@ -243,12 +245,15 @@ export default function KasirPage() {
     window.addEventListener("storage", handleStorage);
     window.addEventListener("mousemove", (e) => setMousePos({ x: e.clientX, y: e.clientY }));
     const interval = setInterval(loadData, 3000);
+    const timeInterval = setInterval(() => setCurrentTime(Date.now()), 10000);
     return () => {
       window.removeEventListener("storage", handleStorage);
       window.removeEventListener("mousemove", (e) => setMousePos({ x: e.clientX, y: e.clientY }));
       clearInterval(interval);
+      clearInterval(timeInterval);
       if (chartInstance.current) chartInstance.current.destroy();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const advanceOrder = (orderId: string) => {
@@ -514,7 +519,7 @@ export default function KasirPage() {
                 const activeOrder = orders.find(o => parseInt(o.tableNumber) === tableNum);
                 const isOccupied = !!activeOrder;
                 // Mock Table 7 asking for bill occasionally
-                const isAskingBill = tableNum === 7 && Date.now() % 60000 < 10000; // blink 10s every minute
+                const isAskingBill = tableNum === 7 && currentTime % 60000 < 10000; // blink 10s every minute
 
                 let tableClass = 'bg-black border-white/10 hover:border-white/30 text-stone-600';
                 if (isAskingBill) {
@@ -618,9 +623,8 @@ export default function KasirPage() {
                       </button>
                       <button 
                         onClick={() => {
-                          order.status = 'ready'; // mock completion jump
-                          advanceOrder(order.id);
-                          advanceOrder(order.id); // jump to ready if needed
+                          const updatedOrder = { ...order, status: 'ready' as OrderStatus }; // mock completion jump
+                          advanceOrder(updatedOrder.id);
                         }} 
                         className="px-4 bg-black border border-[#39FF14]/50 hover:bg-[#39FF14]/20 text-[#39FF14] text-[9px] font-black uppercase transition-all"
                       >

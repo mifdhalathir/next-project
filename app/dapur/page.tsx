@@ -9,7 +9,7 @@ export default function DapurPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({});
-  const prevOrderCount = useRef(0);
+  const [currentTime, setCurrentTime] = useState(0);
 
   const playDing = () => {
     try {
@@ -53,15 +53,21 @@ export default function DapurPage() {
   };
 
   useEffect(() => {
+    setCurrentTime(Date.now());
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadData();
     window.addEventListener("storage", loadData);
     window.addEventListener("mousemove", (e) => setMousePos({ x: e.clientX, y: e.clientY }));
     const interval = setInterval(loadData, 2000);
+    const timeInterval = setInterval(() => setCurrentTime(Date.now()), 60000);
+    
     return () => {
       window.removeEventListener("storage", loadData);
       window.removeEventListener("mousemove", (e) => setMousePos({ x: e.clientX, y: e.clientY }));
       clearInterval(interval);
+      clearInterval(timeInterval);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const updateOrderStatus = (orderId: string, newStatus: OrderStatus) => {
@@ -163,7 +169,7 @@ export default function DapurPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-12">
             {[...orders].sort((a, b) => a.timestamp - b.timestamp).map((order) => {
-              const waitTime = Math.floor((Date.now() - order.timestamp) / 60000);
+              const waitTime = Math.floor(((currentTime || Date.now()) - order.timestamp) / 60000);
               const isLate = waitTime >= 15;
               const isPriority = isOnlyDrinks(order.items);
               const isPreparing = order.status === 'preparing';

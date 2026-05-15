@@ -10,6 +10,23 @@ export default function SmartTableModal() {
   const [area, setArea] = useState<"Indoor" | "Outdoor" | null>(null);
   const [occupiedTables, setOccupiedTables] = useState<number[]>([]);
 
+  const loadOccupiedTables = () => {
+    const savedOrders = localStorage.getItem("PESANAN_HARI_INI");
+    const activeTables: number[] = [];
+    if (savedOrders) {
+      try {
+        const parsed = JSON.parse(savedOrders);
+        parsed.forEach((p: { status: string; meja: string }) => {
+          if (p.status !== "Selesai") {
+            const t = parseInt(p.meja.replace('Meja ', ''));
+            if (!isNaN(t)) activeTables.push(t);
+          }
+        });
+      } catch(e) {}
+    }
+    setOccupiedTables(activeTables);
+  };
+
   useEffect(() => {
     // Check local storage on mount
     const checkStatus = () => {
@@ -34,23 +51,6 @@ export default function SmartTableModal() {
       window.removeEventListener("openTableModal", () => setIsOpen(true));
     };
   }, []);
-
-  const loadOccupiedTables = () => {
-    const savedOrders = localStorage.getItem("PESANAN_HARI_INI");
-    const activeTables: number[] = [];
-    if (savedOrders) {
-      try {
-        const parsed = JSON.parse(savedOrders);
-        parsed.forEach((p: any) => {
-          if (p.status !== "Selesai") {
-            const t = parseInt(p.meja.replace('Meja ', ''));
-            if (!isNaN(t)) activeTables.push(t);
-          }
-        });
-      } catch(e) {}
-    }
-    setOccupiedTables(activeTables);
-  };
 
   const handleSelectTable = (t: number, selectedArea: "Indoor" | "Outdoor") => {
     if (occupiedTables.includes(t)) return;
