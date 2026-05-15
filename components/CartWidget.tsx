@@ -21,9 +21,11 @@ export default function CartWidget() {
   useEffect(() => {
     const savedTable = localStorage.getItem("karsa_table_number");
     if (savedTable) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTableNumber(savedTable);
     }
     const status = localStorage.getItem("karsa_status");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsVip(status === "reserved");
   }, []);
 

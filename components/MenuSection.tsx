@@ -71,6 +71,7 @@ export default function MenuSection() {
       setIsVip(localStorage.getItem("karsa_status") === "reserved");
     };
     
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     syncState();
 

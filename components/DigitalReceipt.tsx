@@ -10,13 +10,7 @@ interface DigitalReceiptProps {
 }
 
 export default function DigitalReceipt({ order, isOpen, onClose }: DigitalReceiptProps) {
-  const [qrUrl, setQrUrl] = useState("");
-
-  useEffect(() => {
-    if (order) {
-      setQrUrl(`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${order.id}`);
-    }
-  }, [order]);
+  const qrUrl = order ? `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${order.id}` : "";
 
   if (!isOpen || !order) return null;
 

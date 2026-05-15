@@ -36,6 +36,7 @@ export default function Navbar() {
       setArea(localStorage.getItem("karsa_area") || "Indoor");
     };
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
 
     checkUser();

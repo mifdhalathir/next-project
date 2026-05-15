@@ -1,12 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 
 export default function AtmosphereEngine() {
   const [area, setArea] = useState<string>("Indoor");
-  const [isReserved, setIsReserved] = useState<boolean>(false);
   const [mounted, setMounted] = useState(false);
-  const [particles, setParticles] = useState<React.ReactNode[]>([]);
 
   useEffect(() => {
     const syncAtmosphere = () => {
@@ -16,7 +14,6 @@ export default function AtmosphereEngine() {
       setArea(storedArea);
       const username = localStorage.getItem("karsa_user_name");
       const isVip = username && storedStatus === "reserved";
-      setIsReserved(!!isVip);
 
       document.body.classList.remove("theme-outdoor", "theme-reserved");
       if (isVip) {
@@ -26,6 +23,7 @@ export default function AtmosphereEngine() {
       }
     };
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     syncAtmosphere();
 
@@ -39,10 +37,9 @@ export default function AtmosphereEngine() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!mounted) return;
-    
-    const newParticles = Array.from({ length: 15 }).map((_, i) => {
+  const particles = useMemo(() => {
+    if (!mounted) return [];
+    return Array.from({ length: 15 }).map((_, i) => {
       if (area === "Outdoor") {
         return (
           <div
@@ -77,8 +74,6 @@ export default function AtmosphereEngine() {
         );
       }
     });
-    
-    setParticles(newParticles);
   }, [area, mounted]);
 
   if (!mounted) return null;
