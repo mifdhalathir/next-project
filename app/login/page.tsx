@@ -43,13 +43,17 @@ export default function Login() {
     const savedOrders = localStorage.getItem("PESANAN_HARI_INI");
     const activeTables: number[] = [];
     if (savedOrders) {
-        const parsed = JSON.parse(savedOrders);
-        parsed.forEach((p: { status: string; meja: string }) => {
-            if (p.status !== "Selesai") {
-                const t = parseInt(String(p.meja || "").replace(/[^\d]/g, ''));
-                if (!isNaN(t)) activeTables.push(t);
-            }
-        });
+        try {
+            const parsed = JSON.parse(savedOrders);
+            parsed.forEach((p: { status: string; meja: string }) => {
+                if (p.status !== "Selesai") {
+                    const t = parseInt(String(p.meja || "").replace(/[^\d]/g, ''));
+                    if (!isNaN(t)) activeTables.push(t);
+                }
+            });
+        } catch(e) {
+            console.error("Failed to parse PESANAN_HARI_INI", e);
+        }
     }
     
     // Also check reservations
@@ -73,6 +77,7 @@ export default function Login() {
 
   useEffect(() => {
     if (step === "table") {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         countTableStatus();
     }
   }, [step]);

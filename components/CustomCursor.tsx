@@ -10,9 +10,11 @@ export default function CustomCursor() {
 
   useEffect(() => {
     if (window.matchMedia("(pointer: coarse)").matches) {
-      return; // Disable on touch devices
+      return; 
     }
+    if (typeof window === 'undefined') return;
     
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsVisible(true);
 
     const move = (e: MouseEvent) => {

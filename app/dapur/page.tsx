@@ -25,28 +25,32 @@ export default function DapurPage() {
   const loadData = () => {
     const savedOrders = localStorage.getItem("PESANAN_HARI_INI");
     if (savedOrders) {
-      const parsedOrders: any[] = JSON.parse(savedOrders);
-      const kitchenOrders: Order[] = parsedOrders
-        .filter(p => p.status === "Pending" || p.status === "Preparing" || p.status === "Diracik")
-        .map(p => ({
-            id: p.orderID,
-            tableNumber: String(p.meja || "").replace(/[^\d]/g, ''),
-            customerName: p.nama,
-            items: p.items.map((it: any) => ({ name: it.nama, price: it.harga, qty: it.qty })),
-            total: p.totalHarga,
-            status: (p.status === 'Pending' ? 'received' : 'preparing') as OrderStatus,
-            timestamp: p.id
-        }));
-      
-      setOrders(prev => {
-        // Play ding if there are new pending orders
-        const newPending = kitchenOrders.filter(o => o.status === 'received').length;
-        const oldPending = prev.filter(o => o.status === 'received').length;
-        if (newPending > oldPending) {
-            playDing();
-        }
-        return kitchenOrders;
-      });
+      try {
+        const parsedOrders: any[] = JSON.parse(savedOrders);
+        const kitchenOrders: Order[] = parsedOrders
+          .filter(p => p.status === "Pending" || p.status === "Preparing" || p.status === "Diracik")
+          .map(p => ({
+              id: p.orderID,
+              tableNumber: String(p.meja || "").replace(/[^\d]/g, ''),
+              customerName: p.nama,
+              items: p.items.map((it: any) => ({ name: it.nama, price: it.harga, qty: it.qty })),
+              total: p.totalHarga,
+              status: (p.status === 'Pending' ? 'received' : 'preparing') as OrderStatus,
+              timestamp: p.id
+          }));
+        
+        setOrders(prev => {
+          // Play ding if there are new pending orders
+          const newPending = kitchenOrders.filter(o => o.status === 'received').length;
+          const oldPending = prev.filter(o => o.status === 'received').length;
+          if (newPending > oldPending) {
+              playDing();
+          }
+          return kitchenOrders;
+        });
+      } catch (e) {
+        console.error("Failed to parse PESANAN_HARI_INI in Dapur", e);
+      }
     } else {
       setOrders([]);
     }

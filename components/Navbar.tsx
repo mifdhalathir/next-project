@@ -56,9 +56,11 @@ export default function Navbar() {
     // Default to dark mode (true) if no preference is stored
     if (stored === "false") {
       document.documentElement.classList.remove("dark");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsDark(false);
     } else {
       document.documentElement.classList.add("dark");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsDark(true);
       if (stored === null) localStorage.setItem("darkMode", "true");
     }

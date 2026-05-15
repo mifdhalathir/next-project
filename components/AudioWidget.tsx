@@ -35,6 +35,7 @@ export default function AudioWidget() {
   useEffect(() => {
     const stored = localStorage.getItem('karsa_sound_enabled');
     if (stored === 'false') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setEnabled(false);
     }
   }, []);
