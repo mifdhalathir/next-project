@@ -62,7 +62,7 @@ export default function RecentOrders() {
           </div>
 
           {/* Loyalty Points Mini Widget */}
-          <div className="bg-amber-600/10 border border-amber-500/20 backdrop-blur-xl rounded-[2rem] p-6 flex items-center gap-6 group hover:border-amber-500/40 transition-all duration-500">
+          <div className="bg-amber-600/10 border border-amber-500/20 backdrop-blur-[4px] rounded-[2rem] p-6 flex items-center gap-6 group hover:border-amber-500/40 transition-all duration-500">
             <div className="w-12 h-12 bg-amber-600 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-900/40 group-hover:scale-110 transition-transform">
               <span className="text-2xl">✨</span>
             </div>

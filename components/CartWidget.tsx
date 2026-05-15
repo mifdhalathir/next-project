@@ -52,7 +52,7 @@ export default function CartWidget() {
     <>
       {/* Sticky Order Bar at Bottom */}
       <div
-        className={`fixed bottom-0 left-0 right-0 z-[55] bg-stone-900/95 backdrop-blur-xl border-t border-white/10 px-6 py-4 transition-all duration-500 transform ${
+        className={`fixed bottom-0 left-0 right-0 z-[55] bg-stone-900/95 backdrop-blur-[4px] border-t border-white/10 px-6 py-4 transition-all duration-500 transform ${
           total > 0 ? "translate-y-0" : "translate-y-full"
         }`}
       >
@@ -106,7 +106,7 @@ export default function CartWidget() {
 
       {/* Cart Modal */}
       <div
-        className={`fixed inset-0 bg-black/80 z-[60] backdrop-blur-md transition-opacity flex justify-end ${
+        className={`fixed inset-0 bg-black/80 z-[60] backdrop-blur-[3px] transition-opacity flex justify-end ${
           isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         onClick={(e) => {

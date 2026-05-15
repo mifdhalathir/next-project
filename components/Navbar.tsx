@@ -79,7 +79,7 @@ export default function Navbar() {
           <Link href="/" className="flex flex-col items-center md:items-start group">
             <div className="flex items-center gap-4">
               {logoError ? (
-                <div className="w-11 h-11 bg-amber-500/20 rounded-xl flex items-center justify-center border border-amber-500/30 backdrop-blur-md">
+                <div className="w-11 h-11 bg-amber-500/20 rounded-xl flex items-center justify-center border border-amber-500/30 backdrop-blur-[2px]">
                   <span className="text-xl">☕</span>
                 </div>
               ) : (

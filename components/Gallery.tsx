@@ -57,7 +57,7 @@ export default function Gallery() {
 
       {/* Lightbox Modal */}
       <div 
-        className={`fixed inset-0 z-[100] items-center justify-center bg-black/90 backdrop-blur-2xl transition-all duration-500 ${
+        className={`fixed inset-0 z-[100] items-center justify-center bg-black/90 backdrop-blur-[4px] transition-all duration-500 ${
           lightboxImg ? "flex opacity-100" : "hidden opacity-0 pointer-events-none"
         }`}
         onClick={() => setLightboxImg(null)}

@@ -41,7 +41,7 @@ export default function QueueTracker() {
 
   return (
     <div className="w-full max-w-4xl mx-auto px-6 mb-12" data-aos="fade-up">
-      <div className="relative overflow-hidden bg-stone-900/40 backdrop-blur-xl border border-white/5 rounded-[2rem] p-8 md:p-10">
+      <div className="relative overflow-hidden bg-stone-900/40 backdrop-blur-[4px] border border-white/5 rounded-[2rem] p-8 md:p-10">
         {/* Animated Background Pulse */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-amber-500/5 rounded-full blur-[100px] animate-pulse"></div>
 
