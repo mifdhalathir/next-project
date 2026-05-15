@@ -29,6 +29,7 @@ function useRunningNumber(value: number, duration: number = 1000) {
       }
     };
     window.requestAnimationFrame(step);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, duration]);
   
   return displayValue;
@@ -55,7 +56,7 @@ export default function KasirPage() {
   const [pendingResCount, setPendingResCount] = useState(0);
   const [indoorCapacity, setIndoorCapacity] = useState(0);
   const [outdoorCapacity, setOutdoorCapacity] = useState(0);
-  const [currentTime, setCurrentTime] = useState(Date.now());
+  const [currentTime, setCurrentTime] = useState(0);
 
   const rawTotalRevenue = Number(typeof window !== "undefined" ? localStorage.getItem("karsa_revenue") || 0 : 0);
   const animatedRevenue = useRunningNumber(rawTotalRevenue, 1500);
@@ -236,6 +237,7 @@ export default function KasirPage() {
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
+    setCurrentTime(Date.now());
     loadData();
     const handleStorage = (e: StorageEvent) => {
       if (e.key === "PESANAN_HARI_INI" || e.key === "karsa_pesanan_masuk" || e.key === "karsa_inventory") {

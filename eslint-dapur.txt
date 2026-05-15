@@ -1,0 +1,39 @@
+﻿
+C:\Users\mifdh\OneDrive\Documents\next\app\dapur\page.tsx
+    3:31  warning  'useRef' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+   28:27  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-explicit-any
+   35:37  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-explicit-any
+   56:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\mifdh\OneDrive\Documents\next\app\dapur\page.tsx:56:5
+  54 |
+  55 |   useEffect(() => {
+> 56 |     setCurrentTime(Date.now());
+     |     ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  57 |     // eslint-disable-next-line react-hooks/set-state-in-effect
+  58 |     loadData();
+  59 |  react-hooks/set-state-in-effect
+   57:5   warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/set-state-in-effect')
+   80:27  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-explicit-any
+  175:60  error    Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+C:\Users\mifdh\OneDrive\Documents\next\app\dapur\page.tsx:175:60
+  173 |           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-12">
+  174 |             {[...orders].sort((a, b) => a.timestamp - b.timestamp).map((order) => {
+> 175 |               const waitTime = Math.floor(((currentTime || Date.now()) - order.timestamp) / 60000);
+      |                                                            ^^^^^^^^^^ Cannot call impure function
+  176 |               const isLate = waitTime >= 15;
+  177 |               const isPriority = isOnlyDrinks(order.items);
+  178 |               const isPreparing = order.status === 'preparing';                             react-hooks/purity
+
+Γ£û 7 problems (5 errors, 2 warnings)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
+

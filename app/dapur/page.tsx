@@ -53,8 +53,8 @@ export default function DapurPage() {
   };
 
   useEffect(() => {
-    setCurrentTime(Date.now());
     // eslint-disable-next-line react-hooks/set-state-in-effect
+    setCurrentTime(Date.now());
     loadData();
 
     const handleMouseMove = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY });
@@ -172,7 +172,8 @@ export default function DapurPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-12">
             {[...orders].sort((a, b) => a.timestamp - b.timestamp).map((order) => {
-              const waitTime = Math.floor(((currentTime || Date.now()) - order.timestamp) / 60000);
+              const timeToUse = currentTime || order.timestamp;
+              const waitTime = Math.floor((timeToUse - order.timestamp) / 60000);
               const isLate = waitTime >= 15;
               const isPriority = isOnlyDrinks(order.items);
               const isPreparing = order.status === 'preparing';
