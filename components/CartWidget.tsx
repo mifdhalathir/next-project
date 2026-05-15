@@ -29,7 +29,8 @@ export default function CartWidget() {
   const handlePlaceOrder = () => {
     if (total === 0) return;
     if (!tableNumber) {
-      alert("Silakan masukkan Nomor Meja terlebih dahulu!");
+      setIsOpen(false);
+      window.dispatchEvent(new Event("openTableModal"));
       return;
     }
     // Save payment method to localStorage for receipt

@@ -40,6 +40,7 @@ const MENU_ITEMS = [
 
 export default function MenuSection() {
   const [filter, setFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const { cart, updateQty } = useCart();
   const [inventory, setInventory] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -68,14 +69,20 @@ export default function MenuSection() {
     };
   }, []);
 
-  const filteredItems = filter === "all" ? MENU_ITEMS : MENU_ITEMS.filter((item) => item.category === filter);
+  let filteredItems = filter === "all" ? MENU_ITEMS : MENU_ITEMS.filter((item) => item.category === filter);
+  if (searchTerm) {
+    filteredItems = filteredItems.filter(item => 
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      item.desc.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }
 
   return (
     <section id="menu" className="py-24 px-4 bg-theme">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16" data-aos="fade-up">
           <p className="text-amber-500 tracking-[.4em] text-xs uppercase mb-3 font-bold">Pilihan Terbaik</p>
-          <h2 className="font-display text-4xl md:text-5xl font-bold text-theme">Menu Favorit</h2>
+          <h2 className="font-display text-4xl md:text-5xl font-bold text-theme">Menu Kami</h2>
           <div className="w-20 h-1 bg-amber-600 mx-auto mt-6"></div>
           
           {/* [CORE SYSTEM] Area Banner */}
@@ -106,8 +113,74 @@ export default function MenuSection() {
           })()}
         </div>
 
+        {/* Rekomendasi Barista Section */}
+        <div className="mb-24">
+          <div className="text-center mb-10" data-aos="fade-up">
+            <p className="text-amber-500 tracking-[.4em] text-[10px] uppercase mb-2 font-bold">✨ Pilihan Kami</p>
+            <h3 className="font-display text-3xl md:text-4xl font-bold text-theme">Rekomendasi Barista</h3>
+            <div className="w-10 h-0.5 bg-amber-600 mx-auto mt-4"></div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { id: 16, name: "Kopi Susu Karsa", price: 18000, img: "https://images.pexels.com/photos/2615323/pexels-photo-2615323.jpeg?auto=compress&cs=tinysrgb&w=800", desc: "Signature es kopi susu, andalan semua kalangan." },
+              { id: 7, name: "Iced Americano", price: 15000, img: "https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&w=800", desc: "Espresso dengan air es segar, cocok buat fokus." },
+              { id: 15, name: "Matcha Latte", price: 22000, img: "https://images.unsplash.com/photo-1515823064-d6e0c04616a7?q=80&w=800&auto=format&fit=crop", desc: "Matcha premium dengan susu segar yang creamy." }
+            ].map((item, index) => {
+              const qty = cart[item.name]?.qty || 0;
+              return (
+                <div key={item.id} className="relative bg-stone-900 border border-amber-600/20 rounded-3xl overflow-hidden shadow-[0_0_30px_rgba(245,158,11,0.15)] group" data-aos="fade-up" data-aos-delay={index * 100}>
+                  <div className="absolute top-0 right-0 bg-amber-600 text-white text-[10px] font-black px-4 py-1.5 rounded-bl-xl z-20 tracking-widest shadow-lg">BEST SELLER</div>
+                  <div className="h-56 overflow-hidden relative">
+                    <img src={item.img} alt={item.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/50 to-transparent"></div>
+                  </div>
+                  <div className="p-6 relative z-10 -mt-16">
+                    <h4 className="font-display text-xl font-bold text-white mb-1">{item.name}</h4>
+                    <p className="text-stone-400 text-xs mb-6 h-8">{item.desc}</p>
+                    <div className="flex justify-between items-center">
+                      <p className="text-amber-500 font-bold">Rp {item.price.toLocaleString("id-ID")}</p>
+                      <button 
+                        onClick={() => { updateQty(item.name, qty + 1, item.price); playSound('click'); }} 
+                        className="bg-amber-600 hover:bg-amber-500 text-white px-5 py-2 rounded-xl text-xs font-bold transition shadow-lg active:scale-95"
+                      >
+                        Tambah
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Mood & Search Section */}
+        <div className="max-w-xl mx-auto mb-16 text-center" data-aos="fade-up">
+          <p className="text-stone-400 text-[10px] uppercase tracking-widest font-bold mb-6">Lagi Ngerasa Gimana Hari Ini?</p>
+          <div className="flex justify-center gap-4 mb-8">
+            {['🥺', '😴', '🤩', '🤓'].map((emoji, i) => (
+              <button 
+                key={i} 
+                className="w-14 h-14 rounded-full border border-white/10 bg-white/5 hover:border-amber-500 hover:bg-amber-500/10 flex items-center justify-center text-2xl transition-all hover:scale-110 hover:shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+          <div className="relative">
+            <span className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-400 text-lg">🔍</span>
+            <input 
+              type="text" 
+              placeholder="Cari menu kopi, makanan..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-white/5 border border-white/10 rounded-full py-4 pl-14 pr-6 text-sm text-white placeholder-stone-500 focus:outline-none focus:border-amber-500 focus:bg-white/10 transition-all shadow-inner"
+            />
+          </div>
+        </div>
+
         {/* Categories Filter */}
-        <div className="flex flex-wrap justify-center gap-4 mb-16" data-aos="fade-up" data-aos-delay="100">
+        <div className="flex flex-wrap justify-center gap-4 mb-12" data-aos="fade-up">
           {[
             { id: "all", label: "Semua", icon: "🍱" },
             { id: "snacks", label: "Snacks", icon: "🍟" },

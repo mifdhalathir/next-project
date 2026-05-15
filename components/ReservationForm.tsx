@@ -61,6 +61,7 @@ export default function ReservationForm() {
     e.preventDefault();
     const newErrors: string[] = [];
     if (!formData.nama) newErrors.push("nama");
+    if (!formData.area) newErrors.push("area");
     if (!formData.jumlah) newErrors.push("jumlah");
     if (!formData.tanggal) newErrors.push("tanggal");
     if (!formData.jam) newErrors.push("jam");
@@ -85,7 +86,7 @@ export default function ReservationForm() {
         name: formData.nama,
         time: `${formData.tanggal} ${formData.jam}`,
         guests: parseInt(formData.jumlah),
-        notes: `Area: ${localStorage.getItem('karsa_area') || 'Indoor'}. ${formData.catatan}`,
+        notes: `Area: ${formData.area}. ${formData.catatan}`,
       });
 
       setFormData({ nama: "", area: "", jumlah: "", tanggal: "", jam: "", catatan: "" });
@@ -129,6 +130,41 @@ export default function ReservationForm() {
                 }`}
               />
             </div>
+
+            {/* Area Selection */}
+            <div>
+              <label className="block text-cream-200 text-[10px] uppercase tracking-widest font-bold mb-3 flex items-center gap-2">
+                <span className="text-amber-500">🪑</span> PILIH AREA DUDUK
+              </label>
+              <div className={`grid grid-cols-2 gap-4 ${errors.includes("area") ? "p-1 border border-red-500 rounded-2xl shake" : ""}`}>
+                <button
+                  type="button"
+                  onClick={() => { setFormData({ ...formData, area: "Indoor" }); setErrors(errors.filter(e => e !== "area")); }}
+                  className={`relative p-5 rounded-2xl border transition-all flex flex-col items-center justify-center gap-2 ${formData.area === "Indoor" ? "bg-amber-500/10 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]" : "bg-white/5 border-white/10 hover:border-white/20"}`}
+                >
+                  <span className="text-3xl mb-1">🏠</span>
+                  <span className="text-xs font-black text-white tracking-widest uppercase">INDOOR</span>
+                  <span className="text-[9px] text-green-500 font-black tracking-widest uppercase">
+                    ({capacity.indoor.used}/{capacity.indoor.total} MEJA) - SEPI
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setFormData({ ...formData, area: "Outdoor" }); setErrors(errors.filter(e => e !== "area")); }}
+                  className={`relative p-5 rounded-2xl border transition-all flex flex-col items-center justify-center gap-2 ${formData.area === "Outdoor" ? "bg-amber-500/10 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]" : "bg-white/5 border-white/10 hover:border-white/20"}`}
+                >
+                  <span className="text-3xl mb-1">🌿</span>
+                  <span className="text-xs font-black text-white tracking-widest uppercase">OUTDOOR</span>
+                  <span className="text-[9px] text-green-500 font-black tracking-widest uppercase">
+                    ({capacity.outdoor.used}/{capacity.outdoor.total} MEJA) - SEPI
+                  </span>
+                </button>
+              </div>
+              <button type="button" className="w-full mt-3 py-3 border border-dashed border-white/20 rounded-xl text-[10px] font-bold text-stone-400 hover:text-white hover:bg-white/5 transition flex items-center justify-center gap-2 tracking-widest uppercase">
+                🗺️ LIHAT PETA MEJA
+              </button>
+            </div>
+
             <div className="grid grid-cols-1 gap-4">
               <div>
                 <label className="block text-cream-200 text-sm mb-1.5">Jumlah Orang</label>

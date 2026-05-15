@@ -59,87 +59,59 @@ export default function StatusMeja() {
 
         <div className="grid md:grid-cols-2 gap-8 mb-12">
           {/* Indoor Area */}
-          <div className="glass-card p-10 rounded-[3rem] border border-white/5 relative group transition-all duration-500 hover:border-amber-500/20" data-aos="fade-right">
-            <div className="flex justify-between items-start mb-8">
-              <div>
-                <h3 className="text-2xl font-black text-white tracking-tight uppercase italic mb-2">🏠 Area Indoor</h3>
-                <p className="text-stone-500 text-xs font-bold uppercase tracking-widest">{indoor.label}</p>
-              </div>
+          <div className="bg-[#1a1412] p-10 rounded-3xl border border-white/5 relative group transition-all duration-500" data-aos="fade-right">
+            <h3 className="text-center text-xl font-bold text-cream-100 mb-6 flex items-center justify-center gap-2">
+              🏠 Area Indoor
+            </h3>
+            <div className="flex items-center justify-center gap-2 mb-5">
               <div className={`w-3 h-3 rounded-full ${indoor.bg} ${indoor.glow} animate-pulse`}></div>
+              <span className={`${indoor.color} font-bold text-sm tracking-wide`}>
+                {Math.floor((indoorCapacity/100)*10)}/10 Meja Terpakai
+              </span>
             </div>
-
-            <div className="relative pt-1">
-              <div className="flex mb-4 items-center justify-between">
-                <div>
-                  <span className={`text-3xl font-black inline-block ${indoor.color} tracking-tighter`}>
-                    {indoorCapacity}%
-                  </span>
-                  <span className="text-stone-600 text-[10px] font-black uppercase tracking-widest ml-2">Occupied</span>
-                </div>
-              </div>
-              <div className="overflow-hidden h-2 mb-6 text-xs flex rounded-full bg-white/5">
-                <div 
-                  style={{ width: `${indoorCapacity}%` }} 
-                  className={`shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center ${indoor.bg} transition-all duration-1000 ease-out`}
-                ></div>
-              </div>
+            <div className="w-full h-3 bg-white/10 rounded-full mb-6 relative overflow-hidden">
+               <div 
+                 className={`absolute top-0 left-0 h-full rounded-full transition-all duration-1000 bg-stone-600`}
+                 style={{ width: `${indoorCapacity}%` }}
+               ></div>
             </div>
-            <p className="text-stone-400 text-sm font-medium leading-relaxed italic opacity-80">
-              "{getStatusText(indoorCapacity, "Indoor")}"
+            <p className="text-stone-400 text-sm text-center">
+              Saat ini area Indoor sedang <span className="font-bold">{indoorCapacity}% penuh</span>
             </p>
           </div>
 
           {/* Outdoor Area */}
-          <div className="glass-card p-10 rounded-[3rem] border border-white/5 relative group transition-all duration-500 hover:border-amber-500/20" data-aos="fade-left">
-            <div className="flex justify-between items-start mb-8">
-              <div>
-                <h3 className="text-2xl font-black text-white tracking-tight uppercase italic mb-2">🌿 Area Outdoor</h3>
-                <p className="text-stone-500 text-xs font-bold uppercase tracking-widest">{outdoor.label}</p>
-              </div>
+          <div className="bg-[#1a1412] p-10 rounded-3xl border border-white/5 relative group transition-all duration-500" data-aos="fade-left">
+            <h3 className="text-center text-xl font-bold text-cream-100 mb-6 flex items-center justify-center gap-2">
+              🌿 Area Outdoor
+            </h3>
+            <div className="flex items-center justify-center gap-2 mb-5">
               <div className={`w-3 h-3 rounded-full ${outdoor.bg} ${outdoor.glow} animate-pulse`}></div>
+              <span className={`${outdoor.color} font-bold text-sm tracking-wide`}>
+                {Math.floor((outdoorCapacity/100)*5)}/5 Meja Terpakai
+              </span>
             </div>
-
-            <div className="relative pt-1">
-              <div className="flex mb-4 items-center justify-between">
-                <div>
-                  <span className={`text-3xl font-black inline-block ${outdoor.color} tracking-tighter`}>
-                    {outdoorCapacity}%
-                  </span>
-                  <span className="text-stone-600 text-[10px] font-black uppercase tracking-widest ml-2">Occupied</span>
-                </div>
-              </div>
-              <div className="overflow-hidden h-2 mb-6 text-xs flex rounded-full bg-white/5">
-                <div 
-                  style={{ width: `${outdoorCapacity}%` }} 
-                  className={`shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center ${outdoor.bg} transition-all duration-1000 ease-out`}
-                ></div>
-              </div>
+            <div className="w-full h-3 bg-white/10 rounded-full mb-6 relative overflow-hidden">
+               <div 
+                 className={`absolute top-0 left-0 h-full rounded-full transition-all duration-1000 bg-stone-600`}
+                 style={{ width: `${outdoorCapacity}%` }}
+               ></div>
             </div>
-            <p className="text-stone-400 text-sm font-medium leading-relaxed italic opacity-80">
-              "{getStatusText(outdoorCapacity, "Outdoor")}"
+            <p className="text-stone-400 text-sm text-center">
+              Area Outdoor <span className="font-bold">{outdoorCapacity > 80 ? 'hampir penuh' : 'masih luas'}</span>, yuk merapat!
             </p>
           </div>
         </div>
 
         {/* Dynamic Alert Banner */}
         <div 
-          className={`glass-card p-6 rounded-3xl border ${isWaitlist ? 'border-red-500/30' : 'border-green-500/30'} flex items-center justify-center gap-6 max-w-2xl mx-auto shadow-2xl transition-all duration-500 hover:scale-[1.02]`}
+          className={`bg-[#e6ffe6] px-8 py-5 rounded-2xl border border-green-500/20 flex items-center justify-center gap-4 max-w-xl mx-auto shadow-2xl transition-all duration-500 mt-8`}
           data-aos="zoom-in"
         >
-          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl ${isWaitlist ? 'bg-red-500/10 text-red-500' : 'bg-green-500/10 text-green-500'}`}>
-            {isWaitlist ? "⏳" : "✨"}
-          </div>
-          <div>
-            <p className={`text-[10px] font-black uppercase tracking-[0.3em] mb-1 ${isWaitlist ? 'text-red-500' : 'text-green-500'}`}>
-              Current Situation
-            </p>
-            <p className="text-white font-bold text-sm tracking-tight">
-              {isWaitlist ? "Antrean saat ini sekitar 15 menit. Yuk amankan mejamu!" : "Meja tersedia di kedua area. Langsung gas ke lokasi!"}
-            </p>
-          </div>
-          <button onClick={() => document.getElementById('reservasi')?.scrollIntoView({ behavior: 'smooth' })} className={`ml-auto px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${isWaitlist ? 'bg-red-600 text-white hover:bg-white hover:text-black' : 'bg-green-600 text-white hover:bg-white hover:text-black'}`}>
-            {isWaitlist ? "Reservasi" : "Arahkan"}
-          </button>
+          <div className="text-xl">⏳</div>
+          <p className="text-green-800 font-bold text-sm tracking-wide">
+            Meja tersedia, langsung gas ke lokasi!
+          </p>
         </div>
 
         <p className="text-center text-stone-600 text-[9px] font-bold uppercase tracking-[0.4em] mt-12 italic">

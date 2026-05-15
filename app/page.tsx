@@ -32,6 +32,7 @@ import LoyaltyCard from "@/components/LoyaltyCard";
 import CustomerReviewWall from "@/components/CustomerReviewWall";
 import AreaBanner from "@/components/AreaBanner";
 import SmartRecommendation from "@/components/SmartRecommendation";
+import SmartTableModal from "@/components/SmartTableModal";
 
 export default function Home() {
   useEffect(() => {
@@ -61,6 +62,7 @@ export default function Home() {
       <PageTransition />
       <CustomCursor />
       <OfflineToast />
+      <SmartTableModal />
       <Navbar />
       <AreaBanner />
       <main>

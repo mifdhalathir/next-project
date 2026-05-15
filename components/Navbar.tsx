@@ -11,6 +11,7 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const [logoError, setLogoError] = useState(false);
+  const [currentTime, setCurrentTime] = useState("");
 
   const [userName, setUserName] = useState<string | null>(null);
   const [tableNumber, setTableNumber] = useState<string | null>(null);
@@ -19,6 +20,11 @@ export default function Navbar() {
     const handleScroll = () => {
       setScrolled(window.scrollY >= 80);
     };
+
+    const timer = setInterval(() => {
+      const now = new Date();
+      setCurrentTime(now.toLocaleTimeString('id-ID', { hour12: false }));
+    }, 1000);
     
     const checkUser = () => {
       setUserName(localStorage.getItem("karsa_user_name"));
@@ -30,6 +36,7 @@ export default function Navbar() {
     window.addEventListener("storage", checkUser);
     
     return () => {
+      clearInterval(timer);
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("storage", checkUser);
     };
@@ -111,6 +118,11 @@ export default function Navbar() {
             <button onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })} className="nav-link text-xs tracking-widest font-bold uppercase">MENU</button>
             <button onClick={() => document.getElementById('reservasi')?.scrollIntoView({ behavior: 'smooth' })} className="nav-link text-xs tracking-widest font-bold uppercase">RESERVASI</button>
             <button onClick={() => document.getElementById('kontak')?.scrollIntoView({ behavior: 'smooth' })} className="nav-link text-xs tracking-widest font-bold uppercase">KONTAK</button>
+            
+            <div className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-[10px] font-black tracking-widest text-white ml-2">
+               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+               {currentTime || "00:00:00"} <span className="text-green-500 ml-1">OPEN NOW</span>
+            </div>
           </div>
           <div className="flex items-center gap-4">
             <button
