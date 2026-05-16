@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Order, OrderStatus } from "@/components/CartProvider";
-import { addKarsaNotification } from "@/components/NotificationHub";
 import { addActivityLog } from "@/components/ActivityLog";
 
 export default function DapurPage() {
+  const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({});
-  const [currentTime, setCurrentTime] = useState(0);
+  const [currentTime, setCurrentTime] = useState(Date.now());
+  const [isProcessing, setIsProcessing] = useState<string | null>(null);
 
   interface RawOrder {
     orderID: string;
@@ -23,13 +24,10 @@ export default function DapurPage() {
 
   const playDing = () => {
     try {
-      // Placeholder ding sound
       const audio = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
-      audio.volume = 0.5;
-      audio.play().catch(e => console.log("Audio play prevented by browser", e));
-    } catch (e) {
-      console.error(e);
-    }
+      audio.volume = 0.4;
+      audio.play().catch(() => {});
+    } catch (e) {}
   };
 
   const loadData = () => {
@@ -38,309 +36,189 @@ export default function DapurPage() {
       try {
         const parsedOrders: RawOrder[] = JSON.parse(savedOrders);
         const kitchenOrders: Order[] = parsedOrders
-          .filter(p => p.status === "Pending" || p.status === "Preparing" || p.status === "Diracik")
+          .filter(p => p.status === "Pending" || p.status === "Diracik" || p.status === "Dikonfirmasi")
           .map(p => ({
               id: p.orderID,
               tableNumber: String(p.meja || "").replace(/[^\d]/g, ''),
               customerName: p.nama,
               items: p.items.map(it => ({ name: it.nama, price: it.harga, qty: it.qty })),
               total: p.totalHarga,
-              status: (p.status === 'Pending' ? 'received' : 'preparing') as OrderStatus,
+              status: (p.status === 'Pending' ? 'received' : (p.status === 'Diracik' ? 'preparing' : 'ready')) as OrderStatus,
               timestamp: p.id
           }));
         
         setOrders(prev => {
-          // Play ding if there are new pending orders
-          const newPending = kitchenOrders.filter(o => o.status === 'received').length;
-          const oldPending = prev.filter(o => o.status === 'received').length;
-          if (newPending > oldPending) {
+          if (kitchenOrders.filter(o => o.status === 'received').length > prev.filter(o => o.status === 'received').length) {
               playDing();
           }
           return kitchenOrders;
         });
-      } catch (e) {
-        console.error("Failed to parse PESANAN_HARI_INI in Dapur", e);
-      }
+      } catch (e) {}
     } else {
       setOrders([]);
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("karsa_user_name");
+    localStorage.removeItem("karsa_table_number");
+    localStorage.removeItem("karsa_area");
+    sessionStorage.clear();
+    router.push("/login");
+  };
+
   useEffect(() => {
-    requestAnimationFrame(() => {
-        setCurrentTime(Date.now());
-        loadData();
-    });
-
-    const handleMouseMove = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY });
-
+    loadData();
     window.addEventListener("storage", loadData);
-    window.addEventListener("mousemove", handleMouseMove);
-    const interval = setInterval(loadData, 2000);
-    const timeInterval = setInterval(() => setCurrentTime(Date.now()), 60000);
-    
+    const interval = setInterval(loadData, 3000);
+    const timeInterval = setInterval(() => setCurrentTime(Date.now()), 1000);
     return () => {
       window.removeEventListener("storage", loadData);
-      window.removeEventListener("mousemove", handleMouseMove);
       clearInterval(interval);
       clearInterval(timeInterval);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const updateOrderStatus = (orderId: string, newStatus: OrderStatus) => {
+    setIsProcessing(orderId);
     const savedOrders = localStorage.getItem("PESANAN_HARI_INI");
-
     if (savedOrders) {
       let pesananHariIni: RawOrder[] = JSON.parse(savedOrders);
-      // Consistent status mapping for Kitchen -> Global
-      const mappedStatus = newStatus === 'preparing' ? 'Diracik' : (newStatus === 'cooked' ? 'Dikonfirmasi' : 'Pending');
-
+      const mappedStatus = newStatus === 'preparing' ? 'Diracik' : (newStatus === 'ready' ? 'Dikonfirmasi' : 'Pending');
+      
       pesananHariIni = pesananHariIni.map(p => {
         if (p.orderID === orderId) {
-            if (newStatus === "preparing") {
-                addKarsaNotification(`Pesanan ${p.nama} (Meja ${p.meja}) sedang diproses`, "info");
-                addActivityLog(`Dapur: Mulai masak ${p.orderID} (${p.nama})`, "status");
-            } else if (newStatus === "cooked") {
-                addKarsaNotification(`Pesanan ${p.nama} (Meja ${p.meja}) SELESAI dimasak`, "success");
-                addActivityLog(`Dapur: Selesai masak ${p.orderID} (${p.nama})`, "status");
-            }
-            return { ...p, status: mappedStatus };
+          addActivityLog(`Order ${orderId} status → ${mappedStatus}`, "status");
+          return { ...p, status: mappedStatus };
         }
         return p;
       });
-
+      
       localStorage.setItem("PESANAN_HARI_INI", JSON.stringify(pesananHariIni));
-
-      // Sync with karsa_pesanan_masuk for history
-      const savedMasuk = localStorage.getItem("karsa_pesanan_masuk");
-      if (savedMasuk) {
-          let parsedMasuk: any[] = JSON.parse(savedMasuk);
-          const masukStatusMap: Record<string, string> = { 'Pending': 'menunggu', 'Diracik': 'proses', 'Dikonfirmasi': 'selesai' };
-          parsedMasuk = parsedMasuk.map(pm => pm.id === orderId || pm.orderID === orderId ? { ...pm, status: masukStatusMap[mappedStatus] } : pm);
-          localStorage.setItem("karsa_pesanan_masuk", JSON.stringify(parsedMasuk));
-      }
-
       window.dispatchEvent(new Event("storage"));
       loadData();
     }
+    setTimeout(() => setIsProcessing(null), 500);
   };
 
-  const getCategoryIcon = (name: string) => {
-    const n = name.toLowerCase();
-    if (n.includes("kopi") || n.includes("espresso") || n.includes("latte") || n.includes("americano")) return "☕";
-    if (n.includes("cake") || n.includes("brownies") || n.includes("donat") || n.includes("waffle")) return "🍰";
-    if (n.includes("teh") || n.includes("lemon") || n.includes("milo") || n.includes("matcha")) return "🍵";
-    if (n.includes("kentang") || n.includes("nugget") || n.includes("cireng")) return "🍟";
-    return "🍽️";
-  };
-
-  const isOnlyDrinks = (items: {name: string}[]) => {
-    return items.every(item => {
-      const n = item.name.toLowerCase();
-      return n.includes("kopi") || n.includes("espresso") || n.includes("latte") || 
-             n.includes("americano") || n.includes("teh") || n.includes("lemon") || 
-             n.includes("milo") || n.includes("matcha") || n.includes("yakult") || n.includes("squash");
-    });
-  };
-
-  const toggleCheck = (orderId: string, itemIdx: number) => {
-    const key = `${orderId}-${itemIdx}`;
+  const toggleCheck = (orderId: string, itemName: string) => {
+    const key = `${orderId}-${itemName}`;
     setCheckedItems(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
   return (
-    <div className="min-h-screen bg-[#02050A] text-white p-6 font-mono cursor-none flex flex-col relative overflow-hidden selection:bg-[#00F2FF]/30">
-      {/* Cyber-Industrial Scanlines & Noise */}
-      <div className="cyber-scanlines"></div>
-      
-      {/* Background Ambience */}
-      <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#00F2FF]/10 rounded-full blur-[150px] animate-pulse"></div>
-      <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#39FF14]/5 rounded-full blur-[150px] animate-pulse" style={{ animationDelay: '3s' }}></div>
+    <div className="min-h-screen bg-[#020617] text-white font-sans selection:bg-cyan-500/30 overflow-hidden flex flex-col">
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-20 pointer-events-none"></div>
 
-      {/* Custom White Cursor */}
-      <div 
-        className="fixed w-6 h-6 border-2 border-[#00F2FF] rounded-full pointer-events-none z-[9999] transition-transform duration-75 ease-out mix-blend-screen"
-        style={{ left: mousePos.x, top: mousePos.y, transform: `translate(-50%, -50%)`, boxShadow: '0 0 15px rgba(0,242,255,0.5)' }}
-      ></div>
-      <div 
-        className="fixed w-1.5 h-1.5 bg-[#00F2FF] rounded-full pointer-events-none z-[9999] transition-transform duration-150 ease-out"
-        style={{ left: mousePos.x, top: mousePos.y, transform: `translate(-50%, -50%)` }}
-      ></div>
-
-      <header className="grid grid-cols-12 gap-6 mb-8 relative z-10">
-        <div className="col-span-12 lg:col-span-8 cyber-glass p-8 flex flex-col justify-center">
-          <div className="flex items-center gap-5 mb-2">
-            <div className="w-16 h-16 bg-[#00F2FF]/20 rounded-xl border border-[#00F2FF]/50 flex items-center justify-center shadow-[0_0_20px_rgba(0,242,255,0.3)]">
-              <span className="text-3xl filter brightness-200">🍳</span>
-            </div>
-            <div>
-              <h1 className="text-4xl font-black tracking-tighter uppercase text-[#00F2FF] drop-shadow-[0_0_10px_rgba(0,242,255,0.8)]">
-                KITCHEN <span className="text-white">SYS_01</span>
-              </h1>
-              <p className="text-[#00F2FF]/60 text-[10px] uppercase tracking-[0.5em] font-bold">High-Efficiency KDS Mode • Live Sync Active</p>
-            </div>
+      <header className="h-20 bg-slate-900/50 backdrop-blur-md border-b border-cyan-500/20 px-8 flex items-center justify-between relative z-10">
+        <div className="flex items-center gap-6">
+          <div className="w-12 h-12 bg-cyan-500/20 border border-cyan-500/50 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.3)]">
+             <span className="text-2xl">🔥</span>
+          </div>
+          <div>
+            <h1 className="text-xl font-black tracking-widest text-cyan-400">KITCHEN<span className="text-white">_COMMAND</span></h1>
+            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.4em]">Operational Display System v4.2</p>
           </div>
         </div>
-        
-        <div className="col-span-12 lg:col-span-4 cyber-glass p-6 flex flex-col items-center justify-center text-center border-t-4 border-t-[#00F2FF]">
-          <span className="text-[10px] text-[#00F2FF] uppercase tracking-widest mb-1 font-bold">Active Queue</span>
-          <span className="text-5xl font-black text-white tracking-tighter drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">{orders.length}</span>
+
+        <div className="flex items-center gap-8">
+          <div className="flex flex-col items-end">
+            <span className="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-1">Active Queue</span>
+            <span className="text-xl font-black text-white">{orders.length} <span className="text-cyan-500 text-sm">ORDERS</span></span>
+          </div>
+          <div className="w-px h-10 bg-white/5"></div>
+          <button 
+            onClick={handleLogout}
+            className="px-6 py-2 bg-red-500/10 hover:bg-red-500 border border-red-500/20 hover:border-red-500 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all duration-300"
+          >
+            Terminal Logout
+          </button>
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto custom-scrollbar pr-2 relative z-10">
-        {orders.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center py-40 opacity-30 cyber-glass border-dashed">
-            <div className="text-8xl mb-6 grayscale opacity-50">💤</div>
-            <p className="font-black uppercase text-xl tracking-[0.4em] text-center text-[#00F2FF]">System Idle</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-12">
-            {[...orders].sort((a, b) => a.timestamp - b.timestamp).map((order) => {
-              const timeToUse = currentTime || order.timestamp;
-              const waitTime = Math.floor((timeToUse - order.timestamp) / 60000);
-              const isLate = waitTime >= 15;
-              const isPriority = isOnlyDrinks(order.items);
-              const isPreparing = order.status === 'preparing';
-
-              // Neon Colors Based on Status
-              const accentColor = isPreparing ? '#39FF14' : '#00F2FF'; // Electric Green vs Neon Blue
-              const bgGlow = isPreparing ? 'rgba(57, 255, 20, 0.1)' : 'rgba(0, 242, 255, 0.1)';
-
+      <main className="flex-1 p-8 overflow-hidden relative z-10 flex gap-8">
+        <div className="flex-1 overflow-y-auto pr-4 custom-scrollbar">
+          <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
+            {orders.length > 0 ? orders.map((order) => {
+              const timeElapsed = Math.floor((currentTime - order.timestamp) / 60000);
+              const isUrgent = timeElapsed > 15;
               return (
-                <div 
-                  key={order.id} 
-                  className="relative cyber-card flex flex-col transition-all duration-500 animate-in zoom-in-95"
-                  style={{
-                    borderColor: isLate ? '#FF003C' : accentColor,
-                    boxShadow: isLate ? `0 0 30px rgba(255,0,60,0.3)` : `0 0 20px ${bgGlow}`,
-                  }}
-                >
-                  {/* Priority Badge */}
-                  {isPriority && (
-                    <div className="absolute -top-3 -right-3 bg-[#FFBF00] text-black text-[10px] font-black px-4 py-1 rounded-sm shadow-[0_0_15px_#FFBF00] border border-black z-20 animate-pulse uppercase tracking-widest transform rotate-3">
-                      ⚡ KILAT
-                    </div>
-                  )}
-
-                  <div className="p-5 border-b flex justify-between items-center bg-black/40" style={{ borderColor: `${accentColor}40` }}>
-                    <div>
-                      <span className="px-2 py-0.5 rounded-sm text-[10px] font-black uppercase tracking-widest mb-2 inline-block bg-black border" style={{ color: accentColor, borderColor: accentColor }}>TBL_{order.tableNumber}</span>
-                      <h3 className="font-black text-xl tracking-tighter leading-none mt-1 text-white">{order.id}</h3>
-                    </div>
-                    <div className="text-right">
-                      <div className={`flex items-center gap-2 px-3 py-1.5 rounded-sm border ${isLate ? 'bg-[#FF003C]/20 text-[#FF003C] border-[#FF003C] animate-pulse shadow-[0_0_15px_#FF003C]' : 'bg-black border-white/20 text-white'}`}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={isPreparing ? 'animate-spin' : ''}><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                        <span className="text-[12px] font-black">{waitTime}m</span>
+                <div key={order.id} className={`bg-slate-900/80 border rounded-[2rem] overflow-hidden transition-all duration-500 ${
+                  isUrgent ? 'border-red-500/50 shadow-[0_0_30px_rgba(239,68,68,0.1)]' : 'border-slate-800 hover:border-cyan-500/30'
+                } ${isProcessing === order.id ? 'scale-[0.98] opacity-50' : ''}`}>
+                  <div className={`px-6 py-4 flex items-center justify-between ${
+                    order.status === 'received' ? 'bg-cyan-500/10' : (order.status === 'preparing' ? 'bg-amber-500/10' : 'bg-green-500/10')
+                  }`}>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-black/40 rounded-2xl flex items-center justify-center border border-white/5">
+                        <span className="text-2xl font-black text-white">{order.tableNumber}</span>
+                      </div>
+                      <div>
+                        <h3 className="font-black text-sm uppercase tracking-tight">{order.customerName}</h3>
+                        <p className="text-[9px] font-bold text-slate-500">#{order.id}</p>
                       </div>
                     </div>
+                    <p className={`text-[10px] font-black uppercase ${isUrgent ? 'text-red-500 animate-pulse' : 'text-slate-400'}`}>{timeElapsed}m ELAPSED</p>
                   </div>
-
-                  <div className="p-5 flex-1 space-y-3 bg-black/20">
-                    {order.items.map((item, i) => {
-                      const isChecked = checkedItems[`${order.id}-${i}`];
+                  <div className="p-6 space-y-3">
+                    {order.items.map((it, idx) => {
+                      const isChecked = checkedItems[`${order.id}-${it.name}`];
                       return (
-                        <div 
-                          key={i} 
-                          onClick={() => toggleCheck(order.id, i)}
-                          className={`flex justify-between items-center p-3 rounded-sm border cursor-pointer transition-all ${isChecked ? 'bg-white/5 border-white/10 opacity-50 grayscale' : 'bg-black/50 hover:bg-white/5'} border-white/10`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className={`w-5 h-5 rounded-sm border flex items-center justify-center ${isChecked ? 'bg-[#39FF14] border-[#39FF14]' : 'border-white/30'}`}>
-                                {isChecked && <span className="text-black text-[10px] font-black">✓</span>}
-                            </div>
-                            <span className="text-xl">{getCategoryIcon(item.name)}</span>
-                            <div>
-                              <span className={`text-sm font-bold block leading-tight ${isChecked ? 'line-through text-stone-500' : 'text-white'}`}>{item.name}</span>
-                              <p className="text-[10px] text-stone-400 font-bold mt-0.5">QTY: <span className={isChecked ? '' : 'text-white'}>{item.qty}</span></p>
-                            </div>
+                        <div key={idx} onClick={() => toggleCheck(order.id, it.name)} className={`flex items-center justify-between p-4 rounded-2xl border transition-all cursor-pointer ${
+                          isChecked ? 'bg-cyan-500/10 border-cyan-500/20 opacity-40' : 'bg-white/5 border-white/5'
+                        }`}>
+                          <div className="flex items-center gap-4">
+                             <div className={`w-6 h-6 rounded-lg border flex items-center justify-center ${isChecked ? 'bg-cyan-500 border-cyan-500' : 'border-white/20'}`}>
+                               {isChecked && <span className="text-[10px] font-black text-black">✓</span>}
+                             </div>
+                             <span className={`text-xs font-black uppercase tracking-widest ${isChecked ? 'line-through text-slate-500' : 'text-slate-200'}`}>{it.qty}x {it.name}</span>
                           </div>
                         </div>
-                      );
+                      )
                     })}
                   </div>
-
-                  <div className="p-5 bg-black/60 border-t" style={{ borderColor: `${accentColor}40` }}>
-                    {order.status === "received" ? (
-                      <button 
-                        onClick={() => updateOrderStatus(order.id, "preparing")} 
-                        className="w-full text-black py-4 rounded-sm text-[11px] font-black uppercase tracking-[0.3em] hover:brightness-125 transition-all active:scale-[0.98]"
-                        style={{ backgroundColor: accentColor, boxShadow: `0 0 15px ${accentColor}80` }}
-                      >
-                        [ INITIALIZE ] 👨‍🍳
-                      </button>
-                    ) : (
-                      <button 
-                        onClick={() => updateOrderStatus(order.id, "cooked")} 
-                        className="w-full text-black py-4 rounded-sm text-[11px] font-black uppercase tracking-[0.3em] hover:brightness-125 transition-all animate-pulse active:scale-[0.98]"
-                        style={{ backgroundColor: accentColor, boxShadow: `0 0 20px ${accentColor}` }}
-                      >
-                        [ DEPLOY_ORDER ] ✅
-                      </button>
-                    )}
+                  <div className="p-6 pt-0">
+                    <button 
+                      onClick={() => {
+                        if (order.status === 'received') updateOrderStatus(order.id, 'preparing');
+                        else if (order.status === 'preparing') updateOrderStatus(order.id, 'ready');
+                      }}
+                      className={`w-full py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all ${
+                        order.status === 'received' ? 'bg-cyan-500 text-black' : (order.status === 'preparing' ? 'bg-amber-500 text-black' : 'bg-green-500 text-black')
+                      }`}
+                    >
+                      {order.status === 'received' ? 'Start Cooking' : (order.status === 'preparing' ? 'Mark as Ready' : 'Order Ready')}
+                    </button>
                   </div>
                 </div>
               );
-            })}
+            }) : (
+              <div className="col-span-full h-96 flex flex-col items-center justify-center opacity-20">
+                <p className="text-xl font-black uppercase tracking-[1em]">Station Idle</p>
+              </div>
+            )}
           </div>
-        )}
+        </div>
+
+        <div className="w-80 flex flex-col gap-6">
+           <div className="p-6 bg-slate-900/80 border border-slate-800 rounded-[2rem]">
+              <h2 className="text-[10px] font-black uppercase tracking-widest text-cyan-400 mb-6">Status</h2>
+              <div className="space-y-4">
+                 <div className="flex justify-between"><span className="text-[10px] uppercase text-slate-500">System</span><span className="text-[10px] font-black text-green-500">OK</span></div>
+                 <div className="flex justify-between"><span className="text-[10px] uppercase text-slate-500">Terminal</span><span className="text-[10px] font-black">NODE_01</span></div>
+              </div>
+           </div>
+           <div className="p-6 bg-cyan-500/10 border border-cyan-500/20 rounded-[2rem] text-center">
+              <p className="text-[8px] font-black text-cyan-500 uppercase mb-1">Local Time</p>
+              <p className="text-2xl font-black">{new Date(currentTime).toLocaleTimeString()}</p>
+           </div>
+        </div>
       </main>
 
       <style jsx global>{`
-        /* Cyber-Industrial Glassmorphism Level 2 */
-        .cyber-glass { 
-          background: rgba(10, 15, 25, 0.4); 
-           
-          -webkit- 
-          border: 1px solid rgba(0, 242, 255, 0.1);
-          box-shadow: inset 0 0 20px rgba(0, 242, 255, 0.05);
-          position: relative;
-        }
-        .cyber-glass::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            padding: 1px;
-            background: linear-gradient(135deg, rgba(0,242,255,0.4), transparent, rgba(57,255,20,0.2));
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            pointer-events: none;
-        }
-
-        .cyber-card {
-            background: rgba(5, 10, 15, 0.6);
-            
-            border-width: 1px;
-            border-style: solid;
-        }
-
-        .cyber-scanlines {
-            position: fixed;
-            inset: 0;
-            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
-            background-size: 100% 4px;
-            pointer-events: none;
-            z-index: 50;
-            opacity: 0.3;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { 
-          background: rgba(0, 242, 255, 0.3); 
-          border-radius: 4px; 
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: rgba(0, 242, 255, 0.6);
-        }
-        
-        @keyframes pulse {
-          0%, 100% { opacity: 0.1; transform: scale(1); }
-          50% { opacity: 0.2; transform: scale(1.05); }
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(6, 182, 212, 0.2); border-radius: 10px; }
       `}</style>
     </div>
   );
