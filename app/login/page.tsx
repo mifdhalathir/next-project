@@ -8,7 +8,7 @@ import { addKarsaNotification } from "@/components/NotificationHub";
 import { addActivityLog } from "@/components/ActivityLog";
 
 import { auth, googleProvider } from "@/lib/firebase";
-import { signInWithPopup } from "firebase/auth";
+import { signInWithPopup, signInWithRedirect, getRedirectResult } from "firebase/auth";
 
 export default function Login() {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -39,6 +39,33 @@ export default function Login() {
     }, 1000);
   };
 
+  useEffect(() => {
+    if (!auth) return;
+    const checkRedirect = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result?.user) {
+          const user = result.user;
+          const displayName = user.displayName || "Sultan";
+          
+          localStorage.setItem("karsa_user_name", displayName);
+          if (user.photoURL) localStorage.setItem("karsa_user_avatar", user.photoURL);
+          
+          addActivityLog(`Login Google: ${displayName}`, "login");
+          addKarsaNotification(`Selamat datang, ${displayName}! 👋`, "success");
+          window.dispatchEvent(new Event("storage"));
+          router.push("/");
+        }
+      } catch (err) {
+        console.error("Redirect login error:", err);
+        setError("Google Login Gagal. Silakan coba lagi.");
+        setShake(true);
+        setTimeout(() => setShake(false), 500);
+      }
+    };
+    checkRedirect();
+  }, [router]);
+
   const handleGoogleLogin = async () => {
     if (!auth || !googleProvider) {
       setError("Fitur Google Login belum dikonfigurasi. Pakai login nama saja ya! 🛠️");
@@ -59,11 +86,21 @@ export default function Login() {
       addKarsaNotification(`Selamat datang, ${displayName}! 👋`, "success");
       window.dispatchEvent(new Event("storage"));
       router.push("/");
-    } catch (err: unknown) {
+    } catch (err: any) {
+      console.error("Popup login error:", err);
+      // Fallback to redirect if popup is blocked or closed
+      if (err.code === 'auth/popup-closed-by-user' || err.message?.includes('Cross-Origin') || err.code === 'auth/popup-blocked') {
+        try {
+          await signInWithRedirect(auth, googleProvider);
+          return; // Don't set processing to false yet, we are redirecting
+        } catch (redirectErr) {
+          console.error("Fallback redirect failed:", redirectErr);
+        }
+      }
+      
       setError("Google Login Gagal. Silakan coba lagi.");
       setShake(true);
       setTimeout(() => setShake(false), 500);
-    } finally {
       setIsProcessing(false);
     }
   };
