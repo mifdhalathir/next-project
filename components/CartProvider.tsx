@@ -24,6 +24,7 @@ export type Reservation = {
   notes: string;
   status: "pending" | "arrived" | "cancelled";
   timestamp: number;
+  tableNumber?: string;
 };
 
 type CartContextType = {
