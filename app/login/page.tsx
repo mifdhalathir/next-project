@@ -94,8 +94,9 @@ export default function Login() {
     } catch (err: unknown) {
       console.error("Popup login error:", err);
       
-      // Fallback to redirect if popup is blocked or closed
       const errorObj = err as { code?: string; message?: string };
+      
+      // Fallback to redirect if popup is blocked or closed
       if (errorObj.code === 'auth/popup-closed-by-user' || errorObj.message?.includes('Cross-Origin') || errorObj.code === 'auth/popup-blocked') {
         try {
           await signInWithRedirect(currentAuth, currentProvider);
@@ -105,10 +106,19 @@ export default function Login() {
         }
       }
       
-      setError("Google Login Gagal. Silakan coba lagi.");
+      // Tampilkan error spesifik dari Firebase jika ada
+      let errorMessage = "Google Login Gagal. Silakan coba lagi.";
+      if (errorObj.code === 'auth/unauthorized-domain') {
+        errorMessage = "Domain Vercel belum didaftarkan di Firebase Console!";
+      } else if (errorObj.message) {
+        // Ambil pesan error aslinya agar gampang di-debug di Vercel
+        errorMessage = `Error: ${errorObj.message}`;
+      }
+      
+      setError(errorMessage);
       setShake(true);
       setTimeout(() => setShake(false), 500);
-      setIsProcessing(false);
+      setIsProcessing(false); // Pastikan state kembali ke false
     }
   };
 
