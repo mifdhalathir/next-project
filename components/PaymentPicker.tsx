@@ -58,7 +58,7 @@ export default function PaymentPicker({ selected, onChange }: PaymentPickerProps
 
       {/* QRIS QR Code Preview */}
       {showQRIS && selected === "qris" && (
-        <div className="mt-4 p-4 bg-white rounded-xl flex flex-col items-center gap-3 animate-in fade-in zoom-in-95 duration-300">
+        <div className="mt-4 p-4 bg-white rounded-xl flex flex-col items-center gap-3">
           <div className="w-32 h-32 bg-stone-100 border-2 border-dashed border-stone-300 rounded-lg flex items-center justify-center">
             <img 
               src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=KARSA-QRIS-PAYMENT`}
@@ -77,7 +77,7 @@ export default function PaymentPicker({ selected, onChange }: PaymentPickerProps
 
       {/* Transfer Bank Info */}
       {selected === "transfer" && (
-        <div className="mt-4 p-4 bg-white/[0.03] border border-white/5 rounded-xl space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <div className="mt-4 p-4 bg-white/[0.03] border border-white/5 rounded-xl space-y-2">
           <div className="flex justify-between items-center">
             <span className="text-[10px] font-bold text-stone-400">BCA</span>
             <span className="text-xs font-mono font-black text-amber-500">1234 5678 90</span>

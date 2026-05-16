@@ -85,7 +85,7 @@ export default function RecentOrders() {
               data-aos-delay={index * 100}
             >
               {/* Glow Effect */}
-              <div className="absolute -top-24 -right-24 w-48 h-48 bg-amber-500/5 rounded-full blur-3xl group-hover:bg-amber-500/10 transition-colors duration-500"></div>
+              <div className="absolute -top-24 -right-24 w-48 h-48 bg-amber-500/5 rounded-full  group-hover:bg-amber-500/10 transition-colors duration-500"></div>
 
               <div className="flex justify-between items-start mb-6">
                 <div>
@@ -135,7 +135,7 @@ export default function RecentOrders() {
       <style jsx>{`
         .glass-card {
           background: rgba(255, 255, 255, 0.02);
-          backdrop-filter: blur(12px);
+          
           box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
       `}</style>

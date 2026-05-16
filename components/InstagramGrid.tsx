@@ -19,7 +19,7 @@ export default function InstagramGrid() {
           alt="Cafe Background" 
           className="w-full h-full object-cover transition-transform duration-[10s] group-hover/insta:scale-110"
         />
-        <div className="absolute inset-0 bg-stone-950/80 backdrop-blur-sm"></div>
+        <div className="absolute inset-0 bg-stone-950/80 "></div>
       </div>
 
       <div className="max-w-6xl mx-auto relative z-10">

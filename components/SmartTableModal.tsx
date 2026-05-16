@@ -69,8 +69,8 @@ export default function SmartTableModal() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-[4px] transition-all duration-500">
-      <div className="bg-[#111] border border-amber-500/30 rounded-[2rem] p-8 relative z-10 w-full max-w-xl shadow-[0_0_50px_rgba(245,158,11,0.2)] animate-in zoom-in-95 fade-in duration-500">
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/90 transition-all duration-500">
+      <div className="bg-[#111] border border-amber-500/30 rounded-[2rem] p-8 relative z-10 w-full max-w-xl shadow-[0_0_50px_rgba(245,158,11,0.2)]">
         
         {/* Header */}
         <div className="text-center mb-8">
@@ -85,7 +85,7 @@ export default function SmartTableModal() {
         </div>
 
         {!showMap ? (
-          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="space-y-6">
             {/* Area Selection Cards */}
             <div className="grid grid-cols-2 gap-4">
               <button
@@ -119,7 +119,7 @@ export default function SmartTableModal() {
             </button>
           </div>
         ) : (
-          <div className="animate-in slide-in-from-right-8 fade-in duration-500">
+          <div>
             <button 
               onClick={() => setShowMap(false)}
               className="mb-6 text-[10px] text-stone-500 hover:text-amber-500 font-black uppercase tracking-widest flex items-center gap-2 transition-colors"

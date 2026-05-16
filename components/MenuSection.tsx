@@ -105,7 +105,7 @@ export default function MenuSection() {
           {(() => {
             if (!mounted) return null;
             return (
-              <div className="mt-8 flex justify-center animate-in fade-in slide-in-from-top-4 duration-1000">
+              <div className="mt-8 flex justify-center">
                 {currentArea === "Outdoor" ? (
                   <div className="flex items-center gap-4 px-6 py-4 rounded-[2rem] bg-green-500/10 border border-green-500/20 shadow-lg shadow-green-950/20">
                     <span className="text-3xl">🌿</span>

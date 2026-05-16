@@ -106,7 +106,7 @@ export default function CartWidget() {
 
       {/* Cart Modal */}
       <div
-        className={`fixed inset-0 bg-black/80 z-[60] backdrop-blur-[3px] transition-opacity flex justify-end ${
+        className={`fixed inset-0 bg-black/90 z-[60] transition-opacity flex justify-end ${
           isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         onClick={(e) => {
@@ -135,7 +135,7 @@ export default function CartWidget() {
 
           <div className="flex-1 overflow-y-auto p-8 space-y-6">
             {activeOrder ? (
-              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <div className="space-y-8">
                 {/* Order Status Tracker */}
                 <div className="bg-white/5 border border-amber-500/20 p-6 rounded-3xl relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-1 h-full bg-amber-600"></div>

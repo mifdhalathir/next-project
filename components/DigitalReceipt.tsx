@@ -19,7 +19,7 @@ export default function DigitalReceipt({ order, isOpen, onClose }: DigitalReceip
   };
 
   return (
-    <div id="receipt-modal" className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-y-auto bg-black/80 backdrop-blur-md transition-all duration-500 animate-in fade-in">
+    <div id="receipt-modal" className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-y-auto bg-black/90 transition-all duration-500">
       {/* Container for roll animation */}
       <div className="relative w-full max-w-md animate-[receiptRoll_1s_cubic-bezier(0.2,0.8,0.2,1)_forwards] origin-top">
         {/* Print Machine Slot Simulation */}
@@ -33,8 +33,8 @@ export default function DigitalReceipt({ order, isOpen, onClose }: DigitalReceip
           <div className="absolute top-6 right-4 text-[8px] text-stone-400 uppercase tracking-widest print:hidden">✂ cut here</div>
           
           {/* Decorative Elements */}
-          <div className="absolute -top-24 -right-24 w-48 h-48 bg-amber-500/20 rounded-full blur-[80px]"></div>
-          <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-amber-600/20 rounded-full blur-[80px]"></div>
+          <div className="absolute -top-24 -right-24 w-48 h-48 bg-amber-500/20 rounded-full"></div>
+          <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-amber-600/20 rounded-full"></div>
 
           {/* Receipt Content */}
           <div className="relative z-10">
@@ -90,7 +90,7 @@ export default function DigitalReceipt({ order, isOpen, onClose }: DigitalReceip
             {/* QR Code */}
             <div className="flex flex-col items-center justify-center mb-8 p-6 bg-white rounded-[2rem]">
               <div className="relative group">
-                <div className="absolute inset-0 bg-amber-500/20 blur-xl rounded-full scale-0 group-hover:scale-100 transition-transform duration-500"></div>
+                <div className="absolute inset-0 bg-amber-500/20 rounded-full scale-0 group-hover:scale-100 transition-transform duration-500"></div>
                 {qrUrl ? (
                   <img src={qrUrl} alt="Order QR" className="relative z-10 w-32 h-32" />
                 ) : (

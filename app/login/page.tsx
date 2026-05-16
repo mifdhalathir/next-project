@@ -287,7 +287,7 @@ export default function Login() {
             {/* Header / Logo */}
             <div className="text-center mb-8">
               <div className="w-16 h-16 mx-auto mb-4 relative group transition-transform duration-500 hover:scale-105">
-                <div className="absolute inset-0 bg-amber-500/20 blur-2xl rounded-full"></div>
+                <div className="absolute inset-0 bg-amber-500/20  rounded-full"></div>
                 <img 
                   src="/images/logo.png" 
                   alt="Logo" 

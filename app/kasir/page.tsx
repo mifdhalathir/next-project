@@ -579,7 +579,7 @@ export default function KasirPage() {
                     {isOccupied && !isAskingBill && !isReserved && <div className="absolute top-1 right-1 w-2 h-2 bg-[#FFBF00] rounded-none shadow-[0_0_5px_#FFBF00]"></div>}
                     
                     {isReserved && (
-                      <div className="absolute inset-0 bg-black/90 rounded-sm opacity-0 hover:opacity-100 flex flex-col items-center justify-center gap-1 transition-opacity z-10 backdrop-blur-sm">
+                      <div className="absolute inset-0 bg-black/90 rounded-sm opacity-0 hover:opacity-100 flex flex-col items-center justify-center gap-1 transition-opacity z-10 ">
                          <button onClick={(e) => { e.stopPropagation(); updateReservation(res.id, "arrived"); }} className="bg-[#FFBF00] text-black text-[7px] font-black uppercase px-2 py-1 w-[80%] border border-[#FFBF00]">Check-in</button>
                          <button onClick={(e) => { e.stopPropagation(); updateReservation(res.id, "cancelled"); }} className="bg-transparent text-white text-[7px] font-black uppercase px-2 py-1 w-[80%] border border-white/30">Cancel</button>
                       </div>
@@ -715,8 +715,8 @@ export default function KasirPage() {
         /* Cyber-Industrial Glassmorphism Level 2 (Amber Gold Vibe) */
         .cyber-glass-amber { 
           background: rgba(15, 10, 0, 0.5); 
-          backdrop-filter: blur(6px); 
-          -webkit-backdrop-filter: blur(6px); 
+           
+          -webkit- 
           border: 1px solid rgba(255, 191, 0, 0.15);
           box-shadow: inset 0 0 20px rgba(255, 191, 0, 0.05);
           position: relative;

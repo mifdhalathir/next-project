@@ -51,7 +51,7 @@ export default function AudioWidget() {
   return (
     <button
       onClick={toggleSound}
-      className="fixed bottom-4 left-4 z-50 w-12 h-12 rounded-full bg-stone-900/80 backdrop-blur-md border border-white/10 flex items-center justify-center text-white shadow-lg hover:scale-110 transition-transform hover:bg-amber-600 hover:border-amber-500 hover:shadow-[0_0_15px_rgba(245,158,11,0.5)]"
+      className="fixed bottom-4 left-4 z-50 w-12 h-12 rounded-full bg-stone-900/80  border border-white/10 flex items-center justify-center text-white shadow-lg hover:scale-110 transition-transform hover:bg-amber-600 hover:border-amber-500 hover:shadow-[0_0_15px_rgba(245,158,11,0.5)]"
       title="Toggle Sound"
     >
       <span className="text-xl">{enabled ? '🔊' : '🔇'}</span>

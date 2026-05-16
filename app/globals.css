@@ -28,32 +28,25 @@ body {
 
 /* Advanced Glassmorphism Navbar */
 .navbar-scrolled {
-    background: rgba(0, 0, 0, 0.7) !important;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.9) !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .dark .navbar-scrolled {
-    background: rgba(0, 0, 0, 0.7) !important;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.9) !important;
+    background-color: rgba(26, 20, 16, 0.95);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* Advanced Glassmorphism Reservasi Form */
 .glass-form {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    background: rgba(255, 255, 255, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.4);
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
 }
 .dark .glass-form {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.15);
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 }
@@ -135,7 +128,7 @@ body {
 /* Testimonials */
 .testimonial-card {
     background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(4px);
+    
     border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 1rem;
     padding: 2rem;
@@ -556,14 +549,10 @@ body {
 
 /* Atmospheric Glassmorphism Override */
 body.theme-outdoor .glass-form {
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
   border-color: rgba(76, 175, 80, 0.15);
   box-shadow: 0 8px 32px 0 rgba(76, 175, 80, 0.08);
 }
 body.theme-reserved .glass-form {
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
   border-color: rgba(224, 17, 95, 0.15);
   box-shadow: 0 8px 32px 0 rgba(224, 17, 95, 0.08);
 }
@@ -680,7 +669,7 @@ body.theme-reserved .nav-link.active { color: #E0115F !important; }
   letter-spacing: 0.1em;
   padding: 4px 10px;
   border-radius: 9999px;
-  backdrop-filter: blur(4px);
+  
   animation: badgePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 @keyframes badgePop {

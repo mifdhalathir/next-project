@@ -20,7 +20,7 @@ export default function TaxServiceBreakdown({ subtotal, voucherDiscount }: TaxSe
   if (subtotal <= 0) return null;
 
   return (
-    <div className="space-y-3 p-6 bg-stone-900/50 rounded-2xl border border-white/5 backdrop-blur-md mb-6">
+    <div className="space-y-3 p-6 bg-stone-900/50 rounded-2xl border border-white/5  mb-6">
       <div className="flex justify-between text-xs text-stone-400 font-medium">
         <span>Subtotal</span>
         <span>Rp {subtotal.toLocaleString("id-ID")}</span>
