@@ -70,10 +70,10 @@ export default function Login() {
 
   return (
     <>
-      <PageTransition />
       <CustomCursor />
+      <PageTransition />
       
-      <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-stone-950 selection:bg-amber-500 selection:text-black">
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-stone-950 selection:bg-amber-500 selection:text-black cursor-none">
         {/* Glow ambient background */}
         <div className="absolute top-1/4 -left-32 w-[600px] h-[600px] bg-[radial-gradient(circle,_rgba(217,119,6,0.15)_0%,_transparent_70%)] pointer-events-none"></div>
         <div className="absolute bottom-1/4 -right-32 w-[600px] h-[600px] bg-[radial-gradient(circle,_rgba(120,53,15,0.2)_0%,_transparent_70%)] pointer-events-none"></div>

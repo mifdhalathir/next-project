@@ -59,14 +59,13 @@ export default function Home() {
 
   return (
     <CartProvider>
-      <PageTransition />
       <CustomCursor />
-      <OfflineToast />
       <SmartTableModal />
       <Navbar />
+      <PageTransition />
+      <Hero />
       <AreaBanner />
-      <main>
-        <Hero />
+      <main className="relative overflow-hidden selection:bg-amber-500/30">
         <QueueTracker />
         <RecentOrders />
         <CeritaKami />
@@ -89,6 +88,7 @@ export default function Home() {
       <LiveChatWidget />
       <LiveActivityFeed />
       <OrderTrackerCard />
+      <OfflineToast />
     </CartProvider>
   );
 }

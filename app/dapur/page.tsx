@@ -30,6 +30,8 @@ export default function DapurPage() {
     } catch (e) {}
   };
 
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
   const loadData = () => {
     const savedOrders = localStorage.getItem("PESANAN_HARI_INI");
     if (savedOrders) {
@@ -60,16 +62,20 @@ export default function DapurPage() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("karsa_user_name");
-    localStorage.removeItem("karsa_table_number");
-    localStorage.removeItem("karsa_area");
-    sessionStorage.clear();
-    router.push("/login");
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+      window.dispatchEvent(new Event("storage"));
+      window.location.href = "/login";
+    } catch (e) {
+      window.location.href = "/login";
+    }
   };
 
   useEffect(() => {
     loadData();
     window.addEventListener("storage", loadData);
+    window.addEventListener("mousemove", (e) => setMousePos({ x: e.clientX, y: e.clientY }));
     const interval = setInterval(loadData, 3000);
     const timeInterval = setInterval(() => setCurrentTime(Date.now()), 1000);
     return () => {
@@ -107,7 +113,18 @@ export default function DapurPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#020617] text-white font-sans selection:bg-cyan-500/30 overflow-hidden flex flex-col">
+    <div className="min-h-screen bg-[#020617] text-white font-sans selection:bg-cyan-500/30 overflow-hidden flex flex-col cursor-none">
+      {/* Custom Cursor */}
+      <div 
+        className="fixed w-8 h-8 border border-cyan-500/50 rounded-full pointer-events-none z-[9999] transition-transform duration-75 ease-out mix-blend-screen"
+        style={{ left: mousePos.x, top: mousePos.y, transform: 'translate(-50%, -50%)', boxShadow: '0 0 20px rgba(6,182,212,0.3)' }}
+      ></div>
+      <div 
+        className="fixed w-1 h-1 bg-cyan-500 rounded-full pointer-events-none z-[9999] transition-transform duration-150 ease-out"
+        style={{ left: mousePos.x, top: mousePos.y, transform: 'translate(-50%, -50%)' }}
+      ></div>
+
+      {/* Background Grid */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-20 pointer-events-none"></div>
 
       <header className="h-20 bg-slate-900/50 backdrop-blur-md border-b border-cyan-500/20 px-8 flex items-center justify-between relative z-10">

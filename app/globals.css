@@ -690,3 +690,52 @@ body.theme-reserved .nav-link.active { color: #E0115F !important; }
 .animate-twinkle {
   animation: twinkle infinite ease-in-out alternate;
 }
+/* Custom Cursor Styling */
+.custom-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  background: rgba(245, 158, 11, 0.3);
+  border: 1px solid rgba(245, 158, 11, 0.6);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+}
+
+.custom-cursor::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  background: #f59e0b;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.cursor-hover {
+  width: 40px;
+  height: 40px;
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.8);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+}
+
+.cursor-click {
+  width: 15px;
+  height: 15px;
+  background: rgba(245, 158, 11, 0.6);
+  transform: translate(-50%, -50%) scale(0.8);
+}
+
+@media (pointer: coarse) {
+  .custom-cursor {
+    display: none;
+  }
+}

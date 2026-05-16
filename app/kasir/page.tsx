@@ -67,13 +67,14 @@ export default function KasirPage() {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem("karsa_user_name");
-    localStorage.removeItem("karsa_table_number");
-    localStorage.removeItem("karsa_area");
-    localStorage.removeItem("karsa_user_avatar");
-    sessionStorage.clear();
-    window.dispatchEvent(new Event("storage"));
-    router.push("/login");
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+      window.dispatchEvent(new Event("storage"));
+      window.location.href = "/login";
+    } catch (e) {
+      window.location.href = "/login";
+    }
   };
 
   const rawTotalRevenue = Number(typeof window !== "undefined" ? localStorage.getItem("karsa_revenue") || 0 : 0);
@@ -267,7 +268,17 @@ export default function KasirPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-amber-500/30 overflow-hidden relative">
+    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-amber-500/30 overflow-hidden relative cursor-none">
+      {/* Custom Cursor */}
+      <div 
+        className="fixed w-8 h-8 border border-amber-500/50 rounded-full pointer-events-none z-[9999] transition-transform duration-75 ease-out mix-blend-screen"
+        style={{ left: mousePos.x, top: mousePos.y, transform: 'translate(-50%, -50%)', boxShadow: '0 0 20px rgba(245,158,11,0.3)' }}
+      ></div>
+      <div 
+        className="fixed w-1 h-1 bg-amber-500 rounded-full pointer-events-none z-[9999] transition-transform duration-150 ease-out"
+        style={{ left: mousePos.x, top: mousePos.y, transform: 'translate(-50%, -50%)' }}
+      ></div>
+
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(245,158,11,0.05)_0%,_transparent_70%)] pointer-events-none"></div>
 
       <header className="h-20 border-b border-white/5 bg-black/40 backdrop-blur-xl flex items-center justify-between px-8 relative z-50">
