@@ -66,6 +66,28 @@ export default function SmartTableModal() {
     localStorage.setItem("karsa_area", area);
     localStorage.setItem("karsa_jam_masuk", new Date().toISOString());
     
+    // Notify Cashier via activity log and incoming queue
+    const checkInData = {
+      id: Date.now(),
+      nama: userName || "Sultan",
+      meja: `Meja ${tableStr}`,
+      tanggal: new Date().toLocaleDateString('id-ID'),
+      jam: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+      status: "menunggu", 
+      catatan: `Meja ${tableStr} - Pelanggan baru duduk (${area})`,
+      jumlah: 1,
+      items: [],
+      isReservation: true // So it highlights on Floor Map
+    };
+
+    const existingIncoming = JSON.parse(localStorage.getItem("karsa_pesanan_masuk") || "[]");
+    localStorage.setItem("karsa_pesanan_masuk", JSON.stringify([checkInData, ...existingIncoming]));
+
+    // Also add to Activity Log for global tracking
+    import("@/components/ActivityLog").then(({ addActivityLog }) => {
+      addActivityLog(`${userName || "Sultan"} memilih Meja ${tableStr} (${area})`, "login");
+    });
+
     window.dispatchEvent(new Event("storage"));
     setIsOpen(false);
     

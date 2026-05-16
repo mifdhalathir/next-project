@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -48,16 +49,23 @@ export default function Navbar() {
     }
   }, []);
 
+  const router = useRouter();
+
   const handleLogout = () => {
     localStorage.removeItem("karsa_user_name");
     localStorage.removeItem("karsa_table_number");
     localStorage.removeItem("karsa_area");
     localStorage.removeItem("karsa_user_avatar");
+    localStorage.removeItem("karsa_guests");
+    localStorage.removeItem("karsa_jam_masuk");
     sessionStorage.removeItem("username");
     sessionStorage.removeItem("karsa_voucher_used");
+    
     setUserName(null);
     setTableNumber(null);
+    
     window.dispatchEvent(new Event("storage"));
+    router.push("/login");
   };
 
   const toggleDarkMode = () => {

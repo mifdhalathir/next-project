@@ -267,12 +267,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     // Save to pesanan_masuk for Kasir/Dapur tracking
     let pesananMasuk = [];
     try { pesananMasuk = JSON.parse(localStorage.getItem('karsa_pesanan_masuk') || '[]'); } catch(e) {}
+    
+    const [tanggal, jam] = res.time.split(' ');
+    
     pesananMasuk.push({
         id: resId,
         nama: res.name,
         jumlah: res.guests,
-        tanggal: res.time.split(' ')[0] || new Date().toLocaleDateString('id-ID'),
-        jam: res.time.split(' ')[1] || new Date().toLocaleTimeString('id-ID'),
+        tanggal: tanggal || new Date().toLocaleDateString('id-ID'),
+        jam: jam || new Date().toLocaleTimeString('id-ID'),
         catatan: res.notes || 'Reservasi Meja',
         status: 'menunggu',
         waktuMasuk: new Date().toLocaleString('id-ID'),
@@ -280,6 +283,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
     localStorage.setItem('karsa_pesanan_masuk', JSON.stringify(pesananMasuk));
 
+    addKarsaNotification(`Reservasi untuk ${res.name} berhasil terkirim ke Kasir! 📅`, "success");
+    addActivityLog(`Reservasi baru: ${res.name} (${res.time}) untuk ${res.guests} orang`, "login");
+    
     window.dispatchEvent(new Event("storage"));
   };
 
