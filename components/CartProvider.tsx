@@ -47,20 +47,61 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<{ [key: string]: CartItem }>({});
   const [activeOrder, setActiveOrder] = useState<Order | null>(null);
   const [voucher, setVoucher] = useState<{ type: string; discount: number; code: string } | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  // Initial load from localStorage
+  useEffect(() => {
+    setMounted(true);
+    const savedCart = localStorage.getItem("karsa_cart");
+    const savedActiveOrder = localStorage.getItem("karsa_active_order");
+    const savedVoucher = localStorage.getItem("karsa_active_voucher");
+
+    if (savedCart) {
+        try { setCart(JSON.parse(savedCart)); } catch (e) {}
+    }
+    if (savedActiveOrder) {
+        try { setActiveOrder(JSON.parse(savedActiveOrder)); } catch (e) {}
+    }
+    if (savedVoucher) {
+        try { setVoucher(JSON.parse(savedVoucher)); } catch (e) {}
+    }
+  }, []);
+
+  // Save to localStorage when state changes
+  useEffect(() => {
+    if (!mounted) return;
+    localStorage.setItem("karsa_cart", JSON.stringify(cart));
+  }, [cart, mounted]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    if (activeOrder) {
+      localStorage.setItem("karsa_active_order", JSON.stringify(activeOrder));
+    } else {
+      localStorage.removeItem("karsa_active_order");
+    }
+  }, [activeOrder, mounted]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    if (voucher) {
+      localStorage.setItem("karsa_active_voucher", JSON.stringify(voucher));
+    } else {
+      localStorage.removeItem("karsa_active_voucher");
+    }
+  }, [voucher, mounted]);
 
   // Synchronize active order status from localStorage (for real-time tracking)
   useEffect(() => {
     const syncStatus = () => {
       if (!activeOrder) return;
       
-      // Check PESANAN_HARI_INI first (this is what Kasir/Dapur actually updates)
       const savedPesanan = localStorage.getItem("PESANAN_HARI_INI");
       if (savedPesanan) {
         try {
           const pesanan: any[] = JSON.parse(savedPesanan);
           const current = pesanan.find((p: any) => p.orderID === activeOrder.id);
           if (current) {
-            // Map Kasir status strings to OrderStatus
             const statusMap: Record<string, OrderStatus> = {
               'Pending': 'received',
               'Diracik': 'preparing',
@@ -79,27 +120,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               }
               setActiveOrder({ ...activeOrder, status: mappedStatus });
             }
-            return; // found the order, no need to check karsa_orders
+            return;
           }
         } catch (e) {}
       }
 
-      // Fallback: check karsa_orders
-      const savedOrders = localStorage.getItem("karsa_orders");
-      if (savedOrders) {
-        const orders: Order[] = JSON.parse(savedOrders);
-        const current = orders.find(o => o.id === activeOrder.id);
-        
-        if (current && current.status !== activeOrder.status) {
-          if (current.status === "ready") {
-            const beep = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
-            beep.play().catch(e => console.log("Sound error:", e));
-            addKarsaNotification(`Pesananmu SIAP diantar/ambil! 🛎️`, "success");
+      // Check for completion in history
+      if (activeOrder.status !== "completed") {
+          const savedHistory = localStorage.getItem("karsa_order_history");
+          if (savedHistory) {
+              const history: Order[] = JSON.parse(savedHistory);
+              const done = history.find(o => o.id === activeOrder.id);
+              if (done) {
+                  setActiveOrder({ ...activeOrder, status: "completed" });
+              }
           }
-          setActiveOrder(current);
-        } else if (!current && activeOrder.status !== "completed") {
-          setActiveOrder({ ...activeOrder, status: "completed" });
-        }
       }
     };
 
@@ -113,7 +148,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [activeOrder]);
 
   const placeOrder = (tableNumber: string): Order => {
-    // Auth Guard
     const userName = typeof window !== "undefined" ? localStorage.getItem("karsa_user_name") : null;
     const tableNum = typeof window !== "undefined" ? localStorage.getItem("karsa_table_number") : null;
     const area = typeof window !== "undefined" ? localStorage.getItem("karsa_area") || "Indoor" : "Indoor";
@@ -135,6 +169,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       else if (voucher.type === 'flat') totalAmount -= Math.min(voucher.discount, baseTotal);
     }
 
+    // [CORE SYSTEM] Deduct Inventory
+    const savedInv = localStorage.getItem("karsa_inventory");
+    if (savedInv) {
+        try {
+            const inventory = JSON.parse(savedInv);
+            itemsArray.forEach(item => {
+                if (inventory[item.name] !== undefined) {
+                    inventory[item.name] = Math.max(0, inventory[item.name] - item.qty);
+                }
+            });
+            localStorage.setItem("karsa_inventory", JSON.stringify(inventory));
+        } catch (e) {}
+    }
+
     const newOrder: Order = {
       id: orderID,
       tableNumber,
@@ -145,7 +193,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       timestamp: Date.now(),
     };
 
-    // [CORE SYSTEM BRIDGE] Save to PESANAN_HARI_INI for Kasir consistency
     const pesananBaru = {
         orderID: orderID,
         id: Date.now(),
@@ -166,13 +213,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         status: 'Pending'
     };
 
-    // Save to PESANAN_HARI_INI
     let pesananHariIni = [];
     try { pesananHariIni = JSON.parse(localStorage.getItem('PESANAN_HARI_INI') || '[]'); } catch(e) {}
     pesananHariIni.push(pesananBaru);
     localStorage.setItem('PESANAN_HARI_INI', JSON.stringify(pesananHariIni));
 
-    // Save to karsa_pesanan_masuk (backward compat)
+    // For Kasir/Dapur integration
     let pesananMasuk = [];
     try { pesananMasuk = JSON.parse(localStorage.getItem('karsa_pesanan_masuk') || '[]'); } catch(e) {}
     pesananMasuk.push({
@@ -181,18 +227,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         jumlah: totalQty,
         tanggal: pesananBaru.tanggal,
         jam: pesananBaru.jam,
-        catatan: 'Order dari Next.js (Meja ' + tableNumber + ')',
+        catatan: 'Order dari App (Meja ' + tableNumber + ')',
         area: area,
         status: 'menunggu',
         waktuMasuk: pesananBaru.waktuPesan,
         totalHarga: totalAmount
     });
     localStorage.setItem('karsa_pesanan_masuk', JSON.stringify(pesananMasuk));
-
-    // Save to legacy karsa_orders (for internal Next.js tracking if needed)
-    const existingOrdersJson = localStorage.getItem("karsa_orders");
-    const existingOrders: Order[] = existingOrdersJson ? JSON.parse(existingOrdersJson) : [];
-    localStorage.setItem("karsa_orders", JSON.stringify([...existingOrders, newOrder]));
 
     addKarsaNotification(`Pesanan Baru Terkirim! Mohon Tunggu Ya! ☕`, "warning");
     addActivityLog(`Order ${orderID} dari ${userName} (Meja ${tableNumber}) — Rp ${totalAmount.toLocaleString('id-ID')}`, "order");
@@ -209,16 +250,35 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const placeReservation = (res: Omit<Reservation, "id" | "status" | "timestamp">) => {
+    const resId = Date.now();
     const newRes: Reservation = {
       ...res,
-      id: `RES-${Math.floor(1000 + Math.random() * 9000)}`,
+      id: String(resId),
       status: "pending",
-      timestamp: Date.now(),
+      timestamp: resId,
     };
 
+    // Save to legacy tracking
     const existingResJson = localStorage.getItem("karsa_reservations");
     const existingRes: Reservation[] = existingResJson ? JSON.parse(existingResJson) : [];
     localStorage.setItem("karsa_reservations", JSON.stringify([...existingRes, newRes]));
+
+    // Save to pesanan_masuk for Kasir/Dapur tracking
+    let pesananMasuk = [];
+    try { pesananMasuk = JSON.parse(localStorage.getItem('karsa_pesanan_masuk') || '[]'); } catch(e) {}
+    pesananMasuk.push({
+        id: resId,
+        nama: res.name,
+        jumlah: res.guests,
+        tanggal: res.time.split(' ')[0] || new Date().toLocaleDateString('id-ID'),
+        jam: res.time.split(' ')[1] || new Date().toLocaleTimeString('id-ID'),
+        catatan: res.notes || 'Reservasi Meja',
+        status: 'menunggu',
+        waktuMasuk: new Date().toLocaleString('id-ID'),
+        isReservation: true
+    });
+    localStorage.setItem('karsa_pesanan_masuk', JSON.stringify(pesananMasuk));
+
     window.dispatchEvent(new Event("storage"));
   };
 

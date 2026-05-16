@@ -93,6 +93,7 @@ export default function DapurPage() {
 
     if (savedOrders) {
       let pesananHariIni: RawOrder[] = JSON.parse(savedOrders);
+      // Consistent status mapping for Kitchen -> Global
       const mappedStatus = newStatus === 'preparing' ? 'Diracik' : (newStatus === 'cooked' ? 'Dikonfirmasi' : 'Pending');
 
       pesananHariIni = pesananHariIni.map(p => {
@@ -110,6 +111,16 @@ export default function DapurPage() {
       });
 
       localStorage.setItem("PESANAN_HARI_INI", JSON.stringify(pesananHariIni));
+
+      // Sync with karsa_pesanan_masuk for history
+      const savedMasuk = localStorage.getItem("karsa_pesanan_masuk");
+      if (savedMasuk) {
+          let parsedMasuk: any[] = JSON.parse(savedMasuk);
+          const masukStatusMap: Record<string, string> = { 'Pending': 'menunggu', 'Diracik': 'proses', 'Dikonfirmasi': 'selesai' };
+          parsedMasuk = parsedMasuk.map(pm => pm.id === orderId || pm.orderID === orderId ? { ...pm, status: masukStatusMap[mappedStatus] } : pm);
+          localStorage.setItem("karsa_pesanan_masuk", JSON.stringify(parsedMasuk));
+      }
+
       window.dispatchEvent(new Event("storage"));
       loadData();
     }

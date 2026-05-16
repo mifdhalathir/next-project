@@ -143,19 +143,21 @@ export default function KasirPage() {
       }
 
       if (savedRes) {
-        const parsedRes: RawReservation[] = JSON.parse(savedRes);
-        const resList: Reservation[] = parsedRes.filter(p => !p.orderID).map(p => ({
+        const parsedRes: (RawReservation & { isReservation?: boolean })[] = JSON.parse(savedRes);
+        const resList: Reservation[] = parsedRes.map(p => ({
             id: String(p.id),
             name: p.nama,
             time: `${p.tanggal} ${p.jam}`,
             guests: p.jumlah,
             notes: p.catatan,
-            status: (p.status === 'menunggu' ? 'pending' : (p.status === 'selesai' ? 'arrived' : 'cancelled')) as "pending" | "arrived" | "cancelled",
-            timestamp: p.id
+            status: (p.status === 'menunggu' ? 'pending' : (p.status === 'dikonfirmasi' || p.status === 'selesai' ? 'arrived' : 'cancelled')) as "pending" | "arrived" | "cancelled",
+            timestamp: p.id,
+            // Custom prop to help floor map
+            tableNumber: String(p.catatan || "").match(/Meja (\d+)/)?.[1] || ""
         }));
         setReservations(resList);
 
-        const pending = parsedRes.filter(p => p.status === 'menunggu');
+        const pending = parsedRes.filter(p => p.status === 'menunggu' && p.isReservation);
         setPendingResCount(pending.length);
       } else {
         setPendingResCount(0);
@@ -190,7 +192,7 @@ export default function KasirPage() {
         newAlerts[name] = true;
         newToasts.push({ name, stock });
         changed = true;
-        try { new Audio('https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3?filename=service-bell-ring-14610.mp3').play().catch(()=>{}); } catch { console.error("Audio failed"); }
+        try { new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3').play().catch(()=>{}); } catch { console.error("Audio failed"); }
       }
       if (stock >= 5 && newAlerts[name]) {
         delete newAlerts[name];
@@ -226,7 +228,6 @@ export default function KasirPage() {
         chartInstance.current.data.datasets[0].data = hourData;
         chartInstance.current.update();
     } else {
-        // Business Intel Mode Chart styling (Amber theme)
         chartInstance.current = new Chart(chartRef.current, {
             type: 'line',
             data: {
@@ -304,14 +305,31 @@ export default function KasirPage() {
               const totalRevenue = Number(localStorage.getItem("karsa_revenue") || 0);
               localStorage.setItem("karsa_revenue", (totalRevenue + order.totalHarga).toString());
               
-              let pts = parseInt(localStorage.getItem('karsa_loyalty_points') || '0');
-              if (pts < 5) { pts++; localStorage.setItem('karsa_loyalty_points', String(pts)); }
+              // Move to History
+              const savedHistory = localStorage.getItem("karsa_order_history");
+              const history = savedHistory ? JSON.parse(savedHistory) : [];
+              history.push({ ...order, completedAt: Date.now() });
+              localStorage.setItem("karsa_order_history", JSON.stringify(history));
+
+              // Loyalty Points: 1 point per Rp 1.000
+              if (order.nama) {
+                const ptsToAdd = Math.floor(order.totalHarga / 1000);
+                const currentPts = Number(localStorage.getItem(`karsa_points_${order.nama}`) || 0);
+                localStorage.setItem(`karsa_points_${order.nama}`, String(currentPts + ptsToAdd));
+              }
             }
 
             localStorage.setItem("PESANAN_HARI_INI", JSON.stringify(pesananHariIni));
-            const stageMap: Record<string, string> = { 'Pending': '0', 'Diracik': '1', 'Dikonfirmasi': '2', 'Selesai': '2' };
-            localStorage.setItem('karsa_order_stage', stageMap[nextStage] || '0');
             
+            // Sync with karsa_pesanan_masuk
+            const savedMasuk = localStorage.getItem("karsa_pesanan_masuk");
+            if (savedMasuk) {
+                let parsedMasuk: any[] = JSON.parse(savedMasuk);
+                const statusMap: Record<string, string> = { 'Pending': 'menunggu', 'Diracik': 'proses', 'Dikonfirmasi': 'selesai', 'Selesai': 'arsip' };
+                parsedMasuk = parsedMasuk.map(pm => pm.id === order.id || pm.orderID === order.orderID ? { ...pm, status: statusMap[nextStage] } : pm);
+                localStorage.setItem("karsa_pesanan_masuk", JSON.stringify(parsedMasuk));
+            }
+
             addActivityLog(`Order ${orderId} → ${nextStage}`, "status");
             
             window.dispatchEvent(new Event("storage"));
@@ -354,7 +372,7 @@ export default function KasirPage() {
   const updateReservation = (id: string, status: "arrived" | "cancelled") => {
     const savedRes = localStorage.getItem("karsa_pesanan_masuk");
     if (savedRes) {
-        let parsed: RawReservation[] = JSON.parse(savedRes);
+        let parsed: any[] = JSON.parse(savedRes);
         parsed = parsed.map(p => String(p.id) === id ? { ...p, status: status === 'arrived' ? 'dikonfirmasi' : 'batal' } : p);
         localStorage.setItem("karsa_pesanan_masuk", JSON.stringify(parsed));
         window.dispatchEvent(new Event("storage"));
@@ -540,9 +558,9 @@ export default function KasirPage() {
           
           <div className="flex-1 overflow-y-auto pr-2 space-y-4 custom-scrollbar">
             <div className="grid grid-cols-3 gap-3 p-2">
-              {Array.from({ length: 12 }, (_, idx) => idx + 1).map((tableNum, i) => {
-                const res = reservations[i]; 
-                const isReserved = !!res && res.status === 'pending';
+              {Array.from({ length: 12 }, (_, idx) => idx + 1).map((tableNum) => {
+                const res = reservations.find(r => r.tableNumber === String(tableNum) && r.status === 'pending'); 
+                const isReserved = !!res;
                 // Find if any active order belongs to this table
                 const activeOrder = orders.find(o => parseInt(o.tableNumber) === tableNum);
                 const isOccupied = !!activeOrder;
