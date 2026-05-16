@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -10,6 +9,7 @@ export default function Navbar() {
   const [logoError, setLogoError] = useState(false);
 
   const [userName, setUserName] = useState<string | null>(null);
+  const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const [tableNumber, setTableNumber] = useState<string | null>(null);
   const [area, setArea] = useState<string>("Indoor");
   const [mounted, setMounted] = useState(false);
@@ -19,6 +19,7 @@ export default function Navbar() {
 
     const checkUser = () => {
       setUserName(localStorage.getItem("karsa_user_name"));
+      setUserAvatar(localStorage.getItem("karsa_user_avatar"));
       setTableNumber(localStorage.getItem("karsa_table_number"));
       setArea(localStorage.getItem("karsa_area") || "Indoor");
     };
@@ -48,8 +49,6 @@ export default function Navbar() {
       if (stored === null) localStorage.setItem("darkMode", "true");
     }
   }, []);
-
-  const router = useRouter();
 
   const handleLogout = () => {
     try {
@@ -114,15 +113,52 @@ export default function Navbar() {
 
             {mounted && userName ? (
               <div className="flex items-center gap-4">
-                <span className={`font-black text-[10px] uppercase tracking-[0.2em] ${area === "Outdoor" ? "text-green-500 bg-green-500/10 border-green-500/30" : "text-amber-500 bg-amber-500/10 border-amber-500/30"} px-5 py-2.5 rounded-full border flex items-center gap-2 shadow-lg`}>
-                  <span className="opacity-70">{userName}</span>
-                  {tableNumber && <span className="opacity-40">|</span>}
-                  {tableNumber && <span>📍 Meja {tableNumber} — {area}</span>}
-                </span>
-                <button onClick={handleLogout} className="text-white/40 hover:text-red-500 transition-colors text-[9px] font-bold uppercase tracking-widest">LOGOUT</button>
+                {/* Avatar: Google photo or initials badge */}
+                {userAvatar ? (
+                  <div className="relative group/avatar flex items-center gap-3">
+                    <div className="relative">
+                      <div className="absolute inset-0 rounded-full bg-amber-500/30 blur-md opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-300" />
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={userAvatar}
+                        alt={userName}
+                        referrerPolicy="no-referrer"
+                        className="relative w-8 h-8 rounded-full object-cover border-2 border-amber-500/60 shadow-lg shadow-amber-900/30 transition-transform duration-300 group-hover/avatar:scale-110"
+                      />
+                    </div>
+                    <span className="font-black text-[10px] uppercase tracking-[0.2em] text-amber-400 hidden sm:block">
+                      {userName.split(" ")[0]}
+                    </span>
+                  </div>
+                ) : (
+                  <span className={`font-black text-[10px] uppercase tracking-[0.2em] ${
+                    area === "Outdoor"
+                      ? "text-green-500 bg-green-500/10 border-green-500/30"
+                      : "text-amber-500 bg-amber-500/10 border-amber-500/30"
+                  } px-4 py-2 rounded-full border flex items-center gap-2 shadow-lg`}>
+                    {/* Initials badge for manual login */}
+                    <span className="w-5 h-5 rounded-full bg-current/20 flex items-center justify-center text-[8px] font-black shrink-0">
+                      {userName.trim().charAt(0).toUpperCase()}
+                    </span>
+                    <span className="opacity-80 hidden sm:inline">{userName.split(" ")[0]}</span>
+                    {tableNumber && <span className="opacity-40 hidden sm:inline">|</span>}
+                    {tableNumber && <span className="hidden sm:inline">📍 {tableNumber}</span>}
+                  </span>
+                )}
+                <button
+                  onClick={handleLogout}
+                  className="text-white/40 hover:text-red-500 transition-colors text-[9px] font-bold uppercase tracking-widest"
+                >
+                  LOGOUT
+                </button>
               </div>
             ) : (
-              <Link href="/login" className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition shadow-lg shadow-amber-900/40">LOGIN</Link>
+              <Link
+                href="/login"
+                className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition shadow-lg shadow-amber-900/40"
+              >
+                LOGIN
+              </Link>
             )}
           </div>
         </div>
