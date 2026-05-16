@@ -112,8 +112,10 @@ export default function Navbar() {
 
             {mounted && userName ? (
               <div className="flex items-center gap-4">
-                <span className={`font-black text-[10px] uppercase tracking-widest ${area === "Outdoor" ? "text-green-500 bg-green-500/10 border-green-500/30" : "text-amber-500 bg-amber-500/10 border-amber-500/30"} px-4 py-2 rounded-full border`}>
-                  {userName} {tableNumber && `• Meja ${tableNumber}`}
+                <span className={`font-black text-[10px] uppercase tracking-[0.2em] ${area === "Outdoor" ? "text-green-500 bg-green-500/10 border-green-500/30" : "text-amber-500 bg-amber-500/10 border-amber-500/30"} px-5 py-2.5 rounded-full border flex items-center gap-2 shadow-lg`}>
+                  <span className="opacity-70">{userName}</span>
+                  {tableNumber && <span className="opacity-40">|</span>}
+                  {tableNumber && <span>📍 Meja {tableNumber} — {area}</span>}
                 </span>
                 <button onClick={handleLogout} className="text-white/40 hover:text-red-500 transition-colors text-[9px] font-bold uppercase tracking-widest">LOGOUT</button>
               </div>
