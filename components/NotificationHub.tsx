@@ -77,7 +77,7 @@ export default function NotificationHub() {
       {/* Full Screen Ready Modal for Customer */}
       {activeAlert && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
-           <div className="absolute inset-0 bg-amber-600/10 "></div>
+           <div className="absolute inset-0 bg-amber-600/10 pointer-events-none"></div>
            <div className="relative bg-white text-stone-900 p-10 rounded-[3rem] shadow-2xl text-center max-w-sm border-4 border-amber-500 animate-bounce-short">
               <div className="text-6xl mb-6">🔔</div>
               <h2 className="font-display text-3xl font-black mb-2 tracking-tighter italic">PESANAN READY!</h2>

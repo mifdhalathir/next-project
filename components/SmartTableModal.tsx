@@ -51,10 +51,17 @@ export default function SmartTableModal() {
     checkStatus();
     window.addEventListener("storage", checkStatus);
     window.addEventListener("openTableModal", () => setIsOpen(true));
+
+    // ESC key to dismiss
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+    document.addEventListener("keydown", handleKeyDown);
     
     return () => {
       window.removeEventListener("storage", checkStatus);
       window.removeEventListener("openTableModal", () => setIsOpen(true));
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
 
@@ -101,8 +108,19 @@ export default function SmartTableModal() {
 
   return (
     <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/95 backdrop-blur-md animate-in fade-in duration-500">
+      {/* Click outside to dismiss */}
+      <div className="absolute inset-0" onClick={() => setIsOpen(false)} />
       <div className="bg-[#0A0A0A] border border-amber-500/20 rounded-[3rem] p-10 relative z-10 w-full max-w-xl shadow-[0_0_80px_rgba(245,158,11,0.15)] overflow-hidden">
         
+        {/* Close Button */}
+        <button
+          onClick={() => setIsOpen(false)}
+          className="absolute top-6 right-6 w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-stone-500 hover:text-white transition-all text-sm"
+          aria-label="Tutup"
+        >
+          ✕
+        </button>
+
         {/* Amber Glow Accents */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent opacity-50"></div>
         <div className="absolute -top-24 -left-24 w-48 h-48 bg-amber-500/10 blur-[60px] rounded-full"></div>
@@ -168,6 +186,14 @@ export default function SmartTableModal() {
               }`}
             >
               🗺️ Buka Peta Meja
+            </button>
+
+            {/* Skip option */}
+            <button
+              onClick={() => setIsOpen(false)}
+              className="w-full py-3 text-[9px] font-black tracking-[0.3em] uppercase text-stone-600 hover:text-stone-400 transition-colors"
+            >
+              Lanjutkan Tanpa Meja (Browse Mode)
             </button>
           </div>
         ) : (
