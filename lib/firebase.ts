@@ -10,6 +10,16 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
+// Log Debugging (Hanya terlihat di F12 Console browser)
+if (typeof window !== "undefined") {
+  console.log("🛠️ Memeriksa Konfigurasi Firebase...");
+  if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "undefined") {
+    console.error("❌ ERROR: API Key Firebase tidak terbaca! Cek Environment Variables di Vercel.");
+  } else {
+    console.log("✅ API Key terdeteksi.");
+  }
+}
+
 // Initialize Firebase only if all required config keys are present
 const isConfigValid =
   !!firebaseConfig.apiKey && firebaseConfig.apiKey !== "undefined";
@@ -24,7 +34,7 @@ if (isConfigValid) {
     googleProvider = new GoogleAuthProvider();
     googleProvider.setCustomParameters({ prompt: "select_account" });
   } catch (e) {
-    console.error("Firebase initialization failed:", e);
+    console.error("❌ Firebase initialization failed:", e);
   }
 }
 
