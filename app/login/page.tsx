@@ -40,10 +40,12 @@ export default function Login() {
   };
 
   useEffect(() => {
-    if (!auth) return;
+    const currentAuth = auth;
+    if (!currentAuth) return;
+    
     const checkRedirect = async () => {
       try {
-        const result = await getRedirectResult(auth);
+        const result = await getRedirectResult(currentAuth);
         if (result?.user) {
           const user = result.user;
           const displayName = user.displayName || "Sultan";
@@ -67,7 +69,10 @@ export default function Login() {
   }, [router]);
 
   const handleGoogleLogin = async () => {
-    if (!auth || !googleProvider) {
+    const currentAuth = auth;
+    const currentProvider = googleProvider;
+    
+    if (!currentAuth || !currentProvider) {
       setError("Fitur Google Login belum dikonfigurasi. Pakai login nama saja ya! 🛠️");
       setShake(true);
       setTimeout(() => setShake(false), 500);
@@ -75,7 +80,7 @@ export default function Login() {
     }
     try {
       setIsProcessing(true);
-      const result = await signInWithPopup(auth, googleProvider);
+      const result = await signInWithPopup(currentAuth, currentProvider);
       const user = result.user;
       const displayName = user.displayName || "Sultan";
       
@@ -86,12 +91,14 @@ export default function Login() {
       addKarsaNotification(`Selamat datang, ${displayName}! 👋`, "success");
       window.dispatchEvent(new Event("storage"));
       router.push("/");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Popup login error:", err);
+      
       // Fallback to redirect if popup is blocked or closed
-      if (err.code === 'auth/popup-closed-by-user' || err.message?.includes('Cross-Origin') || err.code === 'auth/popup-blocked') {
+      const errorObj = err as { code?: string; message?: string };
+      if (errorObj.code === 'auth/popup-closed-by-user' || errorObj.message?.includes('Cross-Origin') || errorObj.code === 'auth/popup-blocked') {
         try {
-          await signInWithRedirect(auth, googleProvider);
+          await signInWithRedirect(currentAuth, currentProvider);
           return; // Don't set processing to false yet, we are redirecting
         } catch (redirectErr) {
           console.error("Fallback redirect failed:", redirectErr);
