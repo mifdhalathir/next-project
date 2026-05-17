@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 
 export default function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
+  const dotRef = useRef<HTMLDivElement>(null);
   const mousePos = useRef({ x: -100, y: -100 });
   const cursorPos = useRef({ x: -100, y: -100 });
   const rafIdRef = useRef<number | null>(null);
@@ -19,33 +20,40 @@ export default function CustomCursor() {
     }
 
     const cursor = cursorRef.current;
-    if (!cursor) return;
+    const dot = dotRef.current;
+    if (!cursor || !dot) return;
 
-    // Set cursor opacity to 1 immediately on mount (no delays, highly visible!)
+    // Set both elements to visible immediately on mount (no delay)
     cursor.style.opacity = "1";
+    dot.style.opacity = "1";
 
     const onMouseMove = (e: MouseEvent) => {
       mousePos.current.x = e.clientX;
       mousePos.current.y = e.clientY;
 
-      // On first movement, snap the cursor coordinates instantly
+      // On first movement, snap the coordinates instantly to prevent flash
       if (!hasMoved.current) {
         cursorPos.current.x = e.clientX;
         cursorPos.current.y = e.clientY;
         hasMoved.current = true;
       }
 
+      // Snappy 1-to-1 movement for the inner dot (absolutely 0ms delay!)
+      dot.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%)`;
+
       const target = e.target as HTMLElement;
       if (target) {
-        // Robust check for interactive elements to add hover state stability (no flicker!)
+        // Check for interactive elements for stable hover states
         const isInteractive = target.closest(
           "a, button, input, select, textarea, .menu-card, .gallery-img, label, [role='button']"
         );
         
         if (isInteractive) {
           cursor.classList.add("cursor-hover");
+          dot.classList.add("dot-hover");
         } else {
           cursor.classList.remove("cursor-hover");
+          dot.classList.remove("dot-hover");
         }
 
         // Localized flashlight effect on .menu-card only
@@ -65,27 +73,29 @@ export default function CustomCursor() {
       cursor.classList.remove("cursor-click");
     };
 
-    // Hide cursor when leaving browser viewport, show it back when entering
+    // Hide both elements when leaving browser viewport, show back when entering
     const onMouseLeaveWindow = () => {
       cursor.style.opacity = "0";
+      dot.style.opacity = "0";
     };
 
     const onMouseEnterWindow = () => {
       if (hasMoved.current) {
         cursor.style.opacity = "1";
+        dot.style.opacity = "1";
       }
     };
 
-    // Premium Snappy Easing Loop (Lerp)
+    // Premium Snappy Easing Loop (Lerp) only for the floating outer ring
     const updatePosition = () => {
-      // Easing factor set to 0.35 for ultra-responsive, instant tracking
+      // Easing set to 0.25 for outer ring smooth floating trail
       const dx = mousePos.current.x - cursorPos.current.x;
       const dy = mousePos.current.y - cursorPos.current.y;
 
-      cursorPos.current.x += dx * 0.35;
-      cursorPos.current.y += dy * 0.35;
+      cursorPos.current.x += dx * 0.25;
+      cursorPos.current.y += dy * 0.25;
 
-      // translate3d forces GPU hardware acceleration for maximum frame-rate
+      // translate3d forces GPU hardware acceleration
       cursor.style.transform = `translate3d(${cursorPos.current.x}px, ${cursorPos.current.y}px, 0) translate(-50%, -50%)`;
 
       rafIdRef.current = requestAnimationFrame(updatePosition);
@@ -115,19 +125,34 @@ export default function CustomCursor() {
   }, []);
 
   return (
-    <div
-      ref={cursorRef}
-      className="custom-cursor"
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        opacity: 0, // Hidden until first mousemove
-        pointerEvents: "none",
-        zIndex: 9999,
-        willChange: "transform",
-      }}
-    ></div>
+    <>
+      <div
+        ref={cursorRef}
+        className="custom-cursor"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          opacity: 0, // Hidden until first mousemove
+          pointerEvents: "none",
+          zIndex: 9999,
+          willChange: "transform",
+        }}
+      ></div>
+      <div
+        ref={dotRef}
+        className="custom-cursor-dot"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          opacity: 0, // Hidden until first mousemove
+          pointerEvents: "none",
+          zIndex: 10000, // Stays above the outer ring
+          willChange: "transform",
+        }}
+      ></div>
+    </>
   );
 }
 

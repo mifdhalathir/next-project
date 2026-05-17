@@ -283,35 +283,58 @@ body {
         cursor: none !important;
     }
 }
+/* Custom Cursor Outer Ring */
 .custom-cursor {
     position: fixed;
     top: 0;
     left: 0;
-    width: 24px;
-    height: 24px;
+    width: 36px; /* Larger size for great visibility */
+    height: 36px;
     border: 2px solid #f59e0b; /* Vibrant Amber 500 */
-    background-color: rgba(245, 158, 11, 0.05); /* Subtle glowing center */
+    background-color: rgba(245, 158, 11, 0.04); /* Very subtle amber fill */
     border-radius: 50% !important;
     pointer-events: none;
     z-index: 9999;
     transform: translate(-50%, -50%);
-    transition: transform 0s !important, width 0.2s ease, height 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); /* Premium neon glow aura */
+    transition: transform 0s !important, width 0.25s cubic-bezier(0.25, 1, 0.5, 1), height 0.25s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.35); /* Neon outer glow */
 }
 .custom-cursor.cursor-hover {
-    width: 48px;
-    height: 48px;
-    background-color: rgba(245, 158, 11, 0.15); /* More visible hover fill */
-    border-color: #fbbf24; /* Lighter golden amber on hover */
-    box-shadow: 0 0 25px rgba(245, 158, 11, 0.7); /* Super premium expanded glow */
+    width: 56px; /* Expands elegantly on hover */
+    height: 56px;
+    background-color: rgba(245, 158, 11, 0.12);
+    border-color: #fbbf24;
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.6);
     border-radius: 50% !important;
 }
 .custom-cursor.cursor-click {
-    width: 14px;
-    height: 14px;
-    background-color: #f59e0b;
-    border-color: #f59e0b;
-    box-shadow: 0 0 15px rgba(245, 158, 11, 0.9);
+    width: 26px;
+    height: 26px;
+    background-color: rgba(245, 158, 11, 0.25);
+    border-color: #d97706;
+    border-radius: 50% !important;
+}
+
+/* Custom Cursor Solid Inner Dot - Instant 1-to-1 Precision! */
+.custom-cursor-dot {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 8px; /* Clear solid dot */
+    height: 8px;
+    background-color: #f59e0b; /* Solid Amber */
+    border-radius: 50% !important;
+    pointer-events: none;
+    z-index: 10000; /* Stays above the outer ring */
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.85); /* Solid dot glow */
+    transition: width 0.2s ease, height 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+.custom-cursor-dot.dot-hover {
+    width: 5px; /* Shrinks to a clean pinpoint dot */
+    height: 5px;
+    background-color: #ffffff; /* Turns white inside the amber outer ring */
+    box-shadow: 0 0 8px #ffffff;
     border-radius: 50% !important;
 }
 
