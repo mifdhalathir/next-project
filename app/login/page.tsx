@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import PageTransition from "@/components/PageTransition";
-import CustomCursor from "@/components/CustomCursor";
 import { addKarsaNotification } from "@/components/NotificationHub";
 import { addActivityLog } from "@/components/ActivityLog";
 
@@ -124,7 +123,6 @@ export default function Login() {
 
   return (
     <>
-      <CustomCursor />
       <PageTransition />
       
       <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-stone-950 selection:bg-amber-500 selection:text-black cursor-none">

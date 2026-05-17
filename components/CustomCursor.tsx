@@ -7,6 +7,7 @@ export default function CustomCursor() {
   const mousePos = useRef({ x: 0, y: 0 });
   const cursorPos = useRef({ x: 0, y: 0 });
   const rafIdRef = useRef<number | null>(null);
+  const hasMoved = useRef(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -20,16 +21,35 @@ export default function CustomCursor() {
     const cursor = cursorRef.current;
     if (!cursor) return;
 
-    // Make kursor visible smoothly on client-side mounting
-    cursor.style.opacity = "1";
-
     const onMouseMove = (e: MouseEvent) => {
       mousePos.current.x = e.clientX;
       mousePos.current.y = e.clientY;
 
-      // Optimasi Premium: Hanya update CSS variables secara lokal jika di atas .menu-card
+      // On first movement, snap the cursor coordinates instantly and fade in
+      // This prevents the cursor from starting or flashing in the top-left (0, 0)
+      if (!hasMoved.current) {
+        cursorPos.current.x = e.clientX;
+        cursorPos.current.y = e.clientY;
+        cursor.style.opacity = "1";
+        hasMoved.current = true;
+      } else if (cursor.style.opacity === "0") {
+        cursor.style.opacity = "1";
+      }
+
       const target = e.target as HTMLElement;
       if (target) {
+        // Robust check for interactive elements to add hover state stability (no flicker!)
+        const isInteractive = target.closest(
+          "a, button, input, select, textarea, .menu-card, .gallery-img, label, [role='button']"
+        );
+        
+        if (isInteractive) {
+          cursor.classList.add("cursor-hover");
+        } else {
+          cursor.classList.remove("cursor-hover");
+        }
+
+        // Localized flashlight effect on .menu-card only
         const menuCard = target.closest(".menu-card") as HTMLElement;
         if (menuCard) {
           menuCard.style.setProperty("--cursor-x", `${e.clientX}px`);
@@ -46,41 +66,27 @@ export default function CustomCursor() {
       cursor.classList.remove("cursor-click");
     };
 
-    // Use event delegation for hover states to perfectly support dynamic elements
-    const onMouseOver = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (!target) return;
+    // Hide cursor when leaving browser viewport, show it back when entering
+    const onMouseLeaveWindow = () => {
+      cursor.style.opacity = "0";
+    };
 
-      const isInteractive = target.closest(
-        "a, button, input, select, textarea, .menu-card, .gallery-img, label"
-      );
-      if (isInteractive) {
-        cursor.classList.add("cursor-hover");
+    const onMouseEnterWindow = () => {
+      if (hasMoved.current) {
+        cursor.style.opacity = "1";
       }
     };
 
-    const onMouseOut = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (!target) return;
-
-      const isInteractive = target.closest(
-        "a, button, input, select, textarea, .menu-card, .gallery-img, label"
-      );
-      if (isInteractive) {
-        cursor.classList.remove("cursor-hover");
-      }
-    };
-
-    // Premium Easing Animation Loop (Lerp)
+    // Premium Snappy Easing Loop (Lerp)
     const updatePosition = () => {
-      // Easing factor ditingkatkan ke 0.3 untuk respon kursor yang instan & super snappy
+      // Easing factor set to 0.35 for ultra-responsive, instant tracking
       const dx = mousePos.current.x - cursorPos.current.x;
       const dy = mousePos.current.y - cursorPos.current.y;
 
-      cursorPos.current.x += dx * 0.3;
-      cursorPos.current.y += dy * 0.3;
+      cursorPos.current.x += dx * 0.35;
+      cursorPos.current.y += dy * 0.35;
 
-      // translate3d forces GPU hardware acceleration for maximum framerate
+      // translate3d forces GPU hardware acceleration for maximum frame-rate
       cursor.style.transform = `translate3d(${cursorPos.current.x}px, ${cursorPos.current.y}px, 0) translate(-50%, -50%)`;
 
       rafIdRef.current = requestAnimationFrame(updatePosition);
@@ -93,16 +99,16 @@ export default function CustomCursor() {
     window.addEventListener("mousemove", onMouseMove, { passive: true });
     window.addEventListener("mousedown", onMouseDown, { passive: true });
     window.addEventListener("mouseup", onMouseUp, { passive: true });
-    document.addEventListener("mouseover", onMouseOver, { passive: true });
-    document.addEventListener("mouseout", onMouseOut, { passive: true });
+    document.addEventListener("mouseleave", onMouseLeaveWindow, { passive: true });
+    document.addEventListener("mouseenter", onMouseEnterWindow, { passive: true });
 
     // Rigorous cleanup of listeners and RAF to prevent memory leaks
     return () => {
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mousedown", onMouseDown);
       window.removeEventListener("mouseup", onMouseUp);
-      document.removeEventListener("mouseover", onMouseOver);
-      document.removeEventListener("mouseout", onMouseOut);
+      document.removeEventListener("mouseleave", onMouseLeaveWindow);
+      document.removeEventListener("mouseenter", onMouseEnterWindow);
       if (rafIdRef.current) {
         cancelAnimationFrame(rafIdRef.current);
       }
@@ -117,7 +123,7 @@ export default function CustomCursor() {
         position: "fixed",
         top: 0,
         left: 0,
-        opacity: 0, // Starts fully transparent, becomes visible on client-mount
+        opacity: 0, // Hidden until first mousemove
         pointerEvents: "none",
         zIndex: 9999,
         willChange: "transform",

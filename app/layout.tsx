@@ -29,6 +29,7 @@ export const viewport: Viewport = {
 import NotificationHub from "@/components/NotificationHub";
 import AtmosphereEngine from "@/components/AtmosphereEngine";
 import AudioWidget from "@/components/AudioWidget";
+import CustomCursor from "@/components/CustomCursor";
 
 export default function RootLayout({
   children,
@@ -51,6 +52,7 @@ export default function RootLayout({
         <AtmosphereEngine />
         <NotificationHub />
         <AudioWidget />
+        <CustomCursor />
         <main className="relative z-10">
           {children}
         </main>

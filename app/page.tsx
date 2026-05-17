@@ -24,7 +24,6 @@ import FABMenu from "@/components/FABMenu";
 import InstagramGrid from "@/components/InstagramGrid";
 import CeritaKami from "@/components/CeritaKami";
 import OfflineToast from "@/components/OfflineToast";
-import CustomCursor from "@/components/CustomCursor";
 import PageTransition from "@/components/PageTransition";
 import LiveActivityFeed from "@/components/LiveActivityFeed";
 import OrderTrackerCard from "@/components/OrderTrackerCard";
@@ -59,7 +58,6 @@ export default function Home() {
 
   return (
     <CartProvider>
-      <CustomCursor />
       <SmartTableModal />
       <Navbar />
       <PageTransition />
