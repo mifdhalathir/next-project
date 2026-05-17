@@ -294,7 +294,7 @@ body {
     pointer-events: none;
     z-index: 9999;
     transform: translate(-50%, -50%);
-    transition: width 0.2s ease, height 0.2s ease, background-color 0.2s ease;
+    transition: transform 0s !important, width 0.2s ease, height 0.2s ease, background-color 0.2s ease;
     mix-blend-mode: difference;
 }
 .custom-cursor.cursor-hover {

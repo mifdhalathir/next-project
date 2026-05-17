@@ -27,9 +27,15 @@ export default function CustomCursor() {
       mousePos.current.x = e.clientX;
       mousePos.current.y = e.clientY;
 
-      // Set CSS variables for flashlight effect on background elements
-      document.documentElement.style.setProperty("--cursor-x", `${e.clientX}px`);
-      document.documentElement.style.setProperty("--cursor-y", `${e.clientY}px`);
+      // Optimasi Premium: Hanya update CSS variables secara lokal jika di atas .menu-card
+      const target = e.target as HTMLElement;
+      if (target) {
+        const menuCard = target.closest(".menu-card") as HTMLElement;
+        if (menuCard) {
+          menuCard.style.setProperty("--cursor-x", `${e.clientX}px`);
+          menuCard.style.setProperty("--cursor-y", `${e.clientY}px`);
+        }
+      }
     };
 
     const onMouseDown = () => {
@@ -67,12 +73,12 @@ export default function CustomCursor() {
 
     // Premium Easing Animation Loop (Lerp)
     const updatePosition = () => {
-      // Easing factor (0.16) offers a premium inertia lag effect
+      // Easing factor ditingkatkan ke 0.3 untuk respon kursor yang instan & super snappy
       const dx = mousePos.current.x - cursorPos.current.x;
       const dy = mousePos.current.y - cursorPos.current.y;
 
-      cursorPos.current.x += dx * 0.16;
-      cursorPos.current.y += dy * 0.16;
+      cursorPos.current.x += dx * 0.3;
+      cursorPos.current.y += dy * 0.3;
 
       // translate3d forces GPU hardware acceleration for maximum framerate
       cursor.style.transform = `translate3d(${cursorPos.current.x}px, ${cursorPos.current.y}px, 0) translate(-50%, -50%)`;
