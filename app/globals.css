@@ -289,26 +289,29 @@ body {
     left: 0;
     width: 24px;
     height: 24px;
-    border: 2px solid #b45309;
+    border: 2px solid #f59e0b; /* Vibrant Amber 500 */
+    background-color: rgba(245, 158, 11, 0.05); /* Subtle glowing center */
     border-radius: 50% !important;
     pointer-events: none;
     z-index: 9999;
     transform: translate(-50%, -50%);
-    transition: transform 0s !important, width 0.2s ease, height 0.2s ease, background-color 0.2s ease;
-    mix-blend-mode: difference;
+    transition: transform 0s !important, width 0.2s ease, height 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); /* Premium neon glow aura */
 }
 .custom-cursor.cursor-hover {
-    width: 45px;
-    height: 45px;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-color: rgba(245, 158, 11, 0.8);
-    box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+    width: 48px;
+    height: 48px;
+    background-color: rgba(245, 158, 11, 0.15); /* More visible hover fill */
+    border-color: #fbbf24; /* Lighter golden amber on hover */
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.7); /* Super premium expanded glow */
     border-radius: 50% !important;
 }
 .custom-cursor.cursor-click {
-    width: 16px;
-    height: 16px;
-    background-color: #b45309;
+    width: 14px;
+    height: 14px;
+    background-color: #f59e0b;
+    border-color: #f59e0b;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.9);
     border-radius: 50% !important;
 }
 

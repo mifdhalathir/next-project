@@ -4,8 +4,8 @@ import { useEffect, useRef } from "react";
 
 export default function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
-  const mousePos = useRef({ x: 0, y: 0 });
-  const cursorPos = useRef({ x: 0, y: 0 });
+  const mousePos = useRef({ x: -100, y: -100 });
+  const cursorPos = useRef({ x: -100, y: -100 });
   const rafIdRef = useRef<number | null>(null);
   const hasMoved = useRef(false);
 
@@ -21,19 +21,18 @@ export default function CustomCursor() {
     const cursor = cursorRef.current;
     if (!cursor) return;
 
+    // Set cursor opacity to 1 immediately on mount (no delays, highly visible!)
+    cursor.style.opacity = "1";
+
     const onMouseMove = (e: MouseEvent) => {
       mousePos.current.x = e.clientX;
       mousePos.current.y = e.clientY;
 
-      // On first movement, snap the cursor coordinates instantly and fade in
-      // This prevents the cursor from starting or flashing in the top-left (0, 0)
+      // On first movement, snap the cursor coordinates instantly
       if (!hasMoved.current) {
         cursorPos.current.x = e.clientX;
         cursorPos.current.y = e.clientY;
-        cursor.style.opacity = "1";
         hasMoved.current = true;
-      } else if (cursor.style.opacity === "0") {
-        cursor.style.opacity = "1";
       }
 
       const target = e.target as HTMLElement;
