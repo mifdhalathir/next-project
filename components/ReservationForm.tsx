@@ -321,13 +321,13 @@ export default function ReservationForm() {
                     new CustomEvent("openTableModal", {
                       detail: {
                         directMap: true,
-                        area: formData.area || null,
-                        viewOnly: true, // Tell modal it's for viewing only
+                        area: formData.area || "Indoor", // Default to Indoor so it ALWAYS opens the map directly
+                        viewOnly: true,
                       },
                     })
                   );
                 }}
-                className="w-full mt-3 py-3 border border-dashed border-white/20 rounded-xl text-[10px] font-bold text-stone-400 hover:text-white hover:bg-white/5 transition flex items-center justify-center gap-2 tracking-widest uppercase"
+                className="w-full mt-3 py-3 border border-dashed border-amber-500/30 bg-amber-500/5 rounded-xl text-[10px] font-black text-amber-500 hover:text-white hover:bg-amber-500 hover:border-amber-500 transition-all flex items-center justify-center gap-2 tracking-widest uppercase relative z-10"
               >
                 🗺️ LIHAT PETA MEJA
               </button>

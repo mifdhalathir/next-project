@@ -282,7 +282,13 @@ export default function SmartTableModal() {
                 </div>
               </div>
               <button 
-                onClick={() => setShowMap(false)}
+                onClick={() => {
+                  if (isViewOnly) {
+                    setIsOpen(false);
+                  } else {
+                    setShowMap(false);
+                  }
+                }}
                 className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-stone-400 transition-colors"
               >
                 ✕
