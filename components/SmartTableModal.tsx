@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { addKarsaNotification } from "./NotificationHub";
+import { addActivityLog } from "./ActivityLog";
 
 export default function SmartTableModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -91,9 +92,7 @@ export default function SmartTableModal() {
     localStorage.setItem("karsa_pesanan_masuk", JSON.stringify([checkInData, ...existingIncoming]));
 
     // Also add to Activity Log for global tracking
-    import("@/components/ActivityLog").then(({ addActivityLog }) => {
-      addActivityLog(`${userName || "Sultan"} memilih Meja ${tableStr} (${area})`, "login");
-    });
+    addActivityLog(`${userName || "Sultan"} memilih Meja ${tableStr} (${area})`, "login");
 
     window.dispatchEvent(new Event("storage"));
     setIsOpen(false);

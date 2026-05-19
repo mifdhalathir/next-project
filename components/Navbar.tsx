@@ -115,7 +115,10 @@ export default function Navbar() {
               <div className="flex items-center gap-4">
                 {/* Avatar: Google photo or initials badge */}
                 {userAvatar ? (
-                  <div className="relative group/avatar flex items-center gap-3">
+                  <button
+                    onClick={() => window.dispatchEvent(new Event("openTableModal"))}
+                    className="relative group/avatar flex items-center gap-3 cursor-pointer border border-white/10 hover:border-amber-500/50 px-3 py-1.5 rounded-full bg-white/5 transition-all"
+                  >
                     <div className="relative">
                       <div className="absolute inset-0 rounded-full bg-amber-500/30 blur-md opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-300" />
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -127,23 +130,26 @@ export default function Navbar() {
                       />
                     </div>
                     <span className="font-black text-[10px] uppercase tracking-[0.2em] text-amber-400 hidden sm:block">
-                      {userName.split(" ")[0]}
+                      {userName.split(" ")[0]} {tableNumber ? `| 📍 Meja ${tableNumber}` : "| 📍 Pilih Meja"}
                     </span>
-                  </div>
+                  </button>
                 ) : (
-                  <span className={`font-black text-[10px] uppercase tracking-[0.2em] ${
-                    area === "Outdoor"
-                      ? "text-green-500 bg-green-500/10 border-green-500/30"
-                      : "text-amber-500 bg-amber-500/10 border-amber-500/30"
-                  } px-4 py-2 rounded-full border flex items-center gap-2 shadow-lg`}>
+                  <button
+                    onClick={() => window.dispatchEvent(new Event("openTableModal"))}
+                    className={`font-black text-[10px] uppercase tracking-[0.2em] cursor-pointer hover:border-amber-500 transition-colors ${
+                      area === "Outdoor"
+                        ? "text-green-500 bg-green-500/10 border-green-500/30 hover:bg-green-500/20"
+                        : "text-amber-500 bg-amber-500/10 border-amber-500/30 hover:bg-amber-500/20"
+                    } px-4 py-2 rounded-full border flex items-center gap-2 shadow-lg`}
+                  >
                     {/* Initials badge for manual login */}
                     <span className="w-5 h-5 rounded-full bg-current/20 flex items-center justify-center text-[8px] font-black shrink-0">
                       {userName.trim().charAt(0).toUpperCase()}
                     </span>
                     <span className="opacity-80 hidden sm:inline">{userName.split(" ")[0]}</span>
-                    {tableNumber && <span className="opacity-40 hidden sm:inline">|</span>}
-                    {tableNumber && <span className="hidden sm:inline">📍 {tableNumber}</span>}
-                  </span>
+                    <span className="opacity-40 hidden sm:inline">|</span>
+                    <span className="hidden sm:inline">📍 {tableNumber ? `Meja ${tableNumber}` : "Pilih Meja"}</span>
+                  </button>
                 )}
                 <button
                   onClick={handleLogout}

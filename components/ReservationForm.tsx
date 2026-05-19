@@ -1,15 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import flatpickr from "flatpickr";
-import "flatpickr/dist/flatpickr.min.css";
-import "flatpickr/dist/themes/dark.css";
+import { useEffect, useState } from "react";
 import confetti from "canvas-confetti";
 import { useCart } from "./CartProvider";
 
 export default function ReservationForm() {
   const { placeReservation } = useCart();
-  const dateRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     nama: "",
     area: "",
@@ -28,17 +24,6 @@ export default function ReservationForm() {
   const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
-    if (dateRef.current) {
-      flatpickr(dateRef.current, {
-        minDate: "today",
-        dateFormat: "Y-m-d",
-        disableMobile: true,
-        onChange: (selectedDates, dateStr) => {
-          setFormData((prev) => ({ ...prev, tanggal: dateStr }));
-        },
-      });
-    }
-
     try {
       const savedCap = localStorage.getItem('karsa_area_capacity');
       if (savedCap) {
@@ -191,10 +176,11 @@ export default function ReservationForm() {
               <div>
                 <label className="block text-cream-200 text-sm mb-1.5">Tanggal Kedatangan</label>
                 <input
-                  type="text"
+                  type="date"
                   name="tanggal"
-                  ref={dateRef}
-                  placeholder="Pilih tanggal"
+                  value={formData.tanggal}
+                  onChange={handleChange}
+                  min={new Date().toISOString().split("T")[0]}
                   className={`w-full bg-white/10 border text-cream-100 placeholder-stone-400 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition ${
                     errors.includes("tanggal") ? "border-red-500 shake" : "border-cream-200/20"
                   }`}
