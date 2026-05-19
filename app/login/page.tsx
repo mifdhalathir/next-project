@@ -7,87 +7,90 @@ import { addKarsaNotification } from "@/components/NotificationHub";
 import { addActivityLog } from "@/components/ActivityLog";
 
 import { auth, googleProvider } from "@/lib/firebase";
-import { signInWithPopup, signInWithRedirect, getRedirectResult } from "firebase/auth";
+import { signInWithPopup, signInWithRedirect, getRedirectResult, signInWithEmailAndPassword } from "firebase/auth";
 
 export default function Login() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState("");
   const [shake, setShake] = useState(false);
-  const [phone, setPhone] = useState("");
+  
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const router = useRouter();
 
-  // ── Validation helpers ──
-  const validatePhone = (val: string): string | null => {
-    const digits = val.replace(/\D/g, "");
-    if (!digits) return "Nomor HP wajib diisi!";
-    if (digits.length < 10 || digits.length > 13) return "Nomor HP harus 10-13 digit!";
-    return null;
-  };
-
-  const validatePassword = (val: string): string | null => {
-    if (!val) return "Password wajib diisi!";
-    if (val.length < 6) return "Password minimal 6 karakter!";
-    return null;
-  };
-
-  // ── Phone+Password Login ──
-  const handleLogin = (e: React.FormEvent) => {
+  // ── Email + Password Login ──
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    const phoneErr = validatePhone(phone);
-    if (phoneErr) {
-      setError(phoneErr);
+    if (!email.trim()) {
+      setError("Email wajib diisi!");
       setShake(true);
       setTimeout(() => setShake(false), 500);
-      setIsProcessing(false);
       return;
     }
 
-    const passErr = validatePassword(password);
-    if (passErr) {
-      setError(passErr);
+    if (!password) {
+      setError("Password wajib diisi!");
       setShake(true);
       setTimeout(() => setShake(false), 500);
-      setIsProcessing(false);
       return;
     }
 
     setIsProcessing(true);
 
-    // Simulate auth delay (replace with real API later)
-    setTimeout(() => {
-      const cleanPhone = phone.replace(/\D/g, "");
-      const displayName = `User-${cleanPhone.slice(-4)}`;
-
-      localStorage.setItem("karsa_user_phone", cleanPhone);
+    try {
+      if (!auth) throw new Error("Firebase auth tidak tersedia");
+      
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      const displayName = user.displayName || email.split("@")[0] || "Sultan";
+      
       localStorage.setItem("karsa_user_name", displayName);
-
-      addActivityLog(`Login: ${displayName} (${cleanPhone})`, "login");
+      localStorage.setItem("karsa_username", displayName); // Untuk integrasi kasir
+      localStorage.setItem("karsa_uid", user.uid);
+      if (user.photoURL) localStorage.setItem("karsa_user_avatar", user.photoURL);
+      
+      addActivityLog(`Login Email: ${displayName}`, "login");
       addKarsaNotification(`Selamat datang, ${displayName}! 👋`, "success");
-      window.dispatchEvent(new Event("storage"));
+      window.dispatchEvent(new Event("storage")); 
       router.push("/");
-    }, 1200);
+    } catch (err: any) {
+      console.error("Login error:", err);
+      let errorMessage = "Login Gagal. Silakan coba lagi.";
+      if (err.code === "auth/invalid-email") errorMessage = "Format email tidak valid!";
+      else if (err.code === "auth/user-not-found" || err.code === "auth/invalid-credential") errorMessage = "Email atau Password salah!";
+      else if (err.code === "auth/wrong-password") errorMessage = "Password salah!";
+      else if (err.message) errorMessage = `Error: ${err.message}`;
+
+      setError(errorMessage);
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   // ── Google redirect check ──
   useEffect(() => {
     const currentAuth = auth;
     if (!currentAuth) return;
-
+    
     const checkRedirect = async () => {
       try {
         const result = await getRedirectResult(currentAuth);
         if (result?.user) {
           const user = result.user;
           const displayName = user.displayName || "Sultan";
-
+          
           localStorage.setItem("karsa_user_name", displayName);
+          localStorage.setItem("karsa_username", displayName);
+          localStorage.setItem("karsa_uid", user.uid);
           if (user.photoURL) localStorage.setItem("karsa_user_avatar", user.photoURL);
-
+          
           addActivityLog(`Login Google: ${displayName}`, "login");
           addKarsaNotification(`Selamat datang, ${displayName}! 👋`, "success");
           window.dispatchEvent(new Event("storage"));
@@ -95,6 +98,9 @@ export default function Login() {
         }
       } catch (err) {
         console.error("Redirect login error:", err);
+        setError("Google Login Gagal. Silakan coba lagi.");
+        setShake(true);
+        setTimeout(() => setShake(false), 500);
       }
     };
     checkRedirect();
@@ -104,51 +110,49 @@ export default function Login() {
   const handleGoogleLogin = async () => {
     const currentAuth = auth;
     const currentProvider = googleProvider;
-
+    
     if (!currentAuth || !currentProvider) {
-      setError("Google Login belum dikonfigurasi. Pakai login HP saja ya! 🛠️");
+      setError("Fitur Google Login belum dikonfigurasi.");
       setShake(true);
       setTimeout(() => setShake(false), 500);
       return;
     }
-
+    
     try {
       setIsProcessing(true);
       const result = await signInWithPopup(currentAuth, currentProvider);
       const user = result.user;
       const displayName = user.displayName || "Sultan";
-
+      
       localStorage.setItem("karsa_user_name", displayName);
+      localStorage.setItem("karsa_username", displayName);
+      localStorage.setItem("karsa_uid", user.uid);
       if (user.photoURL) localStorage.setItem("karsa_user_avatar", user.photoURL);
-
+      
       addActivityLog(`Login Google: ${displayName}`, "login");
       addKarsaNotification(`Selamat datang, ${displayName}! 👋`, "success");
       window.dispatchEvent(new Event("storage"));
       router.push("/");
-    } catch (err: unknown) {
+    } catch (err: any) {
       console.error("Popup login error:", err);
-      const errorObj = err as { code?: string; message?: string };
-
-      if (
-        errorObj.code === "auth/popup-closed-by-user" ||
-        errorObj.message?.includes("Cross-Origin") ||
-        errorObj.code === "auth/popup-blocked"
-      ) {
+      
+      // Fallback to redirect if popup is blocked or closed
+      if (err.code === 'auth/popup-closed-by-user' || err.message?.includes('Cross-Origin') || err.code === 'auth/popup-blocked') {
         try {
           await signInWithRedirect(currentAuth, currentProvider);
-          return;
+          return; // Don't set processing to false yet, we are redirecting
         } catch (redirectErr) {
           console.error("Fallback redirect failed:", redirectErr);
         }
       }
-
+      
       let errorMessage = "Google Login Gagal. Silakan coba lagi.";
-      if (errorObj.code === "auth/unauthorized-domain") {
+      if (err.code === 'auth/unauthorized-domain') {
         errorMessage = "Domain belum didaftarkan di Firebase Console!";
-      } else if (errorObj.message) {
-        errorMessage = `Error: ${errorObj.message}`;
+      } else if (err.message) {
+        errorMessage = `Error: ${err.message}`;
       }
-
+      
       setError(errorMessage);
       setShake(true);
       setTimeout(() => setShake(false), 500);
@@ -159,79 +163,108 @@ export default function Login() {
   return (
     <>
       <PageTransition />
+      
+      <div className="min-h-screen flex flex-col md:flex-row bg-stone-950 selection:bg-amber-500 selection:text-black">
+        
+        {/* ========== LEFT: IMAGE PANEL ========== */}
+        <div className="relative w-full h-44 sm:h-56 md:w-1/2 md:h-screen flex-shrink-0 overflow-hidden">
+          {/* Background image */}
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: "url('https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?q=80&w=1920&auto=format&fit=crop')",
+            }}
+          />
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b md:bg-gradient-to-r from-transparent via-stone-950/60 to-stone-950" />
+          
+          {/* Text overlay – hidden on mobile, shown on md+ */}
+          <div className="hidden md:flex absolute inset-0 flex-col items-center justify-center px-12 text-center z-10">
+            <div className="w-20 h-20 mb-8 relative group">
+              <div className="absolute inset-0 bg-amber-500/20 blur-xl rounded-full group-hover:bg-amber-500/40 transition-all duration-500"></div>
+              <div className="relative w-full h-full bg-black/40 backdrop-blur-sm border border-amber-500/30 rounded-full flex items-center justify-center text-3xl">☕</div>
+            </div>
+            <h2 className="font-display text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+              Selamat Datang<br/>di <span className="text-amber-500">KARSA</span>
+            </h2>
+            <p className="text-stone-400 text-xs lg:text-sm mt-4 max-w-xs leading-relaxed">
+              Nikmati kopi terbaik Padang dalam suasana yang menginspirasi
+            </p>
+            <div className="w-12 h-0.5 bg-amber-500 mt-6"></div>
+          </div>
 
-      <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-stone-950 selection:bg-amber-500 selection:text-black px-4 py-8">
-        {/* Ambient glow */}
-        <div className="absolute top-1/4 -left-32 w-[500px] h-[500px] bg-[radial-gradient(circle,_rgba(217,119,6,0.12)_0%,_transparent_70%)] pointer-events-none" />
-        <div className="absolute bottom-1/4 -right-32 w-[500px] h-[500px] bg-[radial-gradient(circle,_rgba(120,53,15,0.15)_0%,_transparent_70%)] pointer-events-none" />
-
-        <div
-          className={`relative z-10 w-full max-w-[440px] transition-all duration-700 ${shake ? "animate-shake" : ""}`}
-        >
-          {/* ── Main Card ── */}
-          <div className="bg-[#111111] border border-white/[0.06] rounded-[2rem] sm:rounded-[2.5rem] px-6 sm:px-8 py-10 sm:py-12 shadow-[0_25px_80px_rgba(0,0,0,0.9)]">
-            {/* Glow accent top */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
-
-            {/* Logo */}
-            <div className="text-center mb-8 sm:mb-10">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-5 sm:mb-6 relative group">
-                <div className="absolute inset-0 bg-amber-500/20 blur-xl rounded-full group-hover:bg-amber-500/40 transition-all duration-500" />
-                <div className="relative w-full h-full bg-[#1a1a1a] border border-amber-500/30 rounded-full flex items-center justify-center text-2xl sm:text-3xl shadow-[0_0_30px_rgba(245,158,11,0.08)]">
-                  ☕
-                </div>
-              </div>
-              <h1 className="font-display text-2xl sm:text-3xl font-black text-white tracking-[0.15em] sm:tracking-[0.2em] uppercase">
+          {/* Mobile mini-branding overlay */}
+          <div className="flex md:hidden absolute inset-0 items-center justify-center z-10">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-black/40 backdrop-blur-sm border border-amber-500/30 rounded-full flex items-center justify-center text-lg">☕</div>
+              <h2 className="font-display text-xl font-black text-white tracking-[0.15em] uppercase">
                 KARSA <span className="text-amber-500">CAFE</span>
+              </h2>
+            </div>
+          </div>
+        </div>
+
+        {/* ========== RIGHT: FORM PANEL ========== */}
+        <div className="w-full md:w-1/2 flex items-center justify-center relative overflow-hidden">
+          {/* Ambient glow */}
+          <div className="absolute top-1/4 -left-32 w-[400px] h-[400px] bg-[radial-gradient(circle,_rgba(217,119,6,0.1)_0%,_transparent_70%)] pointer-events-none"></div>
+          <div className="absolute bottom-1/4 -right-32 w-[400px] h-[400px] bg-[radial-gradient(circle,_rgba(120,53,15,0.12)_0%,_transparent_70%)] pointer-events-none"></div>
+
+          <div 
+            className={`relative z-10 w-full max-w-md px-6 py-8 sm:px-10 sm:py-12 md:px-12 md:py-16 lg:px-16 transition-all duration-700 ${shake ? 'animate-shake' : ''}`}
+          >
+            {/* Header */}
+            <div className="text-center md:text-left mb-6 sm:mb-8 md:mb-10">
+              <div className="hidden md:block w-14 h-14 lg:w-16 lg:h-16 mb-5 relative group">
+                <div className="absolute inset-0 bg-amber-500/20 blur-xl rounded-full group-hover:bg-amber-500/40 transition-all duration-500"></div>
+                <div className="relative w-full h-full bg-[#1A1A1A] border border-amber-500/30 rounded-full flex items-center justify-center text-2xl lg:text-3xl shadow-[0_0_20px_rgba(245,158,11,0.05)]">☕</div>
+              </div>
+
+              <h1 className="font-display text-2xl sm:text-3xl md:text-3xl lg:text-4xl font-black text-white tracking-tight">
+                Welcome Back
               </h1>
-              <p className="text-stone-500 text-[9px] sm:text-[10px] tracking-[0.3em] sm:tracking-[0.4em] uppercase font-bold mt-2 sm:mt-3">
-                Masuk ke akunmu
+              <p className="text-stone-500 text-[10px] sm:text-xs tracking-[0.2em] sm:tracking-[0.3em] uppercase font-bold mt-2 sm:mt-3">
+                Login untuk melanjutkan
               </p>
             </div>
 
-            {/* Error banner */}
             {error && (
-              <div className="bg-red-500/10 border border-red-500/20 py-2.5 sm:py-3 rounded-xl mb-5 text-center animate-in fade-in duration-300">
-                <p className="text-red-400 text-[10px] sm:text-[11px] uppercase font-bold tracking-wider px-3">
-                  {error}
-                </p>
+              <div className="bg-red-500/10 border border-red-500/20 py-2.5 sm:py-3 rounded-xl mb-4 sm:mb-6 text-center animate-in fade-in duration-300">
+                <p className="text-red-400 text-[10px] uppercase font-bold tracking-widest">{error}</p>
               </div>
             )}
 
-            {/* ── Form ── */}
-            <form onSubmit={handleLogin} className="space-y-3.5 sm:space-y-4">
-              {/* Phone input */}
-              <div>
-                <label className="block text-stone-400 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest mb-2">
-                  Nomor HP / WhatsApp
-                </label>
-                <div className="relative">
-                  <span className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-stone-600 text-sm pointer-events-none">
-                    📱
-                  </span>
-                  <input
-                    type="tel"
-                    inputMode="numeric"
-                    value={phone}
-                    onChange={(e) => {
-                      setPhone(e.target.value.replace(/[^\d]/g, ""));
-                      if (error) setError("");
-                    }}
-                    placeholder="08xxxxxxxxxx"
-                    maxLength={13}
-                    className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl sm:rounded-2xl text-white placeholder-stone-600 pl-11 sm:pl-12 pr-5 py-3.5 sm:py-4 text-sm focus:outline-none focus:border-amber-500/60 focus:bg-[#1e1e1e] transition-all font-medium"
-                  />
-                </div>
+            <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
+              {/* Email Input */}
+              <div className="relative group">
+                <span className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-stone-500 pointer-events-none">
+                  {/* Email Icon */}
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                  </svg>
+                </span>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (error) setError("");
+                  }}
+                  placeholder="contoh@email.com"
+                  autoComplete="email"
+                  className="w-full bg-[#1A1A1A] border border-[#333] rounded-xl sm:rounded-2xl text-white placeholder-stone-600 pl-11 sm:pl-12 pr-5 py-3.5 sm:py-4 md:py-4 text-sm focus:outline-none focus:border-amber-500 focus:bg-[#222] transition-all font-medium"
+                />
               </div>
 
-              {/* Password input */}
+              {/* Password Input */}
               <div>
-                <label className="block text-stone-400 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <span className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-stone-600 text-sm pointer-events-none">
-                    🔒
+                <div className="relative group">
+                  <span className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-stone-500 pointer-events-none">
+                    {/* Lock Icon */}
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                    </svg>
                   </span>
                   <input
                     type={showPassword ? "text" : "password"}
@@ -240,20 +273,21 @@ export default function Login() {
                       setPassword(e.target.value);
                       if (error) setError("");
                     }}
-                    placeholder="Masukkan Password Anda"
-                    className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl sm:rounded-2xl text-white placeholder-stone-600 pl-11 sm:pl-12 pr-12 py-3.5 sm:py-4 text-sm focus:outline-none focus:border-amber-500/60 focus:bg-[#1e1e1e] transition-all font-medium"
+                    placeholder="Masukkan password Anda"
+                    className="w-full bg-[#1A1A1A] border border-[#333] rounded-xl sm:rounded-2xl text-white placeholder-stone-600 pl-11 sm:pl-12 pr-12 py-3.5 sm:py-4 md:py-4 text-sm focus:outline-none focus:border-amber-500 focus:bg-[#222] transition-all font-medium"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-stone-500 hover:text-amber-500 transition-colors p-1"
-                    aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
                   >
                     {showPassword ? (
+                      /* Eye Slash Icon */
                       <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l18 18" />
                       </svg>
                     ) : (
+                      /* Eye Icon */
                       <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -261,29 +295,23 @@ export default function Login() {
                     )}
                   </button>
                 </div>
-
                 {/* Lupa Password */}
                 <div className="text-right mt-2">
                   <button
                     type="button"
-                    className="text-amber-500/70 hover:text-amber-400 text-[10px] sm:text-[11px] font-bold tracking-wider transition-colors"
-                    onClick={() =>
-                      addKarsaNotification(
-                        "Hubungi admin KARSA di WhatsApp untuk reset password 📞",
-                        "warning"
-                      )
-                    }
+                    onClick={() => addKarsaNotification("Hubungi admin KARSA untuk mereset password 📞", "warning")}
+                    className="text-amber-500/80 hover:text-amber-400 text-[10px] sm:text-[11px] font-bold tracking-wide transition-colors"
                   >
                     Lupa Password?
                   </button>
                 </div>
               </div>
 
-              {/* Submit button */}
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isProcessing}
-                className="w-full bg-amber-600 hover:bg-amber-500 disabled:bg-amber-800 disabled:hover:bg-amber-800 text-white py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-black tracking-[0.25em] uppercase transition-all shadow-xl shadow-amber-900/20 active:scale-[0.98] disabled:cursor-not-allowed mt-1"
+                className="w-full bg-amber-600 hover:bg-amber-500 disabled:bg-amber-800 disabled:cursor-not-allowed text-white py-3.5 sm:py-4 md:py-4 mt-2 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-black tracking-[0.25em] sm:tracking-[0.3em] uppercase transition-all shadow-xl shadow-amber-900/20 active:scale-[0.98]"
               >
                 {isProcessing ? (
                   <span className="flex items-center justify-center gap-2">
@@ -298,29 +326,21 @@ export default function Login() {
                 )}
               </button>
 
-              {/* Daftar link */}
-              <p className="text-center text-stone-500 text-[10px] sm:text-[11px] tracking-wide">
+              {/* Daftar Link */}
+              <p className="text-center text-stone-500 text-[10px] sm:text-[11px] tracking-wide pt-1">
                 Belum punya akun?{" "}
                 <button
                   type="button"
+                  onClick={() => router.push("/register")}
                   className="text-amber-500 hover:text-amber-400 font-bold transition-colors underline underline-offset-2"
-                  onClick={() =>
-                    addKarsaNotification(
-                      "Fitur pendaftaran segera hadir! Hubungi admin untuk akun baru 🚀",
-                      "warning"
-                    )
-                  }
                 >
                   Daftar di sini
                 </button>
               </p>
 
-              {/* Divider */}
-              <div className="relative flex items-center justify-center my-2 sm:my-3">
-                <div className="border-t border-[#2a2a2a] w-full" />
-                <span className="text-stone-600 text-[9px] px-4 bg-[#111111] absolute font-black tracking-[0.4em] uppercase">
-                  ATAU
-                </span>
+              <div className="relative flex items-center justify-center my-5 sm:my-6">
+                <div className="border-t border-[#333] w-full"></div>
+                <span className="text-stone-600 text-[9px] px-4 bg-stone-950 absolute font-black tracking-[0.4em] uppercase">ATAU</span>
               </div>
 
               {/* Google Login */}
@@ -328,38 +348,22 @@ export default function Login() {
                 type="button"
                 onClick={handleGoogleLogin}
                 disabled={isProcessing}
-                className="w-full bg-[#1a1a1a] hover:bg-[#222] disabled:opacity-50 border border-[#2a2a2a] hover:border-amber-500/30 text-white py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-black tracking-[0.15em] uppercase transition-all flex items-center justify-center gap-3 group"
+                className="w-full bg-[#1A1A1A] hover:bg-[#222] disabled:opacity-50 border border-[#333] hover:border-amber-500/30 text-white py-3.5 sm:py-4 md:py-4 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-black tracking-[0.15em] sm:tracking-[0.2em] uppercase transition-all flex items-center justify-center gap-3 sm:gap-4 group"
               >
-                <svg
-                  className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:scale-110"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    fill="currentColor"
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                  />
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                 </svg>
-                Login dengan Google
+                LOGIN DENGAN GOOGLE
               </button>
             </form>
-          </div>
 
-          {/* Footer */}
-          <p className="text-center text-stone-700 text-[8px] sm:text-[9px] tracking-[0.4em] uppercase mt-8 font-black">
-            &copy; 2024 KARSA CAFE PADANG
-          </p>
+            <p className="text-center md:text-left text-stone-700 text-[8px] sm:text-[9px] tracking-[0.4em] sm:tracking-[0.5em] uppercase mt-6 sm:mt-8 md:mt-10 font-black">
+              &copy; 2024 KARSA CAFE PADANG
+            </p>
+          </div>
         </div>
       </div>
 
@@ -370,7 +374,7 @@ export default function Login() {
           75% { transform: translateX(8px); }
         }
         .animate-shake {
-          animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+          animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
         }
       `}</style>
     </>
