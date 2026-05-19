@@ -295,9 +295,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const userName = typeof window !== "undefined" ? localStorage.getItem("karsa_user_name") : null;
     const tableNum = typeof window !== "undefined" ? localStorage.getItem("karsa_table_number") : null;
 
-    if (!userName || !tableNum) {
-      alert("Eits! Isi namamu dan pilih nomor meja dulu ya! ☕");
+    if (!userName) {
+      alert("Eits! Isi namamu dulu ya! ☕");
       window.location.href = "/login";
+      return;
+    }
+    if (!tableNum) {
+      addKarsaNotification("Silakan pilih nomor meja dulu ya! 📍", "warning");
+      window.dispatchEvent(new Event("openTableModal"));
       return;
     }
     setCart(prev => ({
@@ -318,9 +323,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const userName = typeof window !== "undefined" ? localStorage.getItem("karsa_user_name") : null;
     const tableNum = typeof window !== "undefined" ? localStorage.getItem("karsa_table_number") : null;
 
-    if (!userName || !tableNum) {
-      alert("Eits! Isi namamu dan pilih nomor meja dulu ya! ☕");
+    if (!userName) {
+      alert("Eits! Isi namamu dulu ya! ☕");
       window.location.href = "/login";
+      return;
+    }
+    if (!tableNum) {
+      addKarsaNotification("Silakan pilih nomor meja dulu ya! 📍", "warning");
+      window.dispatchEvent(new Event("openTableModal"));
       return;
     }
     setCart(prev => {

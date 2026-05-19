@@ -159,7 +159,11 @@ export default function ReservationForm() {
                   </span>
                 </button>
               </div>
-              <button type="button" className="w-full mt-3 py-3 border border-dashed border-white/20 rounded-xl text-[10px] font-bold text-stone-400 hover:text-white hover:bg-white/5 transition flex items-center justify-center gap-2 tracking-widest uppercase">
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new Event("openTableModal"))}
+                className="w-full mt-3 py-3 border border-dashed border-white/20 rounded-xl text-[10px] font-bold text-stone-400 hover:text-white hover:bg-white/5 transition flex items-center justify-center gap-2 tracking-widest uppercase"
+              >
                 🗺️ LIHAT PETA MEJA
               </button>
             </div>

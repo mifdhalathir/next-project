@@ -111,7 +111,7 @@ export default function DigitalReceipt({ order, isOpen, onClose }: DigitalReceip
               </button>
               <button
                 onClick={onClose}
-                className="w-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white py-4 rounded-2xl font-bold text-xs uppercase tracking-[0.2em] transition-all"
+                className="w-full bg-stone-100 hover:bg-stone-200 text-stone-700 hover:text-stone-900 border border-stone-200 py-4 rounded-2xl font-bold text-xs uppercase tracking-[0.2em] transition-all"
               >
                 Tutup
               </button>
