@@ -46,9 +46,11 @@ export default function PageTransition() {
         </div>
       )}
 
-      <div
-        className={`page-transition ${isLoaded && !isLoading ? "loaded" : ""}`}
-      ></div>
+      {isLoading && (
+        <div
+          className={`page-transition ${isLoaded ? "loaded" : ""}`}
+        ></div>
+      )}
     </>
   );
 }

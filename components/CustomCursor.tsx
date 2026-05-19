@@ -21,6 +21,9 @@ export default function CustomCursor() {
     const cursor = cursorRef.current;
     if (!cursor) return;
 
+    // Enable custom cursor styles on body since the component is running
+    document.body.classList.add("custom-cursor-active");
+
     // Set element to visible immediately on mount (no delay)
     cursor.style.opacity = "1";
 
@@ -103,6 +106,7 @@ export default function CustomCursor() {
 
     // Rigorous cleanup of listeners and RAF to prevent memory leaks
     return () => {
+      document.body.classList.remove("custom-cursor-active");
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mousedown", onMouseDown);
       window.removeEventListener("mouseup", onMouseUp);
