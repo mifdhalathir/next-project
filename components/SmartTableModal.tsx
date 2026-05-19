@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { addKarsaNotification } from "./NotificationHub";
 import { addActivityLog } from "./ActivityLog";
 
@@ -15,7 +15,7 @@ export default function SmartTableModal() {
   const [indoorOccupied, setIndoorOccupied] = useState(0);
   const [outdoorOccupied, setOutdoorOccupied] = useState(0);
 
-  const loadData = () => {
+  const loadData = useCallback(() => {
     const savedOrders = localStorage.getItem("PESANAN_HARI_INI");
     const activeTables: number[] = [];
     if (savedOrders) {
@@ -27,13 +27,15 @@ export default function SmartTableModal() {
             if (!isNaN(t)) activeTables.push(t);
           }
         });
-      } catch(e) {}
+      } catch {
+        // ignore parse errors
+      }
     }
     setOccupiedTables(activeTables);
     
     setIndoorOccupied(activeTables.filter(t => t >= 1 && t <= 10).length);
     setOutdoorOccupied(activeTables.filter(t => t >= 11 && t <= 15).length);
-  };
+  }, []);
 
   useEffect(() => {
     const checkStatus = () => {
@@ -49,9 +51,18 @@ export default function SmartTableModal() {
       }
     };
 
+    const handleOpenModal = () => {
+      const user = localStorage.getItem("karsa_user_name") || "";
+      setUserName(user);
+      loadData();
+      setShowMap(false);
+      setSelectedArea(null);
+      setIsOpen(true);
+    };
+
     checkStatus();
     window.addEventListener("storage", checkStatus);
-    window.addEventListener("openTableModal", () => setIsOpen(true));
+    window.addEventListener("openTableModal", handleOpenModal);
 
     // ESC key to dismiss
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -61,10 +72,10 @@ export default function SmartTableModal() {
     
     return () => {
       window.removeEventListener("storage", checkStatus);
-      window.removeEventListener("openTableModal", () => setIsOpen(true));
+      window.removeEventListener("openTableModal", handleOpenModal);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [loadData]);
 
   const handleSelectTable = (t: number, area: "Indoor" | "Outdoor") => {
     if (occupiedTables.includes(t)) return;
@@ -104,12 +115,14 @@ export default function SmartTableModal() {
 
   const isIndoorCrowded = indoorOccupied >= 8;
   const isOutdoorCrowded = outdoorOccupied >= 4;
+  const indoorAvailable = 10 - indoorOccupied;
+  const outdoorAvailable = 5 - outdoorOccupied;
 
   return (
     <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/95 backdrop-blur-md animate-in fade-in duration-500">
       {/* Click outside to dismiss */}
       <div className="absolute inset-0" onClick={() => setIsOpen(false)} />
-      <div className="bg-[#0A0A0A] border border-amber-500/20 rounded-[3rem] p-10 relative z-10 w-full max-w-xl shadow-[0_0_80px_rgba(245,158,11,0.15)] overflow-hidden">
+      <div className="bg-[#0A0A0A] border border-amber-500/20 rounded-[3rem] p-10 relative z-10 w-full max-w-xl shadow-[0_0_80px_rgba(245,158,11,0.15)] overflow-hidden max-h-[90vh] overflow-y-auto">
         
         {/* Close Button */}
         <button
@@ -142,8 +155,11 @@ export default function SmartTableModal() {
             <div className="grid grid-cols-2 gap-5">
               <button
                 onClick={() => setSelectedArea("Indoor")}
+                disabled={indoorAvailable <= 0}
                 className={`group relative overflow-hidden p-8 rounded-[2.5rem] border transition-all duration-500 flex flex-col items-center justify-center gap-4 ${
-                  selectedArea === "Indoor" 
+                  indoorAvailable <= 0
+                  ? "bg-white/5 border-white/5 opacity-40 cursor-not-allowed"
+                  : selectedArea === "Indoor" 
                   ? "bg-amber-500/10 border-amber-500 shadow-[0_0_30px_rgba(245,158,11,0.2)] scale-105" 
                   : "bg-white/5 border-white/5 hover:border-white/20"
                 }`}
@@ -152,15 +168,25 @@ export default function SmartTableModal() {
                 <div className="text-center">
                   <h4 className={`text-sm font-black uppercase tracking-widest ${selectedArea === "Indoor" ? "text-amber-500" : "text-stone-300"}`}>Indoor</h4>
                   <p className={`text-[9px] font-bold mt-2 uppercase tracking-wider ${isIndoorCrowded ? "text-red-500" : "text-green-500"}`}>
-                    {indoorOccupied}/10 Meja — {isIndoorCrowded ? "Ramai" : "Sepi"}
+                    {indoorAvailable > 0 ? `${indoorAvailable} Meja Tersedia` : "Penuh"} — {isIndoorCrowded ? "Ramai" : "Sepi"}
                   </p>
+                  {/* Mini capacity bar */}
+                  <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden mt-2">
+                    <div
+                      className={`h-full transition-all duration-700 rounded-full ${isIndoorCrowded ? "bg-red-500" : "bg-green-500"}`}
+                      style={{ width: `${(indoorOccupied / 10) * 100}%` }}
+                    ></div>
+                  </div>
                 </div>
               </button>
 
               <button
                 onClick={() => setSelectedArea("Outdoor")}
+                disabled={outdoorAvailable <= 0}
                 className={`group relative overflow-hidden p-8 rounded-[2.5rem] border transition-all duration-500 flex flex-col items-center justify-center gap-4 ${
-                  selectedArea === "Outdoor" 
+                  outdoorAvailable <= 0
+                  ? "bg-white/5 border-white/5 opacity-40 cursor-not-allowed"
+                  : selectedArea === "Outdoor" 
                   ? "bg-green-500/10 border-green-500 shadow-[0_0_30px_rgba(34,197,94,0.2)] scale-105" 
                   : "bg-white/5 border-white/5 hover:border-white/20"
                 }`}
@@ -169,14 +195,21 @@ export default function SmartTableModal() {
                 <div className="text-center">
                   <h4 className={`text-sm font-black uppercase tracking-widest ${selectedArea === "Outdoor" ? "text-green-500" : "text-stone-300"}`}>Outdoor</h4>
                   <p className={`text-[9px] font-bold mt-2 uppercase tracking-wider ${isOutdoorCrowded ? "text-red-500" : "text-green-500"}`}>
-                    {outdoorOccupied}/5 Meja — {isOutdoorCrowded ? "Ramai" : "Sepi"}
+                    {outdoorAvailable > 0 ? `${outdoorAvailable} Meja Tersedia` : "Penuh"} — {isOutdoorCrowded ? "Ramai" : "Sepi"}
                   </p>
+                  {/* Mini capacity bar */}
+                  <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden mt-2">
+                    <div
+                      className={`h-full transition-all duration-700 rounded-full ${isOutdoorCrowded ? "bg-red-500" : "bg-green-500"}`}
+                      style={{ width: `${(outdoorOccupied / 5) * 100}%` }}
+                    ></div>
+                  </div>
                 </div>
               </button>
             </div>
 
             <button
-              onClick={() => { if (selectedArea) setShowMap(true); }}
+              onClick={() => { if (selectedArea) { loadData(); setShowMap(true); } }}
               disabled={!selectedArea}
               className={`w-full py-5 rounded-2xl text-[11px] font-black tracking-[0.4em] uppercase transition-all flex items-center justify-center gap-3 ${
                 selectedArea 
@@ -225,6 +258,7 @@ export default function SmartTableModal() {
                   >
                     <span className="text-[8px] font-black text-stone-600 uppercase mb-1">Meja</span>
                     <span className={`text-xl font-black ${isOcc ? 'text-stone-700' : 'text-white group-hover:text-amber-500 transition-colors'}`}>{t}</span>
+                    {isOcc && <span className="text-[7px] text-red-500/70 font-bold mt-0.5">TERISI</span>}
                     {!isOcc && <div className="absolute top-2 right-2 w-1 h-1 bg-amber-500 rounded-full animate-pulse"></div>}
                   </button>
                 )

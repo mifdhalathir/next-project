@@ -1,8 +1,44 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import confetti from "canvas-confetti";
 import { useCart } from "./CartProvider";
+
+function getOccupiedTables(): number[] {
+  try {
+    const saved = localStorage.getItem("PESANAN_HARI_INI");
+    if (!saved) return [];
+    const parsed = JSON.parse(saved);
+    const tables: number[] = [];
+    parsed.forEach((p: { status: string; meja: string }) => {
+      if (p.status !== "Selesai") {
+        const t = parseInt(String(p.meja || "").replace(/[^\d]/g, ""));
+        if (!isNaN(t)) tables.push(t);
+      }
+    });
+    return tables;
+  } catch {
+    return [];
+  }
+}
+
+function computeCapacity() {
+  const occupied = getOccupiedTables();
+  const indoorUsed = occupied.filter((t) => t >= 1 && t <= 10).length;
+  const outdoorUsed = occupied.filter((t) => t >= 11 && t <= 15).length;
+  return {
+    indoor: { total: 10, used: indoorUsed },
+    outdoor: { total: 5, used: outdoorUsed },
+  };
+}
+
+function getAreaLabel(used: number, total: number) {
+  const ratio = used / total;
+  if (ratio >= 1) return { label: "PENUH", color: "text-red-500" };
+  if (ratio >= 0.7) return { label: "RAMAI", color: "text-amber-400" };
+  if (ratio >= 0.4) return { label: "SEDANG", color: "text-yellow-400" };
+  return { label: "SEPI", color: "text-green-500" };
+}
 
 export default function ReservationForm() {
   const { placeReservation } = useCart();
@@ -14,34 +50,49 @@ export default function ReservationForm() {
     jam: "",
     catatan: "",
   });
-  
+
   const [capacity, setCapacity] = useState({
-    indoor: { total: 10, used: 8 },
-    outdoor: { total: 5, used: 2 }
+    indoor: { total: 10, used: 0 },
+    outdoor: { total: 5, used: 0 },
   });
   const [errors, setErrors] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  useEffect(() => {
-    try {
-      const savedCap = localStorage.getItem('karsa_area_capacity');
-      if (savedCap) {
-        requestAnimationFrame(() => {
-          setCapacity(JSON.parse(savedCap));
-        });
-      }
-      
-      const savedName = localStorage.getItem('karsa_user_name');
-      if (savedName) {
-        setFormData((prev) => ({ ...prev, nama: savedName }));
-      }
-    } catch {
-      // Ignore
-    }
+  const refreshCapacity = useCallback(() => {
+    const cap = computeCapacity();
+    setCapacity(cap);
+    // Also sync to localStorage so SmartTableModal/StatusMeja can read it
+    localStorage.setItem("karsa_area_capacity", JSON.stringify(cap));
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  useEffect(() => {
+    // Initial load
+    refreshCapacity();
+
+    const savedName = localStorage.getItem("karsa_user_name");
+    if (savedName) {
+      setFormData((prev) => ({ ...prev, nama: savedName }));
+    }
+
+    // Live sync when data changes
+    const handleStorageChange = () => refreshCapacity();
+    window.addEventListener("storage", handleStorageChange);
+
+    // Also poll every 5s for changes made in same tab
+    const interval = setInterval(refreshCapacity, 5000);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [refreshCapacity]);
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setErrors(errors.filter((err) => err !== e.target.name));
   };
@@ -54,6 +105,14 @@ export default function ReservationForm() {
     if (!formData.jumlah) newErrors.push("jumlah");
     if (!formData.tanggal) newErrors.push("tanggal");
     if (!formData.jam) newErrors.push("jam");
+
+    // Validate jam operasional (08:00 - 22:00)
+    if (formData.jam) {
+      const [h] = formData.jam.split(":").map(Number);
+      if (h < 8 || h >= 22) {
+        newErrors.push("jam");
+      }
+    }
 
     if (newErrors.length > 0) {
       setErrors(newErrors);
@@ -78,11 +137,36 @@ export default function ReservationForm() {
         notes: `Area: ${formData.area}. ${formData.catatan}`,
       });
 
-      setFormData({ nama: "", area: "", jumlah: "", tanggal: "", jam: "", catatan: "" });
+      setFormData({
+        nama: "",
+        area: "",
+        jumlah: "",
+        tanggal: "",
+        jam: "",
+        catatan: "",
+      });
       setIsSubmitting(false);
+
+      // Refresh capacity after reservation
+      refreshCapacity();
+
+      // Re-fill name from localStorage
+      const savedName = localStorage.getItem("karsa_user_name");
+      if (savedName) {
+        setFormData((prev) => ({ ...prev, nama: savedName }));
+      }
+
       setTimeout(() => setShowSuccess(false), 5000);
     }, 1500);
   };
+
+  const indoorLabel = getAreaLabel(capacity.indoor.used, capacity.indoor.total);
+  const outdoorLabel = getAreaLabel(
+    capacity.outdoor.used,
+    capacity.outdoor.total
+  );
+  const indoorAvailable = capacity.indoor.total - capacity.indoor.used;
+  const outdoorAvailable = capacity.outdoor.total - capacity.outdoor.used;
 
   return (
     <>
@@ -96,8 +180,12 @@ export default function ReservationForm() {
         ></div>
         <div className="max-w-xl mx-auto relative">
           <div className="text-center mb-10" data-aos="fade-up">
-            <p className="text-amber-400 tracking-[.3em] text-xs uppercase mb-2">Book Your Spot</p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-cream-100">Reservasi Meja</h2>
+            <p className="text-amber-400 tracking-[.3em] text-xs uppercase mb-2">
+              Book Your Spot
+            </p>
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-cream-100">
+              Reservasi Meja
+            </h2>
             <div className="w-16 h-0.5 bg-amber-500 mx-auto mt-4"></div>
           </div>
           <form
@@ -107,7 +195,9 @@ export default function ReservationForm() {
             data-aos-delay="200"
           >
             <div>
-              <label className="block text-cream-200 text-sm mb-1.5">Nama Lengkap</label>
+              <label className="block text-cream-200 text-sm mb-1.5">
+                Nama Lengkap
+              </label>
               <input
                 type="text"
                 name="nama"
@@ -115,7 +205,9 @@ export default function ReservationForm() {
                 onChange={handleChange}
                 placeholder="Masukkan nama Anda"
                 className={`w-full bg-white/10 border text-cream-100 placeholder-stone-400 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition ${
-                  errors.includes("nama") ? "border-red-500 shake" : "border-cream-200/20"
+                  errors.includes("nama")
+                    ? "border-red-500 shake"
+                    : "border-cream-200/20"
                 }`}
               />
             </div>
@@ -125,33 +217,108 @@ export default function ReservationForm() {
               <label className="block text-cream-200 text-[10px] uppercase tracking-widest font-bold mb-3 flex items-center gap-2">
                 <span className="text-amber-500">🪑</span> PILIH AREA DUDUK
               </label>
-              <div className={`grid grid-cols-2 gap-4 ${errors.includes("area") ? "p-1 border border-red-500 rounded-2xl shake" : ""}`}>
+              <div
+                className={`grid grid-cols-2 gap-4 ${
+                  errors.includes("area")
+                    ? "p-1 border border-red-500 rounded-2xl shake"
+                    : ""
+                }`}
+              >
+                {/* Indoor Button */}
                 <button
                   type="button"
-                  onClick={() => { setFormData({ ...formData, area: "Indoor" }); setErrors(errors.filter(e => e !== "area")); }}
-                  className={`relative p-5 rounded-2xl border transition-all flex flex-col items-center justify-center gap-2 ${formData.area === "Indoor" ? "bg-amber-500/10 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]" : "bg-white/5 border-white/10 hover:border-white/20"}`}
+                  onClick={() => {
+                    if (indoorAvailable <= 0) return;
+                    setFormData({ ...formData, area: "Indoor" });
+                    setErrors(errors.filter((e) => e !== "area"));
+                  }}
+                  disabled={indoorAvailable <= 0}
+                  className={`relative p-5 rounded-2xl border transition-all flex flex-col items-center justify-center gap-2 ${
+                    indoorAvailable <= 0
+                      ? "bg-white/5 border-white/5 opacity-40 cursor-not-allowed"
+                      : formData.area === "Indoor"
+                      ? "bg-amber-500/10 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
+                      : "bg-white/5 border-white/10 hover:border-white/20"
+                  }`}
                 >
                   <span className="text-3xl mb-1">🏠</span>
-                  <span className="text-xs font-black text-white tracking-widest uppercase">INDOOR</span>
-                  <span className="text-[9px] text-green-500 font-black tracking-widest uppercase">
-                    ({capacity.indoor.used}/{capacity.indoor.total} MEJA) - SEPI
+                  <span className="text-xs font-black text-white tracking-widest uppercase">
+                    INDOOR
                   </span>
+                  <span
+                    className={`text-[9px] font-black tracking-widest uppercase ${indoorLabel.color}`}
+                  >
+                    {indoorAvailable} MEJA TERSEDIA — {indoorLabel.label}
+                  </span>
+                  {/* Capacity bar */}
+                  <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden mt-1">
+                    <div
+                      className={`h-full transition-all duration-700 rounded-full ${
+                        indoorLabel.label === "PENUH"
+                          ? "bg-red-500"
+                          : indoorLabel.label === "RAMAI"
+                          ? "bg-amber-400"
+                          : "bg-green-500"
+                      }`}
+                      style={{
+                        width: `${
+                          (capacity.indoor.used / capacity.indoor.total) * 100
+                        }%`,
+                      }}
+                    ></div>
+                  </div>
                 </button>
+
+                {/* Outdoor Button */}
                 <button
                   type="button"
-                  onClick={() => { setFormData({ ...formData, area: "Outdoor" }); setErrors(errors.filter(e => e !== "area")); }}
-                  className={`relative p-5 rounded-2xl border transition-all flex flex-col items-center justify-center gap-2 ${formData.area === "Outdoor" ? "bg-amber-500/10 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]" : "bg-white/5 border-white/10 hover:border-white/20"}`}
+                  onClick={() => {
+                    if (outdoorAvailable <= 0) return;
+                    setFormData({ ...formData, area: "Outdoor" });
+                    setErrors(errors.filter((e) => e !== "area"));
+                  }}
+                  disabled={outdoorAvailable <= 0}
+                  className={`relative p-5 rounded-2xl border transition-all flex flex-col items-center justify-center gap-2 ${
+                    outdoorAvailable <= 0
+                      ? "bg-white/5 border-white/5 opacity-40 cursor-not-allowed"
+                      : formData.area === "Outdoor"
+                      ? "bg-amber-500/10 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
+                      : "bg-white/5 border-white/10 hover:border-white/20"
+                  }`}
                 >
                   <span className="text-3xl mb-1">🌿</span>
-                  <span className="text-xs font-black text-white tracking-widest uppercase">OUTDOOR</span>
-                  <span className="text-[9px] text-green-500 font-black tracking-widest uppercase">
-                    ({capacity.outdoor.used}/{capacity.outdoor.total} MEJA) - SEPI
+                  <span className="text-xs font-black text-white tracking-widest uppercase">
+                    OUTDOOR
                   </span>
+                  <span
+                    className={`text-[9px] font-black tracking-widest uppercase ${outdoorLabel.color}`}
+                  >
+                    {outdoorAvailable} MEJA TERSEDIA — {outdoorLabel.label}
+                  </span>
+                  {/* Capacity bar */}
+                  <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden mt-1">
+                    <div
+                      className={`h-full transition-all duration-700 rounded-full ${
+                        outdoorLabel.label === "PENUH"
+                          ? "bg-red-500"
+                          : outdoorLabel.label === "RAMAI"
+                          ? "bg-amber-400"
+                          : "bg-green-500"
+                      }`}
+                      style={{
+                        width: `${
+                          (capacity.outdoor.used / capacity.outdoor.total) * 100
+                        }%`,
+                      }}
+                    ></div>
+                  </div>
                 </button>
               </div>
               <button
                 type="button"
-                onClick={() => window.dispatchEvent(new Event("openTableModal"))}
+                onClick={() =>
+                  window.dispatchEvent(new Event("openTableModal"))
+                }
                 className="w-full mt-3 py-3 border border-dashed border-white/20 rounded-xl text-[10px] font-bold text-stone-400 hover:text-white hover:bg-white/5 transition flex items-center justify-center gap-2 tracking-widest uppercase"
               >
                 🗺️ LIHAT PETA MEJA
@@ -160,26 +327,42 @@ export default function ReservationForm() {
 
             <div className="grid grid-cols-1 gap-4">
               <div>
-                <label className="block text-cream-200 text-sm mb-1.5">Jumlah Orang</label>
+                <label className="block text-cream-200 text-sm mb-1.5">
+                  Jumlah Orang
+                </label>
                 <select
                   name="jumlah"
                   value={formData.jumlah}
                   onChange={handleChange}
                   className={`w-full bg-white/10 border text-cream-100 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition appearance-none ${
-                    errors.includes("jumlah") ? "border-red-500 shake" : "border-cream-200/20"
+                    errors.includes("jumlah")
+                      ? "border-red-500 shake"
+                      : "border-cream-200/20"
                   }`}
                 >
-                  <option value="" className="text-stone-800">Pilih</option>
-                  <option value="1" className="text-stone-800">1 Orang</option>
-                  <option value="2" className="text-stone-800">2 Orang</option>
-                  <option value="3" className="text-stone-800">3-4 Orang</option>
-                  <option value="5" className="text-stone-800">5-8 Orang</option>
+                  <option value="" className="text-stone-800">
+                    Pilih
+                  </option>
+                  <option value="1" className="text-stone-800">
+                    1 Orang
+                  </option>
+                  <option value="2" className="text-stone-800">
+                    2 Orang
+                  </option>
+                  <option value="3" className="text-stone-800">
+                    3-4 Orang
+                  </option>
+                  <option value="5" className="text-stone-800">
+                    5-8 Orang
+                  </option>
                 </select>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-cream-200 text-sm mb-1.5">Tanggal Kedatangan</label>
+                <label className="block text-cream-200 text-sm mb-1.5">
+                  Tanggal Kedatangan
+                </label>
                 <input
                   type="date"
                   name="tanggal"
@@ -187,25 +370,38 @@ export default function ReservationForm() {
                   onChange={handleChange}
                   min={new Date().toISOString().split("T")[0]}
                   className={`w-full bg-white/10 border text-cream-100 placeholder-stone-400 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition ${
-                    errors.includes("tanggal") ? "border-red-500 shake" : "border-cream-200/20"
+                    errors.includes("tanggal")
+                      ? "border-red-500 shake"
+                      : "border-cream-200/20"
                   }`}
                 />
               </div>
               <div>
-                <label className="block text-cream-200 text-sm mb-1.5">Jam Kedatangan</label>
+                <label className="block text-cream-200 text-sm mb-1.5">
+                  Jam Kedatangan
+                </label>
                 <input
                   type="time"
                   name="jam"
                   value={formData.jam}
                   onChange={handleChange}
+                  min="08:00"
+                  max="22:00"
                   className={`w-full bg-white/10 border text-cream-100 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition ${
-                    errors.includes("jam") ? "border-red-500 shake" : "border-cream-200/20"
+                    errors.includes("jam")
+                      ? "border-red-500 shake"
+                      : "border-cream-200/20"
                   }`}
                 />
+                <p className="text-stone-500 text-[9px] mt-1 tracking-wide">
+                  Jam operasional: 08:00 — 22:00
+                </p>
               </div>
             </div>
             <div>
-              <label className="block text-cream-200 text-sm mb-1.5">Catatan</label>
+              <label className="block text-cream-200 text-sm mb-1.5">
+                Catatan
+              </label>
               <textarea
                 name="catatan"
                 rows={3}
@@ -229,14 +425,18 @@ export default function ReservationForm() {
       {/* Success Toast */}
       <div
         className={`fixed top-6 left-1/2 -translate-x-1/2 z-[80] bg-green-600 text-white px-6 py-4 rounded-xl shadow-2xl transform transition-all duration-500 flex flex-col items-center gap-1 ${
-          showSuccess ? "translate-y-0 opacity-100" : "-translate-y-32 opacity-0"
+          showSuccess
+            ? "translate-y-0 opacity-100"
+            : "-translate-y-32 opacity-0 pointer-events-none"
         }`}
       >
         <div className="flex items-center gap-3">
           <span className="text-2xl">✅</span>
           <h4 className="font-bold">Reservasi Berhasil Terkirim!</h4>
         </div>
-        <p className="text-[10px] opacity-80 uppercase tracking-widest font-black">Silakan datang sesuai jam yang dipesan</p>
+        <p className="text-[10px] opacity-80 uppercase tracking-widest font-black">
+          Silakan datang sesuai jam yang dipesan
+        </p>
       </div>
     </>
   );

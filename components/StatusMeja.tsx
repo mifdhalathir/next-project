@@ -1,27 +1,62 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 export default function StatusMeja() {
-  const [indoorCapacity, setIndoorCapacity] = useState(0);
-  const [outdoorCapacity, setOutdoorCapacity] = useState(0);
+  const [indoorOccupied, setIndoorOccupied] = useState(0);
+  const [outdoorOccupied, setOutdoorOccupied] = useState(0);
+
+  const loadCapacity = useCallback(() => {
+    try {
+      const saved = localStorage.getItem("PESANAN_HARI_INI");
+      if (!saved) {
+        setIndoorOccupied(0);
+        setOutdoorOccupied(0);
+        return;
+      }
+      const parsed = JSON.parse(saved);
+      const activeTables: number[] = [];
+      parsed.forEach((p: { status: string; meja: string }) => {
+        if (p.status !== "Selesai") {
+          const t = parseInt(String(p.meja || "").replace(/[^\d]/g, ""));
+          if (!isNaN(t)) activeTables.push(t);
+        }
+      });
+      setIndoorOccupied(activeTables.filter((t) => t >= 1 && t <= 10).length);
+      setOutdoorOccupied(activeTables.filter((t) => t >= 11 && t <= 15).length);
+    } catch {
+      // ignore parse errors
+    }
+  }, []);
 
   useEffect(() => {
-    // Simulated live data
-    requestAnimationFrame(() => {
-      setIndoorCapacity(Math.floor(Math.random() * 61) + 40); // 40% to 100%
-      setOutdoorCapacity(Math.floor(Math.random() * 61) + 20); // 20% to 80%
-    });
-  }, []);
+    loadCapacity();
+
+    window.addEventListener("storage", loadCapacity);
+    const interval = setInterval(loadCapacity, 5000);
+
+    return () => {
+      window.removeEventListener("storage", loadCapacity);
+      clearInterval(interval);
+    };
+  }, [loadCapacity]);
+
+  const indoorTotal = 10;
+  const outdoorTotal = 5;
+  const indoorCapacity = Math.round((indoorOccupied / indoorTotal) * 100);
+  const outdoorCapacity = Math.round((outdoorOccupied / outdoorTotal) * 100);
 
   const getStatusConfig = (capacity: number) => {
     if (capacity >= 90) return { color: "bg-red-500", label: "Penuh", text: "text-red-500" };
     if (capacity >= 70) return { color: "bg-amber-500", label: "Ramai", text: "text-amber-500" };
+    if (capacity >= 40) return { color: "bg-yellow-400", label: "Sedang", text: "text-yellow-400" };
     return { color: "bg-green-500", label: "Tersedia", text: "text-green-500" };
   };
 
   const indoorConfig = getStatusConfig(indoorCapacity);
   const outdoorConfig = getStatusConfig(outdoorCapacity);
+  const indoorAvailable = indoorTotal - indoorOccupied;
+  const outdoorAvailable = outdoorTotal - outdoorOccupied;
 
   return (
     <section id="statusMeja" className="py-24 relative overflow-hidden bg-black">
@@ -56,7 +91,12 @@ export default function StatusMeja() {
               <div className={`h-full transition-all duration-1000 ${indoorConfig.color}`} style={{ width: `${indoorCapacity}%` }}></div>
             </div>
             
-            <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${indoorConfig.text}`}>{indoorConfig.label}</p>
+            <div className="flex items-center justify-between">
+              <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${indoorConfig.text}`}>{indoorConfig.label}</p>
+              <p className="text-[9px] text-stone-500 font-bold tracking-wider">
+                {indoorAvailable} meja tersedia dari {indoorTotal}
+              </p>
+            </div>
           </div>
 
           {/* Outdoor Card */}
@@ -78,12 +118,17 @@ export default function StatusMeja() {
               <div className={`h-full transition-all duration-1000 ${outdoorConfig.color}`} style={{ width: `${outdoorCapacity}%` }}></div>
             </div>
             
-            <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${outdoorConfig.text}`}>{outdoorConfig.label}</p>
+            <div className="flex items-center justify-between">
+              <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${outdoorConfig.text}`}>{outdoorConfig.label}</p>
+              <p className="text-[9px] text-stone-500 font-bold tracking-wider">
+                {outdoorAvailable} meja tersedia dari {outdoorTotal}
+              </p>
+            </div>
           </div>
         </div>
 
         <p className="text-center text-stone-600 text-[9px] font-bold uppercase tracking-[0.4em] mt-12 italic">
-          * Data real-time diperbarui setiap 5 menit oleh tim operasional KARSA
+          * Data real-time dari sistem operasional KARSA
         </p>
       </div>
 
