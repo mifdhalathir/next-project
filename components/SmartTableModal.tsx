@@ -10,6 +10,7 @@ export default function SmartTableModal() {
   const [showMap, setShowMap] = useState(false);
   const [selectedArea, setSelectedArea] = useState<"Indoor" | "Outdoor" | null>(null);
   const [occupiedTables, setOccupiedTables] = useState<number[]>([]);
+  const [isViewOnly, setIsViewOnly] = useState(false);
   
   // Capacity Stats
   const [indoorOccupied, setIndoorOccupied] = useState(0);
@@ -51,18 +52,38 @@ export default function SmartTableModal() {
       }
     };
 
-    const handleOpenModal = () => {
+    const handleOpenModal = (e: Event | CustomEvent) => {
       const user = localStorage.getItem("karsa_user_name") || "";
       setUserName(user);
       loadData();
-      setShowMap(false);
-      setSelectedArea(null);
+      
+      let directMap = false;
+      let area: "Indoor" | "Outdoor" | null = null;
+      let viewOnly = false;
+
+      if ('detail' in e && e.detail) {
+        directMap = !!e.detail.directMap;
+        viewOnly = !!e.detail.viewOnly;
+        if (e.detail.area === "Indoor" || e.detail.area === "Outdoor") {
+          area = e.detail.area;
+        }
+      }
+
+      setIsViewOnly(viewOnly);
+
+      if (directMap && area) {
+        setSelectedArea(area);
+        setShowMap(true);
+      } else {
+        setShowMap(false);
+        setSelectedArea(null);
+      }
       setIsOpen(true);
     };
 
     checkStatus();
     window.addEventListener("storage", checkStatus);
-    window.addEventListener("openTableModal", handleOpenModal);
+    window.addEventListener("openTableModal", handleOpenModal as EventListener);
 
     // ESC key to dismiss
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -72,13 +93,19 @@ export default function SmartTableModal() {
     
     return () => {
       window.removeEventListener("storage", checkStatus);
-      window.removeEventListener("openTableModal", handleOpenModal);
+      window.removeEventListener("openTableModal", handleOpenModal as EventListener);
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [loadData]);
 
   const handleSelectTable = (t: number, area: "Indoor" | "Outdoor") => {
     if (occupiedTables.includes(t)) return;
+
+    if (isViewOnly) {
+      // In viewOnly mode (from ReservationForm), we don't actually sit at the table
+      setIsOpen(false);
+      return;
+    }
 
     const tableStr = String(t).padStart(2, '0');
     localStorage.setItem("karsa_table_number", tableStr);
@@ -146,7 +173,9 @@ export default function SmartTableModal() {
             Halo <span className="text-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.3)]">{userName || 'Sultan'}</span>,
             <br />Pilih Spot Nyamanmu!
           </h2>
-          <p className="text-stone-500 text-[10px] mt-3 font-black tracking-[0.3em] uppercase">Pilih area dan nomor meja untuk memulai</p>
+          <p className="text-stone-500 text-[10px] mt-3 font-black tracking-[0.3em] uppercase">
+            {isViewOnly ? "Lihat ketersediaan meja untuk reservasi" : "Pilih area dan nomor meja untuk memulai"}
+          </p>
         </div>
 
         {!showMap ? (
@@ -253,13 +282,15 @@ export default function SmartTableModal() {
                     className={`relative aspect-square rounded-2xl flex flex-col items-center justify-center border transition-all duration-500 ${
                       isOcc 
                         ? 'bg-stone-900 border-white/5 opacity-30 cursor-not-allowed' 
+                        : isViewOnly
+                        ? 'bg-[#151515] border-white/5 cursor-default opacity-80'
                         : 'bg-[#151515] border-white/5 hover:border-amber-500 hover:bg-amber-500/10 cursor-pointer shadow-[inset_0_0_15px_rgba(255,255,255,0.02)]'
                     }`}
                   >
                     <span className="text-[8px] font-black text-stone-600 uppercase mb-1">Meja</span>
                     <span className={`text-xl font-black ${isOcc ? 'text-stone-700' : 'text-white group-hover:text-amber-500 transition-colors'}`}>{t}</span>
                     {isOcc && <span className="text-[7px] text-red-500/70 font-bold mt-0.5">TERISI</span>}
-                    {!isOcc && <div className="absolute top-2 right-2 w-1 h-1 bg-amber-500 rounded-full animate-pulse"></div>}
+                    {(!isOcc && !isViewOnly) && <div className="absolute top-2 right-2 w-1 h-1 bg-amber-500 rounded-full animate-pulse"></div>}
                   </button>
                 )
               })}

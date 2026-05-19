@@ -316,9 +316,17 @@ export default function ReservationForm() {
               </div>
               <button
                 type="button"
-                onClick={() =>
-                  window.dispatchEvent(new Event("openTableModal"))
-                }
+                onClick={() => {
+                  window.dispatchEvent(
+                    new CustomEvent("openTableModal", {
+                      detail: {
+                        directMap: true,
+                        area: formData.area || null,
+                        viewOnly: true, // Tell modal it's for viewing only
+                      },
+                    })
+                  );
+                }}
                 className="w-full mt-3 py-3 border border-dashed border-white/20 rounded-xl text-[10px] font-bold text-stone-400 hover:text-white hover:bg-white/5 transition flex items-center justify-center gap-2 tracking-widest uppercase"
               >
                 🗺️ LIHAT PETA MEJA
