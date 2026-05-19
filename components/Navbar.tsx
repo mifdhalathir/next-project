@@ -101,7 +101,7 @@ export default function Navbar() {
         <div className="flex items-center space-x-4">
           <div className="hidden md:flex items-center space-x-6">
             <button onClick={() => document.getElementById('home')?.scrollIntoView({ behavior: 'smooth' })} className="nav-link text-[10px] tracking-widest font-black uppercase">HOME</button>
-            <button onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })} className="nav-link text-[10px] tracking-widest font-black uppercase">MENU</button>
+            <button onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })} className="bg-amber-600/20 text-amber-500 border border-amber-500/50 hover:bg-amber-500 hover:text-white px-4 py-2 rounded-full text-[10px] tracking-widest font-black uppercase transition-all shadow-[0_0_15px_rgba(245,158,11,0.2)]">MENU / PESAN</button>
             <button onClick={() => document.getElementById('reservasi')?.scrollIntoView({ behavior: 'smooth' })} className="nav-link text-[10px] tracking-widest font-black uppercase">RESERVASI</button>
             <button onClick={() => document.getElementById('kontak')?.scrollIntoView({ behavior: 'smooth' })} className="nav-link text-[10px] tracking-widest font-black uppercase">KONTAK</button>
           </div>

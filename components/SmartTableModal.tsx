@@ -259,41 +259,108 @@ export default function SmartTableModal() {
           </div>
         ) : (
           <div className="animate-in slide-in-from-bottom-4 duration-500">
-            <div className="flex items-center justify-between mb-8">
-               <button 
+            {/* Header Area */}
+            <div className="flex items-start justify-between mb-8">
+              <div>
+                <p className="text-[9px] font-black tracking-[0.3em] uppercase text-stone-500 mb-1">REAL-TIME</p>
+                <h2 className="text-3xl font-display font-black text-white">Peta Meja Karsa</h2>
+                
+                {/* Legend */}
+                <div className="flex items-center gap-4 mt-4">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 rounded bg-red-900/50 border border-red-500/50"></div>
+                    <span className="text-[10px] font-bold text-stone-400">Dipesan</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 rounded bg-amber-900/30 border border-amber-600/50"></div>
+                    <span className="text-[10px] font-bold text-stone-400">Tersedia (Indoor)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 rounded bg-green-900/30 border border-green-600/50"></div>
+                    <span className="text-[10px] font-bold text-stone-400">Tersedia (Outdoor)</span>
+                  </div>
+                </div>
+              </div>
+              <button 
                 onClick={() => setShowMap(false)}
-                className="text-[10px] text-stone-500 hover:text-amber-500 font-black uppercase tracking-[0.2em] flex items-center gap-2 transition-colors"
+                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-stone-400 transition-colors"
               >
-                ← Kembali
+                ✕
               </button>
-              <span className={`text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full border ${selectedArea === "Indoor" ? "bg-amber-500/10 border-amber-500/30 text-amber-500" : "bg-green-500/10 border-green-500/30 text-green-500"}`}>
-                Area {selectedArea}
-              </span>
             </div>
 
-            <div className="grid grid-cols-5 gap-4">
-              {(selectedArea === "Indoor" ? Array.from({length: 10}, (_, i) => i + 1) : Array.from({length: 5}, (_, i) => i + 11)).map(t => {
-                const isOcc = occupiedTables.includes(t);
-                return (
-                  <button
-                    key={t}
-                    disabled={isOcc}
-                    onClick={() => handleSelectTable(t, selectedArea!)}
-                    className={`relative aspect-square rounded-2xl flex flex-col items-center justify-center border transition-all duration-500 ${
-                      isOcc 
-                        ? 'bg-stone-900 border-white/5 opacity-30 cursor-not-allowed' 
-                        : isViewOnly
-                        ? 'bg-[#151515] border-white/5 cursor-default opacity-80'
-                        : 'bg-[#151515] border-white/5 hover:border-amber-500 hover:bg-amber-500/10 cursor-pointer shadow-[inset_0_0_15px_rgba(255,255,255,0.02)]'
-                    }`}
-                  >
-                    <span className="text-[8px] font-black text-stone-600 uppercase mb-1">Meja</span>
-                    <span className={`text-xl font-black ${isOcc ? 'text-stone-700' : 'text-white group-hover:text-amber-500 transition-colors'}`}>{t}</span>
-                    {isOcc && <span className="text-[7px] text-red-500/70 font-bold mt-0.5">TERISI</span>}
-                    {(!isOcc && !isViewOnly) && <div className="absolute top-2 right-2 w-1 h-1 bg-amber-500 rounded-full animate-pulse"></div>}
-                  </button>
-                )
-              })}
+            <div className="space-y-8">
+              {/* INDOOR SECTION */}
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-sm">🏠</span>
+                  <h3 className="text-[10px] font-black tracking-widest text-amber-500 uppercase">
+                    AREA INDOOR — 10 MEJA
+                  </h3>
+                </div>
+                <div className="grid grid-cols-5 gap-3">
+                  {Array.from({length: 10}, (_, i) => i + 1).map(t => {
+                    const isOcc = occupiedTables.includes(t);
+                    return (
+                      <button
+                        key={t}
+                        disabled={isOcc || isViewOnly}
+                        onClick={() => handleSelectTable(t, "Indoor")}
+                        className={`relative aspect-[4/3] rounded-2xl flex flex-col items-center justify-center border transition-all duration-300 ${
+                          isOcc 
+                            ? 'bg-red-950/20 border-red-900/30 opacity-50 cursor-not-allowed' 
+                            : isViewOnly
+                            ? 'bg-amber-950/20 border-amber-600/20 cursor-default opacity-80'
+                            : 'bg-amber-950/20 border-amber-600/20 hover:border-amber-500 hover:bg-amber-500/10 cursor-pointer shadow-[inset_0_0_15px_rgba(245,158,11,0.02)]'
+                        }`}
+                      >
+                        <span className={`text-xl mb-1 ${isOcc ? 'filter grayscale opacity-50' : ''}`}>🪑</span>
+                        <span className={`text-[10px] font-black ${isOcc ? 'text-stone-600' : 'text-amber-500'}`}>M{t}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* OUTDOOR SECTION */}
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-sm">🌿</span>
+                  <h3 className="text-[10px] font-black tracking-widest text-green-500 uppercase">
+                    AREA OUTDOOR — 5 MEJA
+                  </h3>
+                </div>
+                <div className="grid grid-cols-5 gap-3">
+                  {Array.from({length: 5}, (_, i) => i + 11).map(t => {
+                    const isOcc = occupiedTables.includes(t);
+                    // Outdoor display numbers typically 1-5 for visual, but actual ID is 11-15
+                    const displayNum = t - 10;
+                    return (
+                      <button
+                        key={t}
+                        disabled={isOcc || isViewOnly}
+                        onClick={() => handleSelectTable(t, "Outdoor")}
+                        className={`relative aspect-[4/3] rounded-2xl flex flex-col items-center justify-center border transition-all duration-300 ${
+                          isOcc 
+                            ? 'bg-red-950/20 border-red-900/30 opacity-50 cursor-not-allowed' 
+                            : isViewOnly
+                            ? 'bg-green-950/20 border-green-600/20 cursor-default opacity-80'
+                            : 'bg-green-950/20 border-green-600/20 hover:border-green-500 hover:bg-green-500/10 cursor-pointer shadow-[inset_0_0_15px_rgba(34,197,94,0.02)]'
+                        }`}
+                      >
+                        <span className={`text-xl mb-1 ${isOcc ? 'filter grayscale opacity-50' : ''}`}>🌿</span>
+                        <span className={`text-[10px] font-black ${isOcc ? 'text-stone-600' : 'text-green-500'}`}>M{displayNum}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center mt-10">
+              <p className="text-[9px] text-stone-600 font-bold tracking-wider">
+                * Data diperbarui setiap saat oleh staff Karsa Cafe
+              </p>
             </div>
           </div>
         )}
