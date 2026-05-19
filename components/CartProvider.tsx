@@ -260,8 +260,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     };
 
     // Save to legacy tracking
-    const existingResJson = localStorage.getItem("karsa_reservations");
-    const existingRes: Reservation[] = existingResJson ? JSON.parse(existingResJson) : [];
+    let existingRes: Reservation[] = [];
+    try {
+      const existingResJson = localStorage.getItem("karsa_reservations");
+      if (existingResJson) {
+        existingRes = JSON.parse(existingResJson);
+        if (!Array.isArray(existingRes)) {
+          existingRes = [];
+        }
+      }
+    } catch (e) {
+      existingRes = [];
+    }
     localStorage.setItem("karsa_reservations", JSON.stringify([...existingRes, newRes]));
 
     // Save to pesanan_masuk for Kasir/Dapur tracking

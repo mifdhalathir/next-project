@@ -31,6 +31,11 @@ export default function ReservationForm() {
           setCapacity(JSON.parse(savedCap));
         });
       }
+      
+      const savedName = localStorage.getItem('karsa_user_name');
+      if (savedName) {
+        setFormData((prev) => ({ ...prev, nama: savedName }));
+      }
     } catch {
       // Ignore
     }
