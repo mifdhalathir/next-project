@@ -136,11 +136,19 @@ const DEFAULT_INVENTORY: Record<string, number> = {
   "Mix Platter": 12
 };
 
+const DEFAULT_TABLES: KarsaTable[] = Array.from({ length: 15 }, (_, i) => ({
+  id: i + 1,
+  area: i + 1 <= 10 ? "Indoor" : "Outdoor",
+  status: "available",
+  customerName: null,
+  checkedInAt: null
+}));
+
 export function KarsaProvider({ children }: { children: React.ReactNode }) {
-  const [tables, setTables] = useState<KarsaTable[]>([]);
+  const [tables, setTables] = useState<KarsaTable[]>(DEFAULT_TABLES);
   const [orders, setOrders] = useState<KarsaOrder[]>([]);
   const [reservations, setReservations] = useState<KarsaReservation[]>([]);
-  const [inventory, setInventory] = useState<Record<string, number>>({});
+  const [inventory, setInventory] = useState<Record<string, number>>(DEFAULT_INVENTORY);
   const [userPoints, setUserPoints] = useState<number>(0);
   
   // User Session Stats
