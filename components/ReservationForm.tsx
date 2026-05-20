@@ -1,36 +1,9 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import confetti from "canvas-confetti";
 import { useCart } from "./CartProvider";
-
-function getOccupiedTables(): number[] {
-  try {
-    const saved = localStorage.getItem("PESANAN_HARI_INI");
-    if (!saved) return [];
-    const parsed = JSON.parse(saved);
-    const tables: number[] = [];
-    parsed.forEach((p: { status: string; meja: string }) => {
-      if (p.status !== "Selesai") {
-        const t = parseInt(String(p.meja || "").replace(/[^\d]/g, ""));
-        if (!isNaN(t)) tables.push(t);
-      }
-    });
-    return tables;
-  } catch {
-    return [];
-  }
-}
-
-function computeCapacity() {
-  const occupied = getOccupiedTables();
-  const indoorUsed = occupied.filter((t) => t >= 1 && t <= 10).length;
-  const outdoorUsed = occupied.filter((t) => t >= 11 && t <= 15).length;
-  return {
-    indoor: { total: 10, used: indoorUsed },
-    outdoor: { total: 5, used: outdoorUsed },
-  };
-}
+import { useKarsa } from "./KarsaContext";
 
 function getAreaLabel(used: number, total: number) {
   const ratio = used / total;
@@ -42,6 +15,8 @@ function getAreaLabel(used: number, total: number) {
 
 export default function ReservationForm() {
   const { placeReservation } = useCart();
+  const { tables } = useKarsa();
+  
   const [formData, setFormData] = useState({
     nama: "",
     area: "",
@@ -51,42 +26,25 @@ export default function ReservationForm() {
     catatan: "",
   });
 
-  const [capacity, setCapacity] = useState({
-    indoor: { total: 10, used: 0 },
-    outdoor: { total: 5, used: 0 },
-  });
   const [errors, setErrors] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const refreshCapacity = useCallback(() => {
-    const cap = computeCapacity();
-    setCapacity(cap);
-    // Also sync to localStorage so SmartTableModal/StatusMeja can read it
-    localStorage.setItem("karsa_area_capacity", JSON.stringify(cap));
-  }, []);
+  // Compute capacity reactively from the Firestore table list
+  const indoorUsed = tables.filter((t) => t.area === "Indoor" && t.status !== "available").length;
+  const outdoorUsed = tables.filter((t) => t.area === "Outdoor" && t.status !== "available").length;
+
+  const capacity = {
+    indoor: { total: 10, used: indoorUsed },
+    outdoor: { total: 5, used: outdoorUsed },
+  };
 
   useEffect(() => {
-    // Initial load
-    refreshCapacity();
-
     const savedName = localStorage.getItem("karsa_user_name");
     if (savedName) {
       setFormData((prev) => ({ ...prev, nama: savedName }));
     }
-
-    // Live sync when data changes
-    const handleStorageChange = () => refreshCapacity();
-    window.addEventListener("storage", handleStorageChange);
-
-    // Also poll every 5s for changes made in same tab
-    const interval = setInterval(refreshCapacity, 5000);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      clearInterval(interval);
-    };
-  }, [refreshCapacity]);
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -146,9 +104,6 @@ export default function ReservationForm() {
         catatan: "",
       });
       setIsSubmitting(false);
-
-      // Refresh capacity after reservation
-      refreshCapacity();
 
       // Re-fill name from localStorage
       const savedName = localStorage.getItem("karsa_user_name");

@@ -2,64 +2,31 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Order, OrderStatus } from "@/components/CartProvider";
+import { type OrderStatus } from "@/components/CartProvider";
 import { addActivityLog } from "@/components/ActivityLog";
+import { useKarsa } from "@/components/KarsaContext";
 
 export default function DapurPage() {
   const router = useRouter();
-  const [orders, setOrders] = useState<Order[]>([]);
+  const { orders: firestoreOrders, updateOrderStatus: firestoreUpdateOrderStatus } = useKarsa();
   const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({});
   const [currentTime, setCurrentTime] = useState(Date.now());
   const [isProcessing, setIsProcessing] = useState<string | null>(null);
 
-  interface RawOrder {
-    orderID: string;
-    meja: string;
-    nama: string;
-    items: { nama: string; harga: number; qty: number }[];
-    totalHarga: number;
-    status: string;
-    id: number;
-  }
-
-  const playDing = () => {
-    try {
-      const audio = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
-      audio.volume = 0.4;
-      audio.play().catch(() => {});
-    } catch (e) {}
-  };
+  // Compute kitchen orders reactively from the Firestore order list
+  const activeKitchenOrders = firestoreOrders
+    .filter(p => p.status === "Pending" || p.status === "Diracik" || p.status === "Dikonfirmasi")
+    .map(p => ({
+        id: p.orderID,
+        tableNumber: String(p.meja || "").replace(/[^\d]/g, ''),
+        customerName: p.nama,
+        items: p.items.map(it => ({ name: it.nama, price: it.harga, qty: it.qty })),
+        total: p.totalHarga,
+        status: (p.status === 'Pending' ? 'received' : (p.status === 'Diracik' ? 'preparing' : 'ready')) as OrderStatus,
+        timestamp: p.id
+    }));
 
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-
-  const loadData = () => {
-    const savedOrders = localStorage.getItem("PESANAN_HARI_INI");
-    if (savedOrders) {
-      try {
-        const parsedOrders: RawOrder[] = JSON.parse(savedOrders);
-        const kitchenOrders: Order[] = parsedOrders
-          .filter(p => p.status === "Pending" || p.status === "Diracik" || p.status === "Dikonfirmasi")
-          .map(p => ({
-              id: p.orderID,
-              tableNumber: String(p.meja || "").replace(/[^\d]/g, ''),
-              customerName: p.nama,
-              items: p.items.map(it => ({ name: it.nama, price: it.harga, qty: it.qty })),
-              total: p.totalHarga,
-              status: (p.status === 'Pending' ? 'received' : (p.status === 'Diracik' ? 'preparing' : 'ready')) as OrderStatus,
-              timestamp: p.id
-          }));
-        
-        setOrders(prev => {
-          if (kitchenOrders.filter(o => o.status === 'received').length > prev.filter(o => o.status === 'received').length) {
-              playDing();
-          }
-          return kitchenOrders;
-        });
-      } catch (e) {}
-    } else {
-      setOrders([]);
-    }
-  };
 
   const handleLogout = () => {
     try {
@@ -73,38 +40,20 @@ export default function DapurPage() {
   };
 
   useEffect(() => {
-    loadData();
-    window.addEventListener("storage", loadData);
     window.addEventListener("mousemove", (e) => setMousePos({ x: e.clientX, y: e.clientY }));
-    const interval = setInterval(loadData, 3000);
     const timeInterval = setInterval(() => setCurrentTime(Date.now()), 1000);
     return () => {
-      window.removeEventListener("storage", loadData);
-      clearInterval(interval);
       clearInterval(timeInterval);
     };
   }, []);
 
   const updateOrderStatus = (orderId: string, newStatus: OrderStatus) => {
     setIsProcessing(orderId);
-    const savedOrders = localStorage.getItem("PESANAN_HARI_INI");
-    if (savedOrders) {
-      let pesananHariIni: RawOrder[] = JSON.parse(savedOrders);
-      const mappedStatus = newStatus === 'preparing' ? 'Diracik' : (newStatus === 'ready' ? 'Dikonfirmasi' : 'Pending');
-      
-      pesananHariIni = pesananHariIni.map(p => {
-        if (p.orderID === orderId) {
-          addActivityLog(`Order ${orderId} status → ${mappedStatus}`, "status");
-          return { ...p, status: mappedStatus };
-        }
-        return p;
-      });
-      
-      localStorage.setItem("PESANAN_HARI_INI", JSON.stringify(pesananHariIni));
-      window.dispatchEvent(new Event("storage"));
-      loadData();
-    }
-    setTimeout(() => setIsProcessing(null), 500);
+    const mappedStatus = newStatus === 'preparing' ? 'Diracik' : (newStatus === 'ready' ? 'Dikonfirmasi' : 'Pending');
+    
+    firestoreUpdateOrderStatus(orderId, mappedStatus)
+      .catch(e => console.error("Firestore status update failed", e))
+      .finally(() => setIsProcessing(null));
   };
 
   const toggleCheck = (orderId: string, itemName: string) => {
@@ -141,7 +90,7 @@ export default function DapurPage() {
         <div className="flex items-center gap-8">
           <div className="flex flex-col items-end">
             <span className="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-1">Active Queue</span>
-            <span className="text-xl font-black text-white">{orders.length} <span className="text-cyan-500 text-sm">ORDERS</span></span>
+            <span className="text-xl font-black text-white">{activeKitchenOrders.length} <span className="text-cyan-500 text-sm">ORDERS</span></span>
           </div>
           <div className="w-px h-10 bg-white/5"></div>
           <button 
@@ -156,7 +105,7 @@ export default function DapurPage() {
       <main className="flex-1 p-8 overflow-hidden relative z-10 flex gap-8">
         <div className="flex-1 overflow-y-auto pr-4 custom-scrollbar">
           <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
-            {orders.length > 0 ? orders.map((order) => {
+            {activeKitchenOrders.length > 0 ? activeKitchenOrders.map((order) => {
               const timeElapsed = Math.floor((currentTime - order.timestamp) / 60000);
               const isUrgent = timeElapsed > 15;
               return (

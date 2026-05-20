@@ -30,6 +30,7 @@ import NotificationHub from "@/components/NotificationHub";
 import AtmosphereEngine from "@/components/AtmosphereEngine";
 import AudioWidget from "@/components/AudioWidget";
 import CustomCursor from "@/components/CustomCursor";
+import { KarsaProvider } from "@/components/KarsaContext";
 
 export default function RootLayout({
   children,
@@ -49,13 +50,15 @@ export default function RootLayout({
         <div className="blob blob-3"></div>
         
         <div className="scanning-line"></div>
-        <AtmosphereEngine />
-        <NotificationHub />
-        <AudioWidget />
-        <CustomCursor />
-        <main className="relative z-10">
-          {children}
-        </main>
+        <KarsaProvider>
+          <AtmosphereEngine />
+          <NotificationHub />
+          <AudioWidget />
+          <CustomCursor />
+          <main className="relative z-10">
+            {children}
+          </main>
+        </KarsaProvider>
       </body>
     </html>
   );

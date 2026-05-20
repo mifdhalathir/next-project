@@ -1,28 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useKarsa } from "./KarsaContext";
 
 export default function LoyaltyCard() {
-  const [points, setPoints] = useState(0);
+  const { userPoints, addUserPoints, userName } = useKarsa();
 
-  useEffect(() => {
-    const sync = () => {
-      const p = parseInt(localStorage.getItem("karsa_loyalty_points") || "0");
-      setPoints(Math.min(p, 5));
-    };
-    sync();
-    const interval = setInterval(sync, 3000);
-    window.addEventListener("storage", sync);
-    return () => { clearInterval(interval); window.removeEventListener("storage", sync); };
-  }, []);
-
+  // If user is not logged in, points default to 0
+  const points = userName ? Math.min(userPoints, 5) : 0;
   const hasCoupon = points >= 5;
 
-  const claimCoupon = () => {
+  const claimCoupon = async () => {
     if (points >= 5) {
-      localStorage.setItem("karsa_loyalty_points", "0");
-      setPoints(0);
-      alert("🎉 Kupon Kopi Gratis berhasil diklaim! Tunjukkan ke kasir.");
+      try {
+        await addUserPoints(-5);
+        alert("🎉 Kupon Kopi Gratis berhasil diklaim! Tunjukkan ke kasir.");
+      } catch (e) {
+        console.error("Deducting loyalty points failed", e);
+      }
     }
   };
 

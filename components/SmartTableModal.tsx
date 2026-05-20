@@ -1,42 +1,22 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { addKarsaNotification } from "./NotificationHub";
 import { addActivityLog } from "./ActivityLog";
+import { useKarsa } from "./KarsaContext";
 
 export default function SmartTableModal() {
+  const { tables, checkInTable } = useKarsa();
   const [isOpen, setIsOpen] = useState(false);
   const [userName, setUserName] = useState("");
   const [showMap, setShowMap] = useState(false);
   const [selectedArea, setSelectedArea] = useState<"Indoor" | "Outdoor" | null>(null);
-  const [occupiedTables, setOccupiedTables] = useState<number[]>([]);
   const [isViewOnly, setIsViewOnly] = useState(false);
-  
-  // Capacity Stats
-  const [indoorOccupied, setIndoorOccupied] = useState(0);
-  const [outdoorOccupied, setOutdoorOccupied] = useState(0);
 
-  const loadData = useCallback(() => {
-    const savedOrders = localStorage.getItem("PESANAN_HARI_INI");
-    const activeTables: number[] = [];
-    if (savedOrders) {
-      try {
-        const parsed = JSON.parse(savedOrders);
-        parsed.forEach((p: { status: string; meja: string }) => {
-          if (p.status !== "Selesai") {
-            const t = parseInt(String(p.meja || "").replace(/[^\d]/g, ''));
-            if (!isNaN(t)) activeTables.push(t);
-          }
-        });
-      } catch {
-        // ignore parse errors
-      }
-    }
-    setOccupiedTables(activeTables);
-    
-    setIndoorOccupied(activeTables.filter(t => t >= 1 && t <= 10).length);
-    setOutdoorOccupied(activeTables.filter(t => t >= 11 && t <= 15).length);
-  }, []);
+  // Compute stats and occupied tables reactively from the Firestore table list
+  const occupiedTables = tables.filter(t => t.status !== "available").map(t => t.id);
+  const indoorOccupied = tables.filter(t => t.area === "Indoor" && t.status !== "available").length;
+  const outdoorOccupied = tables.filter(t => t.area === "Outdoor" && t.status !== "available").length;
 
   useEffect(() => {
     const checkStatus = () => {
@@ -46,7 +26,6 @@ export default function SmartTableModal() {
       if (user && !table) {
         setUserName(user);
         setIsOpen(true);
-        loadData();
       } else {
         setIsOpen(false);
       }
@@ -55,7 +34,6 @@ export default function SmartTableModal() {
     const handleOpenModal = (e: Event | CustomEvent) => {
       const user = localStorage.getItem("karsa_user_name") || "";
       setUserName(user);
-      loadData();
       
       let directMap = false;
       let area: "Indoor" | "Outdoor" | null = null;
@@ -96,7 +74,7 @@ export default function SmartTableModal() {
       window.removeEventListener("openTableModal", handleOpenModal as EventListener);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [loadData]);
+  }, []);
 
   const handleSelectTable = (t: number, area: "Indoor" | "Outdoor") => {
     if (occupiedTables.includes(t)) return;
@@ -107,35 +85,8 @@ export default function SmartTableModal() {
       return;
     }
 
-    const tableStr = String(t).padStart(2, '0');
-    localStorage.setItem("karsa_table_number", tableStr);
-    localStorage.setItem("karsa_area", area);
-    localStorage.setItem("karsa_jam_masuk", new Date().toISOString());
-    
-    // Notify Cashier via activity log and incoming queue
-    const checkInData = {
-      id: Date.now(),
-      nama: userName || "Sultan",
-      meja: `Meja ${tableStr}`,
-      tanggal: new Date().toLocaleDateString('id-ID'),
-      jam: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
-      status: "menunggu", 
-      catatan: `Meja ${tableStr} - Pelanggan baru duduk (${area})`,
-      jumlah: 1,
-      items: [],
-      isReservation: true // So it highlights on Floor Map
-    };
-
-    const existingIncoming = JSON.parse(localStorage.getItem("karsa_pesanan_masuk") || "[]");
-    localStorage.setItem("karsa_pesanan_masuk", JSON.stringify([checkInData, ...existingIncoming]));
-
-    // Also add to Activity Log for global tracking
-    addActivityLog(`${userName || "Sultan"} memilih Meja ${tableStr} (${area})`, "login");
-
-    window.dispatchEvent(new Event("storage"));
+    checkInTable(t, area, userName || "Sultan").catch(e => console.error("Check-in error:", e));
     setIsOpen(false);
-    
-    addKarsaNotification(`Meja ${tableStr} (${area}) dipilih. Selamat menikmati! ☕`, "success");
   };
 
   if (!isOpen) return null;
@@ -238,7 +189,7 @@ export default function SmartTableModal() {
             </div>
 
             <button
-              onClick={() => { if (selectedArea) { loadData(); setShowMap(true); } }}
+              onClick={() => { if (selectedArea) { setShowMap(true); } }}
               disabled={!selectedArea}
               className={`w-full py-5 rounded-2xl text-[11px] font-black tracking-[0.4em] uppercase transition-all flex items-center justify-center gap-3 ${
                 selectedArea 

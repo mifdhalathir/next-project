@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useCart } from "./CartProvider";
 import { playSound } from "./AudioWidget";
+import { useKarsa } from "./KarsaContext";
 
 const MENU_ITEMS = [
   // Snacks
@@ -42,30 +43,19 @@ export default function MenuSection() {
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const { cart, updateQty } = useCart();
-  const [inventory, setInventory] = useState<Record<string, number>>({});
+  const { inventory } = useKarsa();
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [currentArea, setCurrentArea] = useState("Indoor");
   const [isVip, setIsVip] = useState(false);
 
   useEffect(() => {
-    const fetchInv = () => {
-      try {
-        const inv = JSON.parse(localStorage.getItem("karsa_inventory") || "{}");
-        setInventory(inv);
-        setLoading(false);
-      } catch {
-        setLoading(false);
-      }
-    };
-    
-    // Simulate initial loading to show skeleton shimmer effect
-    setTimeout(() => {
-      fetchInv();
-    }, 1200);
+    if (inventory && Object.keys(inventory).length > 0) {
+      setLoading(false);
+    }
+  }, [inventory]);
 
-    const interval = setInterval(fetchInv, 5000);
-
+  useEffect(() => {
     const syncState = () => {
       setCurrentArea(localStorage.getItem("karsa_area") || "Indoor");
       setIsVip(localStorage.getItem("karsa_status") === "reserved");
@@ -76,11 +66,8 @@ export default function MenuSection() {
         syncState();
     });
 
-    window.addEventListener("storage", fetchInv);
     window.addEventListener("storage", syncState);
     return () => {
-      clearInterval(interval);
-      window.removeEventListener("storage", fetchInv);
       window.removeEventListener("storage", syncState);
     };
   }, []);

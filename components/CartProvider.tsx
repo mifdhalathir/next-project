@@ -2,6 +2,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { addKarsaNotification } from './NotificationHub';
 import { addActivityLog } from './ActivityLog';
+import { useKarsa } from './KarsaContext';
+import confetti from 'canvas-confetti';
 
 export type CartItem = { name: string; price: number; qty: number };
 export type OrderStatus = "received" | "preparing" | "cooked" | "ready" | "completed";
@@ -45,6 +47,7 @@ type CartContextType = {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
+  const { orders, placeOrder: karsaPlaceOrder, placeReservation: karsaPlaceReservation } = useKarsa();
   const [cart, setCart] = useState<{ [key: string]: CartItem }>({});
   const [activeOrder, setActiveOrder] = useState<Order | null>(null);
   const [voucher, setVoucher] = useState<{ type: string; discount: number; code: string } | null>(null);
@@ -92,61 +95,31 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [voucher, mounted]);
 
-  // Synchronize active order status from localStorage (for real-time tracking)
+  // Synchronize active order status from KarsaContext real-time order list
   useEffect(() => {
-    const syncStatus = () => {
-      if (!activeOrder) return;
+    if (!activeOrder) return;
+    const current = orders.find((o) => o.orderID === activeOrder.id);
+    if (current) {
+      const statusMap: Record<string, OrderStatus> = {
+        'Pending': 'received',
+        'Diracik': 'preparing',
+        'Preparing': 'preparing',
+        'Dikonfirmasi': 'ready',
+        'Ready': 'ready',
+        'Selesai': 'completed',
+      };
+      const mappedStatus = statusMap[current.status] || 'received';
       
-      const savedPesanan = localStorage.getItem("PESANAN_HARI_INI");
-      if (savedPesanan) {
-        try {
-          const pesanan: any[] = JSON.parse(savedPesanan);
-          const current = pesanan.find((p: any) => p.orderID === activeOrder.id);
-          if (current) {
-            const statusMap: Record<string, OrderStatus> = {
-              'Pending': 'received',
-              'Diracik': 'preparing',
-              'Preparing': 'preparing',
-              'Dikonfirmasi': 'ready',
-              'Ready': 'ready',
-              'Selesai': 'completed',
-            };
-            const mappedStatus = statusMap[current.status] || 'received';
-            
-            if (mappedStatus !== activeOrder.status) {
-              if (mappedStatus === "ready") {
-                const beep = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
-                beep.play().catch(e => console.log("Sound error:", e));
-                addKarsaNotification(`Pesananmu SIAP diantar/ambil! 🛎️`, "success");
-              }
-              setActiveOrder({ ...activeOrder, status: mappedStatus });
-            }
-            return;
-          }
-        } catch (e) {}
+      if (mappedStatus !== activeOrder.status) {
+        if (mappedStatus === "ready") {
+          const beep = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
+          beep.play().catch(e => console.log("Sound error:", e));
+          addKarsaNotification(`Pesananmu SIAP diantar/ambil! 🛎️`, "success");
+        }
+        setActiveOrder({ ...activeOrder, status: mappedStatus });
       }
-
-      // Check for completion in history
-      if (activeOrder.status !== "completed") {
-          const savedHistory = localStorage.getItem("karsa_order_history");
-          if (savedHistory) {
-              const history: Order[] = JSON.parse(savedHistory);
-              const done = history.find(o => o.id === activeOrder.id);
-              if (done) {
-                  setActiveOrder({ ...activeOrder, status: "completed" });
-              }
-          }
-      }
-    };
-
-    window.addEventListener("storage", syncStatus);
-    const interval = setInterval(syncStatus, 2000);
-    
-    return () => {
-      window.removeEventListener("storage", syncStatus);
-      clearInterval(interval);
-    };
-  }, [activeOrder]);
+    }
+  }, [orders, activeOrder]);
 
   const placeOrder = (tableNumber: string): Order => {
     const userName = typeof window !== "undefined" ? localStorage.getItem("karsa_user_name") : null;
@@ -161,39 +134,27 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     const orderID = `KRSA-${Math.floor(1000 + Math.random() * 9000)}`;
     const itemsArray = Object.values(cart);
-    const baseTotal = itemsArray.reduce((sum, item) => sum + item.price * item.qty, 0);
     const totalQty = itemsArray.reduce((sum, item) => sum + item.qty, 0);
 
-    let totalAmount = baseTotal;
-    if (voucher) {
-      if (voucher.type === 'persen') totalAmount -= Math.round(baseTotal * voucher.discount / 100);
-      else if (voucher.type === 'flat') totalAmount -= Math.min(voucher.discount, baseTotal);
-    }
-
-    // [CORE SYSTEM] Deduct Inventory
-    const savedInv = localStorage.getItem("karsa_inventory");
-    if (savedInv) {
-        try {
-            const inventory = JSON.parse(savedInv);
-            itemsArray.forEach(item => {
-                if (inventory[item.name] !== undefined) {
-                    inventory[item.name] = Math.max(0, inventory[item.name] - item.qty);
-                }
-            });
-            localStorage.setItem("karsa_inventory", JSON.stringify(inventory));
-        } catch (e) {}
-    }
+    // Call KarsaContext async placeOrder in the background to sync to Firestore
+    karsaPlaceOrder(
+      itemsArray,
+      total,
+      localStorage.getItem("karsa_payment_method") || "tunai",
+      ""
+    ).catch((e) => console.error("Firestore order sync failed", e));
 
     const newOrder: Order = {
       id: orderID,
       tableNumber,
       customerName: userName,
       items: itemsArray,
-      total: totalAmount,
+      total: total,
       status: "received",
       timestamp: Date.now(),
     };
 
+    // Keep legacy local storage writes for Kasir offline/compat compatibility
     const pesananBaru = {
         orderID: orderID,
         id: Date.now(),
@@ -206,7 +167,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             qty: item.qty,
             subtotal: item.price * item.qty
         })),
-        totalHarga: totalAmount,
+        totalHarga: total,
         totalItem: totalQty,
         waktuPesan: new Date().toLocaleString('id-ID'),
         tanggal: new Date().toLocaleDateString('id-ID'),
@@ -219,12 +180,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     pesananHariIni.push(pesananBaru);
     localStorage.setItem('PESANAN_HARI_INI', JSON.stringify(pesananHariIni));
 
-    // For Kasir/Dapur integration
     let pesananMasuk = [];
     try { pesananMasuk = JSON.parse(localStorage.getItem('karsa_pesanan_masuk') || '[]'); } catch(e) {}
     pesananMasuk.push({
         id: pesananBaru.id,
         nama: userName,
+        shadow: true,
         jumlah: totalQty,
         tanggal: pesananBaru.tanggal,
         jam: pesananBaru.jam,
@@ -232,12 +193,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         area: area,
         status: 'menunggu',
         waktuMasuk: pesananBaru.waktuPesan,
-        totalHarga: totalAmount
+        totalHarga: total
     });
     localStorage.setItem('karsa_pesanan_masuk', JSON.stringify(pesananMasuk));
 
+    // Trigger canvas-confetti upon order checkout
+    try {
+      confetti({
+        particleCount: 150,
+        spread: 80,
+        origin: { y: 0.6 },
+        colors: ["#b45309", "#d97706", "#fcd34d", "#ffffff"],
+      });
+    } catch (e) {}
+
     addKarsaNotification(`Pesanan Baru Terkirim! Mohon Tunggu Ya! ☕`, "warning");
-    addActivityLog(`Order ${orderID} dari ${userName} (Meja ${tableNumber}) — Rp ${totalAmount.toLocaleString('id-ID')}`, "order");
+    addActivityLog(`Order ${orderID} dari ${userName} (Meja ${tableNumber}) — Rp ${total.toLocaleString('id-ID')}`, "order");
     window.dispatchEvent(new Event("storage"));
 
     if (voucher) {
@@ -251,6 +222,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const placeReservation = (res: Omit<Reservation, "id" | "status" | "timestamp">) => {
+    // Call KarsaContext async placeReservation
+    karsaPlaceReservation({
+      name: res.name,
+      time: res.time,
+      guests: res.guests,
+      notes: res.notes
+    }).catch(e => console.error("Firestore reservation sync failed", e));
+
     const resId = Date.now();
     const newRes: Reservation = {
       ...res,
@@ -259,7 +238,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       timestamp: resId,
     };
 
-    // Save to legacy tracking
     let existingRes: Reservation[] = [];
     try {
       const existingResJson = localStorage.getItem("karsa_reservations");
@@ -274,7 +252,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
     localStorage.setItem("karsa_reservations", JSON.stringify([...existingRes, newRes]));
 
-    // Save to pesanan_masuk for Kasir/Dapur tracking
     let pesananMasuk = [];
     try { pesananMasuk = JSON.parse(localStorage.getItem('karsa_pesanan_masuk') || '[]'); } catch(e) {}
     

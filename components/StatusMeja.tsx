@@ -1,45 +1,12 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useKarsa } from "./KarsaContext";
 
 export default function StatusMeja() {
-  const [indoorOccupied, setIndoorOccupied] = useState(0);
-  const [outdoorOccupied, setOutdoorOccupied] = useState(0);
+  const { tables } = useKarsa();
 
-  const loadCapacity = useCallback(() => {
-    try {
-      const saved = localStorage.getItem("PESANAN_HARI_INI");
-      if (!saved) {
-        setIndoorOccupied(0);
-        setOutdoorOccupied(0);
-        return;
-      }
-      const parsed = JSON.parse(saved);
-      const activeTables: number[] = [];
-      parsed.forEach((p: { status: string; meja: string }) => {
-        if (p.status !== "Selesai") {
-          const t = parseInt(String(p.meja || "").replace(/[^\d]/g, ""));
-          if (!isNaN(t)) activeTables.push(t);
-        }
-      });
-      setIndoorOccupied(activeTables.filter((t) => t >= 1 && t <= 10).length);
-      setOutdoorOccupied(activeTables.filter((t) => t >= 11 && t <= 15).length);
-    } catch {
-      // ignore parse errors
-    }
-  }, []);
-
-  useEffect(() => {
-    loadCapacity();
-
-    window.addEventListener("storage", loadCapacity);
-    const interval = setInterval(loadCapacity, 5000);
-
-    return () => {
-      window.removeEventListener("storage", loadCapacity);
-      clearInterval(interval);
-    };
-  }, [loadCapacity]);
+  const indoorOccupied = tables.filter((t) => t.area === "Indoor" && t.status !== "available").length;
+  const outdoorOccupied = tables.filter((t) => t.area === "Outdoor" && t.status !== "available").length;
 
   const indoorTotal = 10;
   const outdoorTotal = 5;

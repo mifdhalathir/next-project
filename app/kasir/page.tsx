@@ -3,81 +3,31 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Chart from 'chart.js/auto';
+import { useKarsa, type KarsaOrder } from "@/components/KarsaContext";
 
 export default function KasirPage() {
   const router = useRouter();
   
-  const [activeOrdersCount, setActiveOrdersCount] = useState(0);
-  const [pendingResCount, setPendingResCount] = useState(0);
-  const [indoorCapacity, setIndoorCapacity] = useState(0);
-  const [outdoorCapacity, setOutdoorCapacity] = useState(0);
+  const { 
+    tables, 
+    orders, 
+    reservations, 
+    inventory, 
+    updateOrderStatus, 
+    updateStock: karsaUpdateStock, 
+    resetAllStock 
+  } = useKarsa();
 
-  const [pesananHariIniList, setPesananHariIniList] = useState<any[]>([]);
-  const [inventory, setInventory] = useState<Record<string, number>>({});
+  const activeOrdersCount = orders.filter((o) => o.status !== "Selesai").length;
+  const pendingResCount = reservations.filter((r) => r.status === "pending").length;
+  const indoorCapacity = tables.filter((t) => t.area === "Indoor" && t.status !== "available").length;
+  const outdoorCapacity = tables.filter((t) => t.area === "Outdoor" && t.status !== "available").length;
+  const pesananHariIniList = orders;
 
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
 
-  const defaultInventory: Record<string, number> = {
-    "Kopi Susu Karsa": 20,
-    "Iced Americano": 15,
-    "Matcha Latte": 12,
-    "Red Velvet Latte": 10,
-    "Nasi Goreng Katsu": 8,
-    "Indomie Spesial": 15,
-    "Mix Platter": 6,
-  };
-
-  const loadData = () => {
-    try {
-      const savedOrders = localStorage.getItem("PESANAN_HARI_INI");
-      const savedRes = localStorage.getItem("karsa_pesanan_masuk");
-      const savedInv = localStorage.getItem("karsa_inventory");
-      
-      let parsedOrders: any[] = [];
-      if (savedOrders) {
-        parsedOrders = JSON.parse(savedOrders);
-        setPesananHariIniList(parsedOrders);
-        
-        const completed = parsedOrders.filter((p: any) => p.status === 'Selesai');
-        setActiveOrdersCount(parsedOrders.length - completed.length);
-        
-        let ind = 0, out = 0;
-        parsedOrders.filter((p: any) => p.status !== 'Selesai').forEach((p: any) => {
-            const t = parseInt(String(p.meja || "").replace(/[^\d]/g, ''));
-            if (!isNaN(t)) {
-                if (t <= 10) ind++;
-                else if (t <= 15) out++;
-            }
-        });
-        setIndoorCapacity(ind);
-        setOutdoorCapacity(out);
-
-        updateChart(parsedOrders);
-      } else {
-        setPesananHariIniList([]);
-        setActiveOrdersCount(0);
-        setIndoorCapacity(0);
-        setOutdoorCapacity(0);
-      }
-
-      if (savedRes) {
-        const parsedRes: any[] = JSON.parse(savedRes);
-        setPendingResCount(parsedRes.filter((p: any) => p.status === 'menunggu').length);
-      } else {
-        setPendingResCount(0);
-      }
-
-      if (savedInv) {
-        setInventory(JSON.parse(savedInv));
-      } else {
-        setInventory(defaultInventory);
-        localStorage.setItem("karsa_inventory", JSON.stringify(defaultInventory));
-      }
-    } catch (e) { console.error("Sync error", e); }
-  };
-
-  const updateChart = (pesanan: any[]) => {
+  const updateChart = (pesanan: KarsaOrder[]) => {
     if (!chartRef.current) return;
     const selesai = pesanan.filter(p => p.status === 'Selesai');
     const hourData = new Array(24).fill(0);
@@ -129,63 +79,48 @@ export default function KasirPage() {
   };
 
   useEffect(() => {
-    loadData();
-    window.addEventListener("storage", loadData);
-    const interval = setInterval(loadData, 3000);
+    updateChart(orders);
+  }, [orders]);
+
+  useEffect(() => {
     return () => {
-      window.removeEventListener("storage", loadData);
-      clearInterval(interval);
       if (chartInstance.current) chartInstance.current.destroy();
     };
   }, []);
 
   const adjustStock = (name: string, delta: number) => {
-    const inv = { ...inventory };
-    inv[name] = Math.max(0, (inv[name] || 0) + delta);
-    setInventory(inv);
-    localStorage.setItem("karsa_inventory", JSON.stringify(inv));
-    window.dispatchEvent(new Event("storage"));
+    karsaUpdateStock(name, delta).catch(e => console.error("Stock adjustment failed", e));
   };
 
   const advanceOrder = (orderId: string) => {
-    try {
-      const savedOrders = localStorage.getItem("PESANAN_HARI_INI");
-      if (savedOrders) {
-        let pesananList: any[] = JSON.parse(savedOrders);
-        const order = pesananList.find(p => p.orderID === orderId);
-        if (order) {
-          const stages = ['Pending', 'Diracik', 'Dikonfirmasi', 'Selesai'];
-          const currentIdx = stages.indexOf(order.status);
-          if (currentIdx < stages.length - 1) {
-            order.status = stages[currentIdx + 1];
-            localStorage.setItem("PESANAN_HARI_INI", JSON.stringify(pesananList));
-            window.dispatchEvent(new Event("storage"));
-            loadData();
-          }
-        }
+    const order = orders.find(p => p.orderID === orderId);
+    if (order) {
+      const stages: KarsaOrder["status"][] = ['Pending', 'Diracik', 'Dikonfirmasi', 'Selesai'];
+      const currentIdx = stages.indexOf(order.status);
+      if (currentIdx < stages.length - 1) {
+        const nextStatus = stages[currentIdx + 1];
+        updateOrderStatus(orderId, nextStatus).catch(e => console.error("Order status update failed", e));
       }
-    } catch(e) {}
+    }
   };
 
   const clearPesananMasuk = () => {
     if(confirm("Yakin ingin menghapus semua pesanan masuk?")) {
       localStorage.setItem("karsa_pesanan_masuk", "[]");
-      loadData();
+      window.dispatchEvent(new Event("storage"));
     }
   };
 
   const resetStock = () => {
     if(confirm("Reset semua stok ke nilai default?")) {
-      setInventory(defaultInventory);
-      localStorage.setItem("karsa_inventory", JSON.stringify(defaultInventory));
-      loadData();
+      resetAllStock().catch(e => console.error("Reset stock failed", e));
     }
   };
 
   const resetPesananHariIni = () => {
     if(confirm("Hapus semua riwayat pesanan hari ini?")) {
       localStorage.setItem("PESANAN_HARI_INI", "[]");
-      loadData();
+      window.dispatchEvent(new Event("storage"));
     }
   };
 

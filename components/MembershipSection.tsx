@@ -1,25 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useKarsa } from "./KarsaContext";
 
 export default function MembershipSection() {
-  const [userName, setUserName] = useState<string | null>(null);
-  const [points, setPoints] = useState<number>(0);
-
-  useEffect(() => {
-    const checkUser = () => {
-      const name = localStorage.getItem("karsa_user_name");
-      setUserName(name);
-      if (name) {
-        const userPoints = Number(localStorage.getItem(`karsa_points_${name}`) || 0);
-        setPoints(userPoints);
-      }
-    };
-
-    checkUser();
-    window.addEventListener("storage", checkUser);
-    return () => window.removeEventListener("storage", checkUser);
-  }, []);
+  const { userName, userPoints: points } = useKarsa();
 
   const tiers = [
     { name: "Bronze", min: 0, color: "text-amber-700", bg: "bg-amber-700/10", border: "border-amber-700/20" },
