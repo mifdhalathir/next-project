@@ -39,9 +39,33 @@ const MENU_ITEMS = [
   { id: 23, name: "Waffle", price: 25000, category: "dessert", img: "https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg?auto=compress&cs=tinysrgb&w=800", desc: "Sajian hangat dengan sirup atau es krim." },
 ];
 
+const MOOD_RECS: Record<string, { title: string; items: string[]; message: string }> = {
+  "🥺": {
+    title: "Mood: Butuh Kehangatan & Manis",
+    items: ["Chocolate", "Milo", "Cake Slice", "Brownies", "Roti Bakar", "Waffle", "Donat"],
+    message: "Lagi mellow? Tenang, cobain cemilan manis & cokelat hangat biar mood kamu naik lagi! 🍫🍰"
+  },
+  "😴": {
+    title: "Mood: Butuh Asupan Kafein",
+    items: ["Espresso", "Americano", "Cappuccino", "Latte", "Es Kopi Susu", "Mochaccino"],
+    message: "Ngantuk melanda? Ini booster kafein terbaik buat balikin fokusmu! ☕⚡"
+  },
+  "🤩": {
+    title: "Mood: Pengen yang Segar & Seru",
+    items: ["Smoothies", "Milkshake", "Nugget/Sosis", "Cireng/Dimsum", "Croissant"],
+    message: "Lagi happy? Rayakan momen serumu dengan sajian lezat & menyegarkan ini! 🎉🥤"
+  },
+  "🤓": {
+    title: "Mood: Mode Fokus Belajar / Kerja",
+    items: ["Kentang Goreng", "Lemon Tea", "Matcha", "Teh Tarik"],
+    message: "Butuh teman belajar/kerja yang pas? Teh hangat & kentang goreng siap menemani fokusmu! 📚🍵"
+  }
+};
+
 export default function MenuSection() {
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const { cart, updateQty } = useCart();
   const { inventory } = useKarsa();
   const [loading, setLoading] = useState(true);
@@ -77,6 +101,11 @@ export default function MenuSection() {
     filteredItems = filteredItems.filter(item => 
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
       item.desc.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }
+  if (selectedMood && MOOD_RECS[selectedMood]) {
+    filteredItems = filteredItems.filter(item => 
+      MOOD_RECS[selectedMood].items.includes(item.name)
     );
   }
 
@@ -163,12 +192,38 @@ export default function MenuSection() {
             {['🥺', '😴', '🤩', '🤓'].map((emoji, i) => (
               <button 
                 key={i} 
-                className="w-14 h-14 rounded-full border border-white/10 bg-white/5 hover:border-amber-500 hover:bg-amber-500/10 flex items-center justify-center text-2xl transition-all hover:scale-110 hover:shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+                onClick={() => {
+                  setSelectedMood(selectedMood === emoji ? null : emoji);
+                  playSound('click');
+                }}
+                className={`w-14 h-14 rounded-full border flex items-center justify-center text-2xl transition-all hover:scale-110 ${
+                  selectedMood === emoji 
+                    ? "bg-amber-600 border-amber-500 text-white shadow-[0_0_20px_rgba(245,158,11,0.5)] scale-115 z-10" 
+                    : "border-white/10 bg-white/5 text-stone-400 hover:border-amber-500 hover:bg-amber-500/10 hover:shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+                }`}
               >
                 {emoji}
               </button>
             ))}
           </div>
+
+          {selectedMood && MOOD_RECS[selectedMood] && (
+            <div className="mb-8 p-6 rounded-3xl bg-amber-500/10 border border-amber-500/20 animate-in fade-in slide-in-from-top-4 duration-300 max-w-md mx-auto text-left relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl pointer-events-none" />
+              <div className="flex justify-between items-start gap-4">
+                <div>
+                  <p className="text-amber-400 font-black text-xs uppercase tracking-widest">{MOOD_RECS[selectedMood].title}</p>
+                  <p className="text-stone-300 text-xs mt-1.5 leading-relaxed italic">"{MOOD_RECS[selectedMood].message}"</p>
+                </div>
+                <button 
+                  onClick={() => { setSelectedMood(null); playSound('click'); }}
+                  className="text-stone-500 hover:text-stone-300 transition text-[10px] p-1 font-bold uppercase tracking-wider"
+                >
+                  ✕ Clear
+                </button>
+              </div>
+            </div>
+          )}
           <div className="relative">
             <span className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-400 text-lg">🔍</span>
             <input 

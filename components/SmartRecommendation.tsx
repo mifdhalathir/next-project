@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useCart } from "./CartProvider";
 
 // Recommendation engine: pairs items based on category complementarity
@@ -59,10 +59,9 @@ const MENU_PRICES: Record<string, number> = {
 
 export default function SmartRecommendation() {
   const { cart, updateQty } = useCart();
-  const [recommendations, setRecommendations] = useState<{ name: string; reason: string; price: number }[]>([]);
   const [isVisible, setIsVisible] = useState(true);
 
-  useEffect(() => {
+  const recommendations = useMemo(() => {
     const cartItems = Object.keys(cart);
     const recs: { name: string; reason: string; price: number }[] = [];
     const addedNames = new Set<string>();
@@ -88,9 +87,7 @@ export default function SmartRecommendation() {
       }
     }
 
-    requestAnimationFrame(() => {
-      setRecommendations(recs.slice(0, 3));
-    });
+    return recs.slice(0, 3);
   }, [cart]);
 
   if (recommendations.length === 0 || !isVisible) return null;
