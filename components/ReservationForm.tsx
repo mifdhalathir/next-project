@@ -153,10 +153,7 @@ export default function ReservationForm() {
   };
 
   const indoorLabel = getAreaLabel(capacity.indoor.used, capacity.indoor.total);
-  const outdoorLabel = getAreaLabel(
-    capacity.outdoor.used,
-    capacity.outdoor.total
-  );
+  const outdoorLabel = getAreaLabel(capacity.outdoor.used, capacity.outdoor.total);
   const indoorAvailable = capacity.indoor.total - capacity.indoor.used;
   const outdoorAvailable = capacity.outdoor.total - capacity.outdoor.used;
 
@@ -211,16 +208,31 @@ export default function ReservationForm() {
               <label className="block text-cream-200 text-sm mb-1.5">
                 Nama Lengkap
               </label>
-              {/* Import Link di paling atas file dulu jika belum ada: import Link from "next/link"; */}
+              <input
+                type="text"
+                name="nama"
+                value={formData.nama}
+                onChange={handleChange}
+                placeholder="Masukkan nama Anda"
+                className={`w-full bg-white/10 border text-cream-100 placeholder-stone-400 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition ${
+                  errors.nama
+                    ? "border-red-500 shake"
+                    : "border-cream-200/20"
+                }`}
+              />
+              {errors.nama && (
+                <p className="text-red-400 text-[10px] mt-1 font-medium">{errors.nama}</p>
+              )}
 
-           <Link href="/kasir" className="w-full block mt-3 relative z-10">
-            <button
-               type="button"
-              className="w-full py-3 border border-dashed border-amber-500/30 bg-amber-500/5 rounded-xl text-[10px] font-black text-amber-500 hover:text-white hover:bg-amber-500 hover:border-amber-500 transition-all flex items-center justify-center gap-2 tracking-widest uppercase"
-        >
-                 🗺️ LIHAT PETA MEJA
-           </button>
-            </Link>
+              <Link href="/kasir" className="w-full block mt-3 relative z-10">
+                <button
+                  type="button"
+                  className="w-full py-3 border border-dashed border-amber-500/30 bg-amber-500/5 rounded-xl text-[10px] font-black text-amber-500 hover:text-white hover:bg-amber-500 hover:border-amber-500 transition-all flex items-center justify-center gap-2 tracking-widest uppercase"
+                >
+                  🗺️ LIHAT PETA MEJA
+                </button>
+              </Link>
+            </div>
 
             {/* Area Selection */}
             <div>
@@ -335,23 +347,6 @@ export default function ReservationForm() {
               {errors.area && (
                 <p className="text-red-400 text-[10px] mt-2 font-medium">{errors.area}</p>
               )}
-              <button
-                type="button"
-                onClick={() => {
-                  window.dispatchEvent(
-                    new CustomEvent("openTableModal", {
-                      detail: {
-                        directMap: true,
-                        area: formData.area || "Indoor", // Default to Indoor so it ALWAYS opens the map directly
-                        viewOnly: true,
-                      },
-                    })
-                  );
-                }}
-                className="w-full mt-3 py-3 border border-dashed border-amber-500/30 bg-amber-500/5 rounded-xl text-[10px] font-black text-amber-500 hover:text-white hover:bg-amber-500 hover:border-amber-500 transition-all flex items-center justify-center gap-2 tracking-widest uppercase relative z-10"
-              >
-                🗺️ LIHAT PETA MEJA
-              </button>
             </div>
 
             <div className="grid grid-cols-1 gap-4">
