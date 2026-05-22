@@ -25,7 +25,6 @@ const PAIRING_MAP: Record<string, { pair: string; reason: string }[]> = {
   "Nugget/Sosis":     [{ pair: "Milo", reason: "Anak kos paling relate" }, { pair: "Lemon Tea", reason: "Segar setelah gorengan" }],
   "Roti Bakar":       [{ pair: "Teh Tarik", reason: "Sarapan ala mamak" }, { pair: "Cappuccino", reason: "Morning combo terbaik" }],
   "Cireng/Dimsum":    [{ pair: "Es Kopi Susu", reason: "Street food + kopi = life" }],
-\\
   // Dessert pairs
   "Cake Slice":  [{ pair: "Latte", reason: "Elegant afternoon tea vibes" }],
   "Brownies":    [{ pair: "Espresso", reason: "Bitter + sweet masterclass" }],

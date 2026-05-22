@@ -28,7 +28,7 @@ export default function LoginPage() {
     if (!auth) return;
     const checkRedirect = async () => {
       try {
-        const result = await getRedirectResult(auth!); 
+         const result = await getRedirectResult(auth!); 
         if (result?.user) {
           const user = result.user;
           const displayName = user.displayName || "Sultan";
