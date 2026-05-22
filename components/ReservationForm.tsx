@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import confetti from "canvas-confetti";
 import { useCart } from "./CartProvider";
 import { useKarsa } from "./KarsaContext";
@@ -26,9 +26,11 @@ export default function ReservationForm() {
     catatan: "",
   });
 
-  const [errors, setErrors] = useState<string[]>([]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const submitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Compute capacity reactively from the Firestore table list
   const indoorUsed = tables.filter((t) => t.area === "Indoor" && t.status !== "available").length;
@@ -44,6 +46,11 @@ export default function ReservationForm() {
     if (savedName) {
       setFormData((prev) => ({ ...prev, nama: savedName }));
     }
+    // Cleanup timers on unmount
+    return () => {
+      if (successTimerRef.current) clearTimeout(successTimerRef.current);
+      if (submitTimerRef.current) clearTimeout(submitTimerRef.current);
+    };
   }, []);
 
   const handleChange = (
@@ -51,52 +58,86 @@ export default function ReservationForm() {
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrors(errors.filter((err) => err !== e.target.name));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear error for this field when user types
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[name];
+      return next;
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors: string[] = [];
-    if (!formData.nama) newErrors.push("nama");
-    if (!formData.area) newErrors.push("area");
-    if (!formData.jumlah) newErrors.push("jumlah");
-    if (!formData.tanggal) newErrors.push("tanggal");
-    if (!formData.jam) newErrors.push("jam");
+    const newErrors: Record<string, string> = {};
 
-    // Validate jam operasional (08:00 - 22:00)
-    if (formData.jam) {
-      const [h] = formData.jam.split(":").map(Number);
-      if (h < 8 || h >= 22) {
-        newErrors.push("jam");
+    // Required field validations
+    if (!formData.nama.trim()) newErrors.nama = "Nama wajib diisi";
+    if (!formData.area) newErrors.area = "Pilih area duduk terlebih dahulu";
+    if (!formData.jumlah) newErrors.jumlah = "Pilih jumlah orang";
+    if (!formData.tanggal) newErrors.tanggal = "Pilih tanggal kedatangan";
+    if (!formData.jam) newErrors.jam = "Pilih jam kedatangan";
+
+    // Validate tanggal is not in the past
+    if (formData.tanggal) {
+      const today = new Date().toISOString().split("T")[0];
+      if (formData.tanggal < today) {
+        newErrors.tanggal = "Tanggal tidak boleh di masa lalu";
       }
     }
 
-    if (newErrors.length > 0) {
+    // Validate jam operasional (08:00 - 21:59)
+    if (formData.jam && !newErrors.jam) {
+      const [h, m] = formData.jam.split(":").map(Number);
+      if (h < 8 || h >= 22) {
+        newErrors.jam = "Jam harus antara 08:00 — 21:59";
+      }
+    }
+
+    // Check if selected area is full
+    if (formData.area === "Indoor" && capacity.indoor.total - capacity.indoor.used <= 0) {
+      newErrors.area = "Area Indoor sudah penuh, pilih Outdoor";
+    }
+    if (formData.area === "Outdoor" && capacity.outdoor.total - capacity.outdoor.used <= 0) {
+      newErrors.area = "Area Outdoor sudah penuh, pilih Indoor";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
 
+    // Capture form data before resetting (avoid stale closure bug)
+    const submittedData = { ...formData };
+
     setIsSubmitting(true);
-    confetti({
-      particleCount: 150,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ["#b45309", "#d97706", "#fcd34d", "#ffffff"],
-    });
+    try {
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ["#b45309", "#d97706", "#fcd34d", "#ffffff"],
+      });
+    } catch (err) {
+      // Confetti may fail in some environments, don't block submission
+    }
 
     setShowSuccess(true);
 
-    setTimeout(() => {
+    // Use captured data, not formData from closure
+    submitTimerRef.current = setTimeout(() => {
       placeReservation({
-        name: formData.nama,
-        time: `${formData.tanggal} ${formData.jam}`,
-        guests: parseInt(formData.jumlah),
-        notes: `Area: ${formData.area}. ${formData.catatan}`,
+        name: submittedData.nama,
+        time: `${submittedData.tanggal} ${submittedData.jam}`,
+        guests: parseInt(submittedData.jumlah),
+        notes: `Area: ${submittedData.area}. ${submittedData.catatan}`,
       });
 
+      // Reset form but keep nama from localStorage
+      const savedName = localStorage.getItem("karsa_user_name") || "";
       setFormData({
-        nama: "",
+        nama: savedName,
         area: "",
         jumlah: "",
         tanggal: "",
@@ -104,14 +145,9 @@ export default function ReservationForm() {
         catatan: "",
       });
       setIsSubmitting(false);
+      setErrors({});
 
-      // Re-fill name from localStorage
-      const savedName = localStorage.getItem("karsa_user_name");
-      if (savedName) {
-        setFormData((prev) => ({ ...prev, nama: savedName }));
-      }
-
-      setTimeout(() => setShowSuccess(false), 5000);
+      successTimerRef.current = setTimeout(() => setShowSuccess(false), 5000);
     }, 1500);
   };
 
@@ -122,6 +158,8 @@ export default function ReservationForm() {
   );
   const indoorAvailable = capacity.indoor.total - capacity.indoor.used;
   const outdoorAvailable = capacity.outdoor.total - capacity.outdoor.used;
+
+  const hasErrors = Object.keys(errors).length > 0;
 
   return (
     <>
@@ -143,6 +181,25 @@ export default function ReservationForm() {
             </h2>
             <div className="w-16 h-0.5 bg-amber-500 mx-auto mt-4"></div>
           </div>
+
+          {/* Error Summary Banner */}
+          {hasErrors && (
+            <div className="mb-4 bg-red-500/10 border border-red-500/30 rounded-xl p-4 animate-in slide-in-from-top-2 duration-300" data-aos="fade-up">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-red-400 text-sm">⚠️</span>
+                <p className="text-red-400 text-xs font-bold uppercase tracking-wider">Mohon lengkapi data berikut:</p>
+              </div>
+              <ul className="space-y-1">
+                {Object.values(errors).map((msg, i) => (
+                  <li key={i} className="text-red-300/80 text-xs flex items-center gap-1.5">
+                    <span className="w-1 h-1 bg-red-400 rounded-full shrink-0"></span>
+                    {msg}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <form
             onSubmit={handleSubmit}
             className="glass-form rounded-2xl p-8 space-y-5"
@@ -160,11 +217,14 @@ export default function ReservationForm() {
                 onChange={handleChange}
                 placeholder="Masukkan nama Anda"
                 className={`w-full bg-white/10 border text-cream-100 placeholder-stone-400 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition ${
-                  errors.includes("nama")
+                  errors.nama
                     ? "border-red-500 shake"
                     : "border-cream-200/20"
                 }`}
               />
+              {errors.nama && (
+                <p className="text-red-400 text-[10px] mt-1 font-medium">{errors.nama}</p>
+              )}
             </div>
 
             {/* Area Selection */}
@@ -174,7 +234,7 @@ export default function ReservationForm() {
               </label>
               <div
                 className={`grid grid-cols-2 gap-4 ${
-                  errors.includes("area")
+                  errors.area
                     ? "p-1 border border-red-500 rounded-2xl shake"
                     : ""
                 }`}
@@ -184,8 +244,12 @@ export default function ReservationForm() {
                   type="button"
                   onClick={() => {
                     if (indoorAvailable <= 0) return;
-                    setFormData({ ...formData, area: "Indoor" });
-                    setErrors(errors.filter((e) => e !== "area"));
+                    setFormData((prev) => ({ ...prev, area: "Indoor" }));
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.area;
+                      return next;
+                    });
                   }}
                   disabled={indoorAvailable <= 0}
                   className={`relative p-5 rounded-2xl border transition-all flex flex-col items-center justify-center gap-2 ${
@@ -229,8 +293,12 @@ export default function ReservationForm() {
                   type="button"
                   onClick={() => {
                     if (outdoorAvailable <= 0) return;
-                    setFormData({ ...formData, area: "Outdoor" });
-                    setErrors(errors.filter((e) => e !== "area"));
+                    setFormData((prev) => ({ ...prev, area: "Outdoor" }));
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.area;
+                      return next;
+                    });
                   }}
                   disabled={outdoorAvailable <= 0}
                   className={`relative p-5 rounded-2xl border transition-all flex flex-col items-center justify-center gap-2 ${
@@ -269,6 +337,9 @@ export default function ReservationForm() {
                   </div>
                 </button>
               </div>
+              {errors.area && (
+                <p className="text-red-400 text-[10px] mt-2 font-medium">{errors.area}</p>
+              )}
               <button
                 type="button"
                 onClick={() => {
@@ -298,7 +369,7 @@ export default function ReservationForm() {
                   value={formData.jumlah}
                   onChange={handleChange}
                   className={`w-full bg-white/10 border text-cream-100 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition appearance-none ${
-                    errors.includes("jumlah")
+                    errors.jumlah
                       ? "border-red-500 shake"
                       : "border-cream-200/20"
                   }`}
@@ -319,6 +390,9 @@ export default function ReservationForm() {
                     5-8 Orang
                   </option>
                 </select>
+                {errors.jumlah && (
+                  <p className="text-red-400 text-[10px] mt-1 font-medium">{errors.jumlah}</p>
+                )}
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -333,11 +407,14 @@ export default function ReservationForm() {
                   onChange={handleChange}
                   min={new Date().toISOString().split("T")[0]}
                   className={`w-full bg-white/10 border text-cream-100 placeholder-stone-400 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition ${
-                    errors.includes("tanggal")
+                    errors.tanggal
                       ? "border-red-500 shake"
                       : "border-cream-200/20"
                   }`}
                 />
+                {errors.tanggal && (
+                  <p className="text-red-400 text-[10px] mt-1 font-medium">{errors.tanggal}</p>
+                )}
               </div>
               <div>
                 <label className="block text-cream-200 text-sm mb-1.5">
@@ -349,16 +426,20 @@ export default function ReservationForm() {
                   value={formData.jam}
                   onChange={handleChange}
                   min="08:00"
-                  max="22:00"
+                  max="21:59"
                   className={`w-full bg-white/10 border text-cream-100 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition ${
-                    errors.includes("jam")
+                    errors.jam
                       ? "border-red-500 shake"
                       : "border-cream-200/20"
                   }`}
                 />
-                <p className="text-stone-500 text-[9px] mt-1 tracking-wide">
-                  Jam operasional: 08:00 — 22:00
-                </p>
+                {errors.jam ? (
+                  <p className="text-red-400 text-[10px] mt-1 font-medium">{errors.jam}</p>
+                ) : (
+                  <p className="text-stone-500 text-[9px] mt-1 tracking-wide">
+                    Jam operasional: 08:00 — 22:00
+                  </p>
+                )}
               </div>
             </div>
             <div>

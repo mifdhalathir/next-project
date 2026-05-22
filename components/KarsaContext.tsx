@@ -557,8 +557,7 @@ export function KarsaProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    addActivityLog(`Reservasi baru: ${res.name} (${res.time}) untuk ${res.guests} orang`, "login");
-    addKarsaNotification(`Reservasi untuk ${res.name} berhasil terkirim ke Kasir! 📅`, "success");
+    // Notification & activity log handled by CartProvider.placeReservation to avoid duplicates
     window.dispatchEvent(new Event("storage"));
   };
 
