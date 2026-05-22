@@ -2,11 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { auth, googleProvider } from "@/lib/firebase"; // Konfigurasi Firebase lo
+import { 
+  signInWithEmailAndPassword, 
+  signInWithPopup, 
+  getRedirectResult, 
+  signInWithRedirect 
+} from "firebase/auth";
 import PageTransition from "@/components/PageTransition";
 import { addKarsaNotification } from "@/components/NotificationHub";
 import { addActivityLog } from "@/components/ActivityLog";
-import { auth, googleProvider } from "@/lib/firebase";
-import { signInWithEmailAndPassword, signInWithPopup, getRedirectResult, signInWithRedirect } from "firebase/auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -22,7 +28,7 @@ export default function LoginPage() {
     if (!auth) return;
     const checkRedirect = async () => {
       try {
-        const result = await getRedirectResult(auth);
+        const result = await getRedirectResult(auth!); // Tambah ! biar gak error null
         if (result?.user) {
           const user = result.user;
           const displayName = user.displayName || "Sultan";
@@ -50,7 +56,6 @@ export default function LoginPage() {
   // ── Email + Password Login ──
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     if (!email.trim() || !password.trim()) {
       setError("Email dan password wajib diisi!");
@@ -59,13 +64,14 @@ export default function LoginPage() {
       return;
     }
 
+    setError("");
     setIsProcessing(true);
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth!, email, password); // Tambah !
       const user = userCredential.user;
       const displayName = user.displayName || email.split("@")[0] || "Customer";
-      
+
       localStorage.setItem("karsa_user_name", displayName);
       localStorage.setItem("karsa_username", displayName);
       localStorage.setItem("karsa_uid", user.uid);
@@ -77,9 +83,13 @@ export default function LoginPage() {
       router.push("/");
     } catch (err: any) {
       console.error("Login error:", err);
-      let errorMessage = "Email atau password salah!";
-      if (err.code === "auth/invalid-email") errorMessage = "Format email tidak valid!";
-      setError(errorMessage);
+      if (err.code === "auth/user-not-found" || err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
+        setError("Email atau password yang Anda masukkan salah!");
+      } else if (err.code === "auth/invalid-email") {
+        setError("Format email tidak valid!");
+      } else {
+        setError("Terjadi kesalahan sistem. Silakan coba lagi.");
+      }
       setShake(true);
       setTimeout(() => setShake(false), 500);
     } finally {
@@ -98,7 +108,7 @@ export default function LoginPage() {
     setError("");
     
     try {
-      const result = await signInWithPopup(auth, googleProvider);
+      const result = await signInWithPopup(auth!, googleProvider); // Tambah !
       const user = result.user;
       const displayName = user.displayName || "Customer";
       
@@ -118,7 +128,7 @@ export default function LoginPage() {
       // Fallback ke redirect kalau popup diblokir browser
       if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/popup-blocked') {
         try {
-          await signInWithRedirect(auth, googleProvider);
+          await signInWithRedirect(auth!, googleProvider); // Tambah !
           return;
         } catch (redirectErr) {
           console.error("Fallback redirect failed:", redirectErr);
@@ -128,6 +138,7 @@ export default function LoginPage() {
       setError("Gagal login dengan Google.");
       setShake(true);
       setTimeout(() => setShake(false), 500);
+    } finally {
       setIsProcessing(false);
     }
   };
@@ -137,7 +148,7 @@ export default function LoginPage() {
       <PageTransition />
       
       <div className="min-h-screen flex flex-col md:flex-row bg-stone-950 selection:bg-amber-500 selection:text-black">
-        
+
         {/* ========== KIRI: PANEL GAMBAR ESTETIK ========== */}
         <div className="relative w-full h-44 sm:h-56 md:w-1/2 md:h-screen flex-shrink-0 overflow-hidden">
           <div
@@ -165,8 +176,8 @@ export default function LoginPage() {
 
           {/* Mini Branding Mobile */}
           <div className="flex md:hidden absolute inset-0 items-center justify-center z-10">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-black/40 backdrop-blur-sm border border-amber-500/30 rounded-full flex items-center justify-center text-lg">☕</div>
+            <div className="flex items-center gap-3 bg-black/40 backdrop-blur-sm px-4 py-2 rounded-2xl border border-amber-500/20">
+              <div className="text-lg">☕</div>
               <h2 className="text-xl font-black text-white tracking-[0.15em] uppercase">
                 KARSA <span className="text-amber-500">CAFE</span>
               </h2>
@@ -175,9 +186,10 @@ export default function LoginPage() {
         </div>
 
         {/* ========== KANAN: PANEL FORM LOGIN ========== */}
-        <div className="w-full md:w-1/2 flex items-center justify-center relative overflow-hidden p-4">
-          <div className="absolute top-1/4 -left-32 w-[400px] h-[400px] bg-[radial-gradient(circle,_rgba(217,119,6,0.1)_0%,_transparent_70%)] pointer-events-none"></div>
-          
+        <div className="w-full md:w-1/2 flex items-center justify-center relative overflow-hidden p-4 sm:p-8">
+          <div className="absolute top-1/4 -left-32 w-[400px] h-[400px] bg-[radial-gradient(circle,_rgba(217,119,6,0.05)_0%,_transparent_70%)] pointer-events-none"></div>
+
+          {/* Card Glassmorphic */}
           <div className={`relative z-10 w-full max-w-md px-6 py-8 sm:px-10 bg-[#121212]/90 border border-zinc-800 rounded-3xl backdrop-blur-md shadow-2xl transition-all duration-700 ${shake ? 'animate-shake' : ''}`}>
             
             <div className="text-center mb-6">
@@ -189,7 +201,7 @@ export default function LoginPage() {
               </p>
             </div>
 
-            {/* Error Message */}
+            {/* Notifikasi Error Dinamis */}
             {error && (
               <div className="bg-red-500/10 border border-red-500/20 py-2.5 rounded-xl mb-4 text-center">
                 <p className="text-red-400 text-xs font-bold tracking-wide">{error}</p>
@@ -277,6 +289,7 @@ export default function LoginPage() {
               </button>
             </form>
 
+            {/* Pembatas ATAU */}
             <div className="relative flex items-center justify-center my-5">
               <div className="border-t border-zinc-800 w-full"></div>
               <span className="text-stone-600 text-[9px] px-4 bg-[#121212] absolute font-black tracking-[0.4em] uppercase">ATAU</span>
@@ -287,12 +300,13 @@ export default function LoginPage() {
               type="button"
               onClick={handleGoogleLogin}
               disabled={isProcessing}
-              className="w-full bg-zinc-900 border border-zinc-800 hover:bg-zinc-800/80 text-zinc-300 font-medium py-3.5 rounded-xl flex items-center justify-center space-x-3 transition-all text-sm active:scale-[0.99]"
+              className="w-full bg-zinc-900 border border-zinc-800 hover:bg-zinc-800/80 text-zinc-300 font-medium py-3.5 rounded-xl flex items-center justify-center space-x-3 transition-all text-sm active:scale-[0.99] disabled:opacity-50"
             >
               <span className="text-base">🌐</span>
               <span>LOGIN DENGAN GOOGLE</span>
             </button>
 
+            {/* Link Daftar Akun */}
             <p className="text-center text-stone-500 text-[10px] sm:text-[11px] mt-6">
               Belum punya akun?{" "}
               <button
@@ -304,11 +318,14 @@ export default function LoginPage() {
               </button>
             </p>
 
+            {/* Copyright */}
             <p className="text-center text-stone-700 text-[8px] tracking-[0.4em] uppercase mt-8 font-black">
               &copy; 2026 KARSA CAFE PADANG
             </p>
+
           </div>
         </div>
+
       </div>
 
       <style jsx global>{`
