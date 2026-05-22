@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { auth, googleProvider } from "@/lib/firebase"; // Konfigurasi Firebase lo
+import { auth, googleProvider } from "@/lib/firebase"; 
 import { 
   signInWithEmailAndPassword, 
   signInWithPopup, 
@@ -28,7 +28,7 @@ export default function LoginPage() {
     if (!auth) return;
     const checkRedirect = async () => {
       try {
-        const result = await getRedirectResult(auth!); // Tambah ! biar gak error null
+        const result = await getRedirectResult(auth!); 
         if (result?.user) {
           const user = result.user;
           const displayName = user.displayName || "Sultan";
@@ -68,7 +68,7 @@ export default function LoginPage() {
     setIsProcessing(true);
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth!, email, password); // Tambah !
+      const userCredential = await signInWithEmailAndPassword(auth!, email, password); 
       const user = userCredential.user;
       const displayName = user.displayName || email.split("@")[0] || "Customer";
 
@@ -108,7 +108,7 @@ export default function LoginPage() {
     setError("");
     
     try {
-      const result = await signInWithPopup(auth!, googleProvider); // Tambah !
+      const result = await signInWithPopup(auth!, googleProvider); 
       const user = result.user;
       const displayName = user.displayName || "Customer";
       
@@ -125,10 +125,9 @@ export default function LoginPage() {
     } catch (err: any) {
       console.error("Popup login error:", err);
       
-      // Fallback ke redirect kalau popup diblokir browser
       if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/popup-blocked') {
         try {
-          await signInWithRedirect(auth!, googleProvider); // Tambah !
+          await signInWithRedirect(auth!, googleProvider); 
           return;
         } catch (redirectErr) {
           console.error("Fallback redirect failed:", redirectErr);
