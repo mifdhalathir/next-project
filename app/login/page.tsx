@@ -1,208 +1,326 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { auth } from "@/lib/firebase"; // Sesuaikan path config Firebase lo
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import Link from "next/link";
+import PageTransition from "@/components/PageTransition";
+import { addKarsaNotification } from "@/components/NotificationHub";
+import { addActivityLog } from "@/components/ActivityLog";
+import { auth, googleProvider } from "@/lib/firebase";
+import { signInWithEmailAndPassword, signInWithPopup, getRedirectResult, signInWithRedirect } from "firebase/auth";
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState("");
+  const [shake, setShake] = useState(false);
 
+  // ── Cek Hasil Redirect Google Login (Anti-Stuck) ──
+  useEffect(() => {
+    if (!auth) return;
+    const checkRedirect = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result?.user) {
+          const user = result.user;
+          const displayName = user.displayName || "Sultan";
+          
+          localStorage.setItem("karsa_user_name", displayName);
+          localStorage.setItem("karsa_username", displayName);
+          localStorage.setItem("karsa_uid", user.uid);
+          if (user.photoURL) localStorage.setItem("karsa_user_avatar", user.photoURL);
+          
+          addActivityLog(`Login Google: ${displayName}`, "login");
+          addKarsaNotification(`Selamat datang, ${displayName}! 👋`, "success");
+          window.dispatchEvent(new Event("storage"));
+          router.push("/");
+        }
+      } catch (err: any) {
+        console.error("Redirect login error:", err);
+        setError("Google Login Gagal. Silakan coba lagi.");
+        setShake(true);
+        setTimeout(() => setShake(false), 500);
+      }
+    };
+    checkRedirect();
+  }, [router]);
+
+  // ── Email + Password Login ──
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
+    setError("");
+
+    if (!email.trim() || !password.trim()) {
       setError("Email dan password wajib diisi!");
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
       return;
     }
 
-    setLoading(true);
-    setError("");
+    setIsProcessing(true);
 
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-
-      // Simpan data login standar agar tersinkron dengan sistem kasir
-      localStorage.setItem("karsa_uid", user.uid);
-      localStorage.setItem("karsa_username", user.displayName || user.email?.split("@")[0] || "Customer");
+      const displayName = user.displayName || email.split("@")[0] || "Customer";
       
+      localStorage.setItem("karsa_user_name", displayName);
+      localStorage.setItem("karsa_username", displayName);
+      localStorage.setItem("karsa_uid", user.uid);
+      if (user.photoURL) localStorage.setItem("karsa_user_avatar", user.photoURL);
+
+      addActivityLog(`Login Email: ${displayName}`, "login");
+      addKarsaNotification(`Selamat datang kembali, ${displayName}! 👋`, "success");
+      window.dispatchEvent(new Event("storage")); 
       router.push("/");
     } catch (err: any) {
-      console.error(err);
-      if (err.code === "auth/user-not-found" || err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
-        setError("Email atau password yang Anda masukkan salah!");
-      } else {
-        setError("Terjadi kesalahan sistem. Silakan coba lagi.");
-      }
+      console.error("Login error:", err);
+      let errorMessage = "Email atau password salah!";
+      if (err.code === "auth/invalid-email") errorMessage = "Format email tidak valid!";
+      setError(errorMessage);
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
     } finally {
-      // PENTING: State loading di-reset di sini agar tombol tidak stuck di "MEMPROSES..."
-      setLoading(false);
+      setIsProcessing(false);
     }
   };
 
+  // ── Google Popup / Redirect Login ──
   const handleGoogleLogin = async () => {
-    setLoading(true);
+    if (!auth || !googleProvider) {
+      setError("Fitur Google Login belum dikonfigurasi.");
+      return;
+    }
+    
+    setIsProcessing(true);
     setError("");
-    const provider = new GoogleAuthProvider();
+    
     try {
-      const result = await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
-
+      const displayName = user.displayName || "Customer";
+      
+      localStorage.setItem("karsa_user_name", displayName);
+      localStorage.setItem("karsa_username", displayName);
       localStorage.setItem("karsa_uid", user.uid);
-      localStorage.setItem("karsa_username", user.displayName || "Customer");
       localStorage.setItem("karsa_user_avatar", user.photoURL || "");
 
+      addActivityLog(`Login Google: ${displayName}`, "login");
+      addKarsaNotification(`Selamat datang, ${displayName}! 👋`, "success");
+      window.dispatchEvent(new Event("storage"));
+
       router.push("/");
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.error("Popup login error:", err);
+      
+      // Fallback ke redirect kalau popup diblokir browser
+      if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/popup-blocked') {
+        try {
+          await signInWithRedirect(auth, googleProvider);
+          return;
+        } catch (redirectErr) {
+          console.error("Fallback redirect failed:", redirectErr);
+        }
+      }
+      
       setError("Gagal login dengan Google.");
-    } finally {
-      setLoading(false);
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+      setIsProcessing(false);
     }
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-black p-4">
-      {/* Container Utama - Card Dark Glassmorphism Karsa Cafe */}
-      <div className="w-full max-w-[450px] bg-[#121212]/90 border border-zinc-800 rounded-3xl p-6 sm:p-10 flex flex-col items-center backdrop-blur-md shadow-2xl">
+    <>
+      <PageTransition />
+      
+      <div className="min-h-screen flex flex-col md:flex-row bg-stone-950 selection:bg-amber-500 selection:text-black">
         
-        {/* Logo Cangkir Kopi */}
-        <div className="w-16 h-16 rounded-full bg-zinc-900 border border-amber-500/30 flex items-center justify-center mb-4 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
-          <span className="text-2xl">☕</span>
-        </div>
-
-        {/* Judul & Branding */}
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-widest text-white text-center">
-          KARSA <span className="text-amber-500">CAFE</span>
-        </h1>
-        <p className="text-xs tracking-[0.2em] text-zinc-500 uppercase mt-1 mb-6">
-          Ruang Inspirasi
-        </p>
-
-        <h2 className="text-lg font-medium text-zinc-300 mb-6 text-center">
-          Welcome Back, Please login to your account
-        </h2>
-
-        {/* Notifikasi Error Dinamis */}
-        {error && (
-          <div className="w-full p-3 mb-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
-            {error}
-          </div>
-        )}
-
-        {/* Form Login Utama */}
-        <form onSubmit={handleEmailLogin} className="w-full flex flex-col space-y-4">
+        {/* ========== KIRI: PANEL GAMBAR ESTETIK ========== */}
+        <div className="relative w-full h-44 sm:h-56 md:w-1/2 md:h-screen flex-shrink-0 overflow-hidden">
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: "url('https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?q=80&w=1920&auto=format&fit=crop')",
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b md:bg-gradient-to-r from-transparent via-stone-950/60 to-stone-950" />
           
-          {/* Input Email */}
-          <div className="flex flex-col space-y-1.5">
-            <label className="text-xs font-semibold text-zinc-400 tracking-wider uppercase pl-1">
-              Email Address
-            </label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 text-sm">📧</span>
-              <input
-                type="email"
-                placeholder="customer@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-zinc-900/50 border border-zinc-800 focus:border-amber-500 rounded-xl py-3 pl-11 pr-4 text-white placeholder-zinc-600 outline-none transition-all text-sm"
-                disabled={loading}
-              />
+          {/* Teks Overlay Desktop */}
+          <div className="hidden md:flex absolute inset-0 flex-col items-center justify-center px-12 text-center z-10">
+            <div className="w-20 h-20 mb-8 relative group">
+              <div className="absolute inset-0 bg-amber-500/20 blur-xl rounded-full group-hover:bg-amber-500/40 transition-all duration-500"></div>
+              <div className="relative w-full h-full bg-black/40 backdrop-blur-sm border border-amber-500/30 rounded-full flex items-center justify-center text-3xl">☕</div>
+            </div>
+            <h2 className="text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+              Selamat Datang<br/>di <span className="text-amber-500">KARSA</span>
+            </h2>
+            <p className="text-stone-400 text-xs lg:text-sm mt-4 max-w-xs leading-relaxed">
+              Nikmati kopi terbaik Padang dalam suasana yang menginspirasi
+            </p>
+            <div className="w-12 h-0.5 bg-amber-500 mt-6"></div>
+          </div>
+
+          {/* Mini Branding Mobile */}
+          <div className="flex md:hidden absolute inset-0 items-center justify-center z-10">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-black/40 backdrop-blur-sm border border-amber-500/30 rounded-full flex items-center justify-center text-lg">☕</div>
+              <h2 className="text-xl font-black text-white tracking-[0.15em] uppercase">
+                KARSA <span className="text-amber-500">CAFE</span>
+              </h2>
             </div>
           </div>
+        </div>
 
-          {/* Input Password */}
-          <div className="flex flex-col space-y-1.5">
-            <label className="text-xs font-semibold text-zinc-400 tracking-wider uppercase pl-1">
-              Password
-            </label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 text-sm">🔒</span>
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-zinc-900/50 border border-zinc-800 focus:border-amber-500 rounded-xl py-3 pl-11 pr-12 text-white placeholder-zinc-600 outline-none transition-all text-sm"
-                disabled={loading}
-              />
-              {/* Toggle Mata (Show/Hide Password) */}
+        {/* ========== KANAN: PANEL FORM LOGIN ========== */}
+        <div className="w-full md:w-1/2 flex items-center justify-center relative overflow-hidden p-4">
+          <div className="absolute top-1/4 -left-32 w-[400px] h-[400px] bg-[radial-gradient(circle,_rgba(217,119,6,0.1)_0%,_transparent_70%)] pointer-events-none"></div>
+          
+          <div className={`relative z-10 w-full max-w-md px-6 py-8 sm:px-10 bg-[#121212]/90 border border-zinc-800 rounded-3xl backdrop-blur-md shadow-2xl transition-all duration-700 ${shake ? 'animate-shake' : ''}`}>
+            
+            <div className="text-center mb-6">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-widest text-white">
+                KARSA <span className="text-amber-500">CAFE</span>
+              </h1>
+              <p className="text-stone-500 text-[10px] sm:text-xs tracking-[0.2em] uppercase font-bold mt-2">
+                Login untuk melanjutkan
+              </p>
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/20 py-2.5 rounded-xl mb-4 text-center">
+                <p className="text-red-400 text-xs font-bold tracking-wide">{error}</p>
+              </div>
+            )}
+
+            {/* Form Utama */}
+            <form onSubmit={handleEmailLogin} className="space-y-4">
+              
+              {/* Input Email */}
+              <div className="relative flex flex-col space-y-1.5">
+                <label className="text-xs font-semibold text-zinc-400 tracking-wider uppercase pl-1">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-500">📧</span>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => { setEmail(e.target.value); if (error) setError(""); }}
+                    placeholder="customer@example.com"
+                    className="w-full bg-zinc-900/50 border border-zinc-800 focus:border-amber-500 rounded-xl py-3.5 pl-11 pr-4 text-white placeholder-stone-600 outline-none transition-all text-sm"
+                    disabled={isProcessing}
+                  />
+                </div>
+              </div>
+
+              {/* Input Password */}
+              <div className="relative flex flex-col space-y-1.5">
+                <label className="text-xs font-semibold text-zinc-400 tracking-wider uppercase pl-1">
+                  Password
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-500">🔒</span>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => { setPassword(e.target.value); if (error) setError(""); }}
+                    placeholder="Masukkan password"
+                    className="w-full bg-zinc-900/50 border border-zinc-800 focus:border-amber-500 rounded-xl py-3.5 pl-11 pr-12 text-white placeholder-stone-600 outline-none transition-all text-sm"
+                    disabled={isProcessing}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-500 hover:text-amber-500 transition-colors"
+                  >
+                    {showPassword ? "👁️" : "👁️‍🗨️"}
+                  </button>
+                </div>
+                
+                <div className="text-right mt-1">
+                  <button
+                    type="button"
+                    onClick={() => addKarsaNotification("Hubungi admin KARSA untuk mereset password 📞", "warning")}
+                    className="text-amber-500/80 hover:text-amber-400 text-[10px] sm:text-[11px] font-bold tracking-wide"
+                  >
+                    Lupa Password?
+                  </button>
+                </div>
+              </div>
+
+              {/* Remember Me */}
+              <div className="flex items-center justify-between text-xs pt-1 px-1">
+                <label className="flex items-center space-x-2 text-zinc-400 cursor-pointer select-none">
+                  <input type="checkbox" className="accent-amber-500 rounded bg-zinc-900 border-zinc-800" />
+                  <span>Remember me</span>
+                </label>
+              </div>
+
+              {/* Button Submit */}
+              <button
+                type="submit"
+                disabled={isProcessing}
+                className="w-full bg-amber-600 hover:bg-amber-500 disabled:bg-amber-800 disabled:cursor-not-allowed text-white py-3.5 rounded-xl text-xs font-black tracking-[0.25em] uppercase transition-all shadow-xl active:scale-[0.98] flex items-center justify-center gap-2"
+              >
+                {isProcessing ? (
+                  <>
+                    <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
+                    <span>MEMPROSES...</span>
+                  </>
+                ) : (
+                  "MASUK SEKARANG"
+                )}
+              </button>
+            </form>
+
+            <div className="relative flex items-center justify-center my-5">
+              <div className="border-t border-zinc-800 w-full"></div>
+              <span className="text-stone-600 text-[9px] px-4 bg-[#121212] absolute font-black tracking-[0.4em] uppercase">ATAU</span>
+            </div>
+
+            {/* Google Login Button */}
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              disabled={isProcessing}
+              className="w-full bg-zinc-900 border border-zinc-800 hover:bg-zinc-800/80 text-zinc-300 font-medium py-3.5 rounded-xl flex items-center justify-center space-x-3 transition-all text-sm active:scale-[0.99]"
+            >
+              <span className="text-base">🌐</span>
+              <span>LOGIN DENGAN GOOGLE</span>
+            </button>
+
+            <p className="text-center text-stone-500 text-[10px] sm:text-[11px] mt-6">
+              Belum punya akun?{" "}
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
+                onClick={() => router.push("/register")}
+                className="text-amber-500 hover:text-amber-400 font-bold underline underline-offset-2"
               >
-                {showPassword ? "👁️" : "👁️‍🗨️"}
+                Daftar di sini
               </button>
-            </div>
+            </p>
+
+            <p className="text-center text-stone-700 text-[8px] tracking-[0.4em] uppercase mt-8 font-black">
+              &copy; 2026 KARSA CAFE PADANG
+            </p>
           </div>
-
-          {/* Info Tambahan Form */}
-          <div className="flex items-center justify-between text-xs pt-1 px-1">
-            <label className="flex items-center space-x-2 text-zinc-400 cursor-pointer select-none">
-              <input type="checkbox" className="accent-amber-500 rounded bg-zinc-900 border-zinc-800" />
-              <span>Remember me</span>
-            </label>
-            <Link href="#" className="text-amber-500 hover:underline transition-all">
-              Forgot password?
-            </Link>
-          </div>
-
-          {/* Tombol Masuk Utama */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-amber-600 hover:bg-amber-500 disabled:bg-amber-800/50 text-white font-bold tracking-widest uppercase py-3.5 rounded-xl mt-4 shadow-lg shadow-amber-600/10 active:scale-[0.99] transition-all text-sm flex items-center justify-center"
-          >
-            {loading ? (
-              <span className="flex items-center space-x-2">
-                <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
-                <span>MEMPROSES...</span>
-              </span>
-            ) : (
-              "Sign In"
-            )}
-          </button>
-        </form>
-
-        {/* Pembatas ATAU */}
-        <div className="w-full flex items-center my-6">
-          <div className="flex-1 h-[1px] bg-zinc-800"></div>
-          <span className="text-xs tracking-widest text-zinc-600 uppercase px-4 select-none">Or</span>
-          <div className="flex-1 h-[1px] bg-zinc-800"></div>
         </div>
-
-        {/* Tombol Google Login Alternatif */}
-        <button
-          type="button"
-          onClick={handleGoogleLogin}
-          disabled={loading}
-          className="w-full bg-zinc-900 border border-zinc-800 hover:bg-zinc-800/80 text-zinc-300 font-medium py-3 rounded-xl flex items-center justify-center space-x-3 transition-all text-sm active:scale-[0.99]"
-        >
-          <span className="text-base">🌐</span>
-          <span>Sign in with Google</span>
-        </button>
-
-        {/* Link Daftar Akun */}
-        <p className="text-xs text-zinc-500 mt-8 text-center">
-          Don't have an account?{" "}
-          <Link href="#" className="text-white font-semibold hover:underline">
-            Sign up
-          </Link>
-        </p>
-
-        {/* Footer Hak Cipta */}
-        <p className="text-[10px] tracking-widest text-zinc-600 uppercase mt-10 text-center select-none">
-          © 2026 Karsa Cafe Padang
-        </p>
-
       </div>
-    </div>
+
+      <style jsx global>{`
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-8px); }
+          75% { transform: translateX(8px); }
+        }
+        .animate-shake {
+          animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+      `}</style>
+    </>
   );
 }
