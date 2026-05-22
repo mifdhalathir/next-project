@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import confetti from "canvas-confetti";
 import { useCart } from "./CartProvider";
 import { useKarsa } from "./KarsaContext";
+import Link from "next/link";
 
 function getAreaLabel(used: number, total: number) {
   const ratio = used / total;
@@ -210,22 +211,16 @@ export default function ReservationForm() {
               <label className="block text-cream-200 text-sm mb-1.5">
                 Nama Lengkap
               </label>
-              <input
-                type="text"
-                name="nama"
-                value={formData.nama}
-                onChange={handleChange}
-                placeholder="Masukkan nama Anda"
-                className={`w-full bg-white/10 border text-cream-100 placeholder-stone-400 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition ${
-                  errors.nama
-                    ? "border-red-500 shake"
-                    : "border-cream-200/20"
-                }`}
-              />
-              {errors.nama && (
-                <p className="text-red-400 text-[10px] mt-1 font-medium">{errors.nama}</p>
-              )}
-            </div>
+              {/* Import Link di paling atas file dulu jika belum ada: import Link from "next/link"; */}
+
+           <Link href="/kasir" className="w-full block mt-3 relative z-10">
+            <button
+               type="button"
+              className="w-full py-3 border border-dashed border-amber-500/30 bg-amber-500/5 rounded-xl text-[10px] font-black text-amber-500 hover:text-white hover:bg-amber-500 hover:border-amber-500 transition-all flex items-center justify-center gap-2 tracking-widest uppercase"
+        >
+                 🗺️ LIHAT PETA MEJA
+           </button>
+            </Link>
 
             {/* Area Selection */}
             <div>
