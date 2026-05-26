@@ -253,7 +253,12 @@ export default function ReservationForm() {
                 onClick={() => {
                   window.dispatchEvent(
                     new CustomEvent("openTableModal", {
-                      detail: { directMap: false, viewOnly: true, reservationPick: true },
+                      detail: { 
+                        directMap: !!formData.area, 
+                        viewOnly: true, 
+                        reservationPick: true,
+                        area: formData.area || undefined
+                      },
                     })
                   );
                 }}
