@@ -4,7 +4,6 @@ import { useEffect, useState, useRef } from "react";
 import confetti from "canvas-confetti";
 import { useCart } from "./CartProvider";
 import { useKarsa } from "./KarsaContext";
-import Link from "next/link";
 
 function getAreaLabel(used: number, total: number) {
   const ratio = used / total;
@@ -27,6 +26,8 @@ export default function ReservationForm() {
     catatan: "",
   });
 
+  const [selectedTableNumber, setSelectedTableNumber] = useState<string>("");
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -47,10 +48,30 @@ export default function ReservationForm() {
     if (savedName) {
       setFormData((prev) => ({ ...prev, nama: savedName }));
     }
-    // Cleanup timers on unmount
+
+    // Listen for table selection from SmartTableModal (reservationPick mode)
+    const handleTableSelected = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail) {
+        const tableLabel = `${detail.area === "Outdoor" ? "O" : "I"}${detail.tableNumber}`;
+        setSelectedTableNumber(tableLabel);
+        setFormData((prev) => ({ ...prev, area: detail.area }));
+        // Clear area error if any
+        setErrors((prev) => {
+          const next = { ...prev };
+          delete next.area;
+          return next;
+        });
+      }
+    };
+
+    window.addEventListener("reservationTableSelected", handleTableSelected);
+
+    // Cleanup timers and event listener on unmount
     return () => {
       if (successTimerRef.current) clearTimeout(successTimerRef.current);
       if (submitTimerRef.current) clearTimeout(submitTimerRef.current);
+      window.removeEventListener("reservationTableSelected", handleTableSelected);
     };
   }, []);
 
@@ -132,7 +153,9 @@ export default function ReservationForm() {
         name: submittedData.nama,
         time: `${submittedData.tanggal} ${submittedData.jam}`,
         guests: parseInt(submittedData.jumlah),
-        notes: `Area: ${submittedData.area}. ${submittedData.catatan}`,
+        notes: submittedData.catatan,
+        area: submittedData.area as "Indoor" | "Outdoor" | undefined,
+        tableNumber: selectedTableNumber || undefined,
       });
 
       // Reset form but keep nama from localStorage
@@ -145,6 +168,7 @@ export default function ReservationForm() {
         jam: "",
         catatan: "",
       });
+      setSelectedTableNumber("");
       setIsSubmitting(false);
       setErrors({});
 
@@ -224,14 +248,34 @@ export default function ReservationForm() {
                 <p className="text-red-400 text-[10px] mt-1 font-medium">{errors.nama}</p>
               )}
 
-              <Link href="/kasir" className="w-full block mt-3 relative z-10">
-                <button
-                  type="button"
-                  className="w-full py-3 border border-dashed border-amber-500/30 bg-amber-500/5 rounded-xl text-[10px] font-black text-amber-500 hover:text-white hover:bg-amber-500 hover:border-amber-500 transition-all flex items-center justify-center gap-2 tracking-widest uppercase"
-                >
-                  🗺️ LIHAT PETA MEJA
-                </button>
-              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  window.dispatchEvent(
+                    new CustomEvent("openTableModal", {
+                      detail: { directMap: false, viewOnly: true, reservationPick: true },
+                    })
+                  );
+                }}
+                className="w-full block mt-3 relative z-10 py-3 border border-dashed border-amber-500/30 bg-amber-500/5 rounded-xl text-[10px] font-black text-amber-500 hover:text-white hover:bg-amber-500 hover:border-amber-500 transition-all flex items-center justify-center gap-2 tracking-widest uppercase"
+              >
+                🗺️ LIHAT PETA MEJA
+              </button>
+
+              {/* Selected Table Badge */}
+              {selectedTableNumber && (
+                <div className="mt-2 flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 rounded-lg px-3 py-2 animate-in slide-in-from-top-2 duration-300">
+                  <span className="text-sm">🪑</span>
+                  <span className="text-amber-400 text-xs font-bold">Meja {selectedTableNumber} dipilih</span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedTableNumber("")}
+                    className="ml-auto text-stone-500 hover:text-red-400 text-xs transition-colors"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Area Selection */}

@@ -12,6 +12,7 @@ export default function SmartTableModal() {
   const [showMap, setShowMap] = useState(false);
   const [selectedArea, setSelectedArea] = useState<"Indoor" | "Outdoor" | null>(null);
   const [isViewOnly, setIsViewOnly] = useState(false);
+  const [isReservationPick, setIsReservationPick] = useState(false);
 
   // Compute stats and occupied tables reactively from the Firestore table list
   const occupiedTables = tables.filter(t => t.status !== "available").map(t => t.id);
@@ -38,16 +39,19 @@ export default function SmartTableModal() {
       let directMap = false;
       let area: "Indoor" | "Outdoor" | null = null;
       let viewOnly = false;
+      let reservationPick = false;
 
       if ('detail' in e && e.detail) {
         directMap = !!e.detail.directMap;
         viewOnly = !!e.detail.viewOnly;
+        reservationPick = !!e.detail.reservationPick;
         if (e.detail.area === "Indoor" || e.detail.area === "Outdoor") {
           area = e.detail.area;
         }
       }
 
       setIsViewOnly(viewOnly);
+      setIsReservationPick(reservationPick);
 
       if (directMap && area) {
         setSelectedArea(area);
@@ -79,8 +83,21 @@ export default function SmartTableModal() {
   const handleSelectTable = (t: number, area: "Indoor" | "Outdoor") => {
     if (occupiedTables.includes(t)) return;
 
+    if (isReservationPick) {
+      // In reservationPick mode (from ReservationForm), dispatch event with table info
+      const displayNum = area === "Outdoor" ? t - 10 : t;
+      window.dispatchEvent(
+        new CustomEvent("reservationTableSelected", {
+          detail: { tableNumber: displayNum, tableId: t, area },
+        })
+      );
+      setIsOpen(false);
+      setIsReservationPick(false);
+      return;
+    }
+
     if (isViewOnly) {
-      // In viewOnly mode (from ReservationForm), we don't actually sit at the table
+      // In viewOnly mode, we don't actually sit at the table
       setIsOpen(false);
       return;
     }
@@ -125,7 +142,7 @@ export default function SmartTableModal() {
             <br />Pilih Spot Nyamanmu!
           </h2>
           <p className="text-stone-500 text-[10px] mt-3 font-black tracking-[0.3em] uppercase">
-            {isViewOnly ? "Lihat ketersediaan meja untuk reservasi" : "Pilih area dan nomor meja untuk memulai"}
+            {isReservationPick ? "Pilih meja untuk reservasi Anda" : isViewOnly ? "Lihat ketersediaan meja untuk reservasi" : "Pilih area dan nomor meja untuk memulai"}
           </p>
         </div>
 
@@ -261,12 +278,12 @@ export default function SmartTableModal() {
                     return (
                       <button
                         key={t}
-                        disabled={isOcc || isViewOnly}
+                        disabled={isOcc || (isViewOnly && !isReservationPick)}
                         onClick={() => handleSelectTable(t, "Indoor")}
                         className={`relative aspect-[4/3] rounded-2xl flex flex-col items-center justify-center border transition-all duration-300 ${
                           isOcc 
                             ? 'bg-red-950/20 border-red-900/30 opacity-50 cursor-not-allowed' 
-                            : isViewOnly
+                            : (isViewOnly && !isReservationPick)
                             ? 'bg-amber-950/20 border-amber-600/20 cursor-default opacity-80'
                             : 'bg-amber-950/20 border-amber-600/20 hover:border-amber-500 hover:bg-amber-500/10 cursor-pointer shadow-[inset_0_0_15px_rgba(245,158,11,0.02)]'
                         }`}
@@ -295,12 +312,12 @@ export default function SmartTableModal() {
                     return (
                       <button
                         key={t}
-                        disabled={isOcc || isViewOnly}
+                        disabled={isOcc || (isViewOnly && !isReservationPick)}
                         onClick={() => handleSelectTable(t, "Outdoor")}
                         className={`relative aspect-[4/3] rounded-2xl flex flex-col items-center justify-center border transition-all duration-300 ${
                           isOcc 
                             ? 'bg-red-950/20 border-red-900/30 opacity-50 cursor-not-allowed' 
-                            : isViewOnly
+                            : (isViewOnly && !isReservationPick)
                             ? 'bg-green-950/20 border-green-600/20 cursor-default opacity-80'
                             : 'bg-green-950/20 border-green-600/20 hover:border-green-500 hover:bg-green-500/10 cursor-pointer shadow-[inset_0_0_15px_rgba(34,197,94,0.02)]'
                         }`}

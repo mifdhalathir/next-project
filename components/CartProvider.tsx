@@ -24,9 +24,10 @@ export type Reservation = {
   time: string;
   guests: number;
   notes: string;
+  area?: "Indoor" | "Outdoor";
+  tableNumber?: string;
   status: "pending" | "arrived" | "cancelled";
   timestamp: number;
-  tableNumber?: string;
 };
 
 type CartContextType = {
@@ -222,12 +223,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const placeReservation = (res: Omit<Reservation, "id" | "status" | "timestamp">) => {
-    // Call KarsaContext async placeReservation
+    // Call KarsaContext async placeReservation (with area & tableNumber)
     karsaPlaceReservation({
       name: res.name,
       time: res.time,
       guests: res.guests,
-      notes: res.notes
+      notes: res.notes,
+      area: res.area,
+      tableNumber: res.tableNumber,
     }).catch(e => console.error("Firestore reservation sync failed", e));
 
     const resId = Date.now();
@@ -264,6 +267,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         tanggal: tanggal || new Date().toLocaleDateString('id-ID'),
         jam: jam || new Date().toLocaleTimeString('id-ID'),
         catatan: res.notes || 'Reservasi Meja',
+        area: res.area || '',
+        tableNumber: res.tableNumber || '',
         status: 'menunggu',
         waktuMasuk: new Date().toLocaleString('id-ID'),
         isReservation: true
@@ -271,7 +276,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('karsa_pesanan_masuk', JSON.stringify(pesananMasuk));
 
     addKarsaNotification(`Reservasi untuk ${res.name} berhasil terkirim ke Kasir! 📅`, "success");
-    addActivityLog(`Reservasi baru: ${res.name} (${res.time}) untuk ${res.guests} orang`, "login");
+    addActivityLog(`Reservasi baru: ${res.name} (${res.time}) untuk ${res.guests} orang — ${res.area || ''} ${res.tableNumber ? 'Meja ' + res.tableNumber : ''}`.trim(), "login");
     
     window.dispatchEvent(new Event("storage"));
   };

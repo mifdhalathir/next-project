@@ -58,6 +58,8 @@ export interface KarsaReservation {
   time: string;
   guests: number;
   notes: string;
+  area?: "Indoor" | "Outdoor";
+  tableNumber?: string;
   status: "pending" | "arrived" | "cancelled";
   timestamp: number;
 }
