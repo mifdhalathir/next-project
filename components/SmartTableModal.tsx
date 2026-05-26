@@ -23,11 +23,12 @@ export default function SmartTableModal() {
     const checkStatus = () => {
       const table = localStorage.getItem("karsa_table_number");
       const user = localStorage.getItem("karsa_user_name");
+      const browseMode = sessionStorage.getItem("karsa_browse_mode");
       
-      if (user && !table) {
+      if (user && !table && browseMode !== "true") {
         setUserName(user);
         setIsOpen(true);
-      } else {
+      } else if (!user) {
         setIsOpen(false);
       }
     };
@@ -102,6 +103,7 @@ export default function SmartTableModal() {
       return;
     }
 
+    sessionStorage.removeItem("karsa_browse_mode");
     checkInTable(t, area, userName || "Sultan").catch(e => console.error("Check-in error:", e));
     setIsOpen(false);
   };
@@ -219,7 +221,10 @@ export default function SmartTableModal() {
 
             {/* Skip option */}
             <button
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                sessionStorage.setItem("karsa_browse_mode", "true");
+                setIsOpen(false);
+              }}
               className="w-full py-3 text-[9px] font-black tracking-[0.3em] uppercase text-stone-600 hover:text-stone-400 transition-colors"
             >
               Lanjutkan Tanpa Meja (Browse Mode)

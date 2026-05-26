@@ -19,13 +19,21 @@ export default function CartWidget() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("tunai");
 
   useEffect(() => {
-    const savedTable = localStorage.getItem("karsa_table_number");
-    const status = localStorage.getItem("karsa_status");
-    
+    const syncTable = () => {
+      const savedTable = localStorage.getItem("karsa_table_number");
+      const status = localStorage.getItem("karsa_status");
+      setTableNumber(savedTable || "");
+      setIsVip(status === "reserved");
+    };
+
     requestAnimationFrame(() => {
-        if (savedTable) setTableNumber(savedTable);
-        setIsVip(status === "reserved");
+        syncTable();
     });
+
+    window.addEventListener("storage", syncTable);
+    return () => {
+      window.removeEventListener("storage", syncTable);
+    };
   }, []);
 
   const cartArray = Object.values(cart);
@@ -224,7 +232,16 @@ export default function CartWidget() {
                   <input 
                     type="number" 
                     value={tableNumber}
-                    onChange={(e) => setTableNumber(e.target.value)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setTableNumber(val);
+                      if (val) {
+                        localStorage.setItem("karsa_table_number", val.padStart(2, "0"));
+                      } else {
+                        localStorage.removeItem("karsa_table_number");
+                      }
+                      window.dispatchEvent(new Event("storage"));
+                    }}
                     placeholder="Contoh: 05"
                     className="w-full bg-stone-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none transition-all"
                   />
