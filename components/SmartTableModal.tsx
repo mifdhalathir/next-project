@@ -54,7 +54,11 @@ export default function SmartTableModal() {
       setIsViewOnly(viewOnly);
       setIsReservationPick(reservationPick);
 
-      if (directMap && area) {
+      if (reservationPick) {
+        // Always show map directly for reservation picking (skip area selection)
+        setShowMap(true);
+        if (area) setSelectedArea(area);
+      } else if (directMap && area) {
         setSelectedArea(area);
         setShowMap(true);
       } else {
