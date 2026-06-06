@@ -87,7 +87,6 @@ interface KarsaContextType {
     paymentMethod: string,
     notes: string
   ) => Promise<string>;
-  updateOrderStatus: (orderID: string, newStatus: KarsaOrder["status"]) => Promise<void>;
   
   // Reservation actions
   placeReservation: (res: Omit<KarsaReservation, "id" | "status" | "timestamp">) => Promise<void>;
@@ -247,37 +246,20 @@ export function KarsaProvider({ children }: { children: React.ReactNode }) {
         indoor: { total: 10, used: indoorUsed },
         outdoor: { total: 5, used: outdoorUsed }
       }));
-      window.dispatchEvent(new Event("storage"));
+      // Removed excessive storage dispatch to prevent infinite lag
     }, (err) => console.error("Firestore Tables listener error:", err));
 
     // 2. Real-time Orders Sync (Orders for today/active)
     const ordersQuery = query(collection(db, "orders"), orderBy("id", "desc"));
     const unsubscribeOrders = onSnapshot(ordersQuery, (snapshot) => {
       const updatedOrders: KarsaOrder[] = [];
-      const pesananMasuk: any[] = [];
       
       snapshot.forEach((docSnap) => {
         const order = docSnap.data() as KarsaOrder;
         updatedOrders.push(order);
-        
-        // Map to karsa_pesanan_masuk for Kasir view
-        if (order.status !== "Selesai") {
-          pesananMasuk.push({
-            id: order.id,
-            nama: order.nama,
-            jumlah: order.totalItem,
-            tanggal: order.tanggal,
-            jam: order.jam,
-            catatan: order.notes || `Order (Meja ${order.meja})`,
-            area: order.area,
-            status: order.status === "Pending" ? "menunggu" : "diproses",
-            waktuMasuk: order.waktuPesan,
-            totalHarga: order.totalHarga
-          });
-        }
       });
 
-      // Sound notification on new order (Chef alert)
+      // Sound notification on new order
       setOrders((prev) => {
         const isNewArrival = updatedOrders.length > prev.length && prev.length > 0;
         if (isNewArrival) {
@@ -291,10 +273,9 @@ export function KarsaProvider({ children }: { children: React.ReactNode }) {
         return updatedOrders;
       });
 
-      // Sync to legacy local storage to support Kasir dashboard seamlessly
+      // Sync to legacy local storage
       localStorage.setItem("PESANAN_HARI_INI", JSON.stringify(updatedOrders));
-      localStorage.setItem("karsa_pesanan_masuk", JSON.stringify(pesananMasuk));
-      window.dispatchEvent(new Event("storage"));
+      // Removed pesananMasuk logic and excessive storage dispatch
     }, (err) => console.error("Firestore Orders listener error:", err));
 
     // 3. Real-time Inventory Sync
@@ -310,7 +291,7 @@ export function KarsaProvider({ children }: { children: React.ReactNode }) {
       
       // Mirror to localstorage
       localStorage.setItem("karsa_inventory", JSON.stringify(updatedInv));
-      window.dispatchEvent(new Event("storage"));
+      // Removed excessive storage dispatch
     }, (err) => console.error("Firestore Inventory listener error:", err));
 
     // 4. Real-time Reservations Sync
@@ -322,7 +303,7 @@ export function KarsaProvider({ children }: { children: React.ReactNode }) {
       });
       setReservations(updatedRes);
       localStorage.setItem("karsa_reservations", JSON.stringify(updatedRes));
-      window.dispatchEvent(new Event("storage"));
+      // Removed excessive storage dispatch
     }, (err) => console.error("Firestore Reservations listener error:", err));
 
     return () => {
@@ -518,27 +499,6 @@ export function KarsaProvider({ children }: { children: React.ReactNode }) {
     return orderID;
   };
 
-  // Update order status (Called from Kasir or Dapur page)
-  const updateOrderStatus = async (orderID: string, newStatus: KarsaOrder["status"]) => {
-    if (db) {
-      try {
-        const orderRef = doc(db, "orders", orderID);
-        await updateDoc(orderRef, { status: newStatus });
-      } catch (e) {
-        console.error("Firestore order status update failed", e);
-      }
-    }
-
-    // Fallback sync to local state
-    setOrders(prev => {
-      const nextOrders = prev.map(o => o.orderID === orderID ? { ...o, status: newStatus } : o);
-      localStorage.setItem("PESANAN_HARI_INI", JSON.stringify(nextOrders));
-      return nextOrders;
-    });
-
-    addActivityLog(`Order ${orderID} status ➔ ${newStatus}`, "status");
-    window.dispatchEvent(new Event("storage"));
-  };
 
   // Place Reservation
   const placeReservation = async (res: Omit<KarsaReservation, "id" | "status" | "timestamp">) => {
@@ -655,32 +615,52 @@ export function KarsaProvider({ children }: { children: React.ReactNode }) {
     window.dispatchEvent(new Event("storage"));
   };
 
+  const contextValue = React.useMemo(() => ({
+    tables,
+    orders,
+    reservations,
+    inventory,
+    userPoints,
+    userId,
+    userName,
+    userAvatar,
+    activeTableNumber,
+    activeArea,
+    checkInTable,
+    checkOutTable,
+    placeOrder,
+    placeReservation,
+    updateReservationStatus,
+    updateStock,
+    setStock,
+    resetAllStock,
+    addUserPoints,
+    syncLoyaltyPoints
+  }), [
+    tables,
+    orders,
+    reservations,
+    inventory,
+    userPoints,
+    userId,
+    userName,
+    userAvatar,
+    activeTableNumber,
+    activeArea,
+    checkInTable,
+    checkOutTable,
+    placeOrder,
+    placeReservation,
+    updateReservationStatus,
+    updateStock,
+    setStock,
+    resetAllStock,
+    addUserPoints,
+    syncLoyaltyPoints
+  ]);
+
   return (
-    <KarsaContext.Provider
-      value={{
-        tables,
-        orders,
-        reservations,
-        inventory,
-        userPoints,
-        userId,
-        userName,
-        userAvatar,
-        activeTableNumber,
-        activeArea,
-        checkInTable,
-        checkOutTable,
-        placeOrder,
-        updateOrderStatus,
-        placeReservation,
-        updateReservationStatus,
-        updateStock,
-        setStock,
-        resetAllStock,
-        addUserPoints,
-        syncLoyaltyPoints
-      }}
-    >
+    <KarsaContext.Provider value={contextValue}>
       {children}
     </KarsaContext.Provider>
   );

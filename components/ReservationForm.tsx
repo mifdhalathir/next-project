@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import confetti from "canvas-confetti";
 import { useCart } from "./CartProvider";
 import { useKarsa } from "./KarsaContext";
@@ -35,13 +35,14 @@ export default function ReservationForm() {
   const submitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Compute capacity reactively from the Firestore table list
-  const indoorUsed = tables.filter((t) => t.area === "Indoor" && t.status !== "available").length;
-  const outdoorUsed = tables.filter((t) => t.area === "Outdoor" && t.status !== "available").length;
-
-  const capacity = {
-    indoor: { total: 10, used: indoorUsed },
-    outdoor: { total: 5, used: outdoorUsed },
-  };
+  const capacity = useMemo(() => {
+    const indoorUsed = tables.filter((t) => t.area === "Indoor" && t.status !== "available").length;
+    const outdoorUsed = tables.filter((t) => t.area === "Outdoor" && t.status !== "available").length;
+    return {
+      indoor: { total: 10, used: indoorUsed },
+      outdoor: { total: 5, used: outdoorUsed },
+    };
+  }, [tables]);
 
   useEffect(() => {
     const savedName = localStorage.getItem("karsa_user_name");
