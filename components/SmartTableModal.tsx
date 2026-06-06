@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { addKarsaNotification } from "./NotificationHub";
 import { addActivityLog } from "./ActivityLog";
 import { useKarsa } from "./KarsaContext";
@@ -14,6 +14,10 @@ export default function SmartTableModal() {
   const [isViewOnly, setIsViewOnly] = useState(false);
   const [isReservationPick, setIsReservationPick] = useState(false);
 
+  // Track when modal was opened manually (via button/event) so that
+  // the auto-checkStatus from "storage" events doesn't interfere
+  const manuallyOpenedRef = useRef(false);
+
   // Compute stats and occupied tables reactively from the Firestore table list
   const occupiedTables = tables.filter(t => t.status !== "available").map(t => t.id);
   const indoorOccupied = tables.filter(t => t.area === "Indoor" && t.status !== "available").length;
@@ -21,6 +25,9 @@ export default function SmartTableModal() {
 
   useEffect(() => {
     const checkStatus = () => {
+      // Don't interfere if modal was opened manually (e.g. from ReservationForm "LIHAT PETA MEJA")
+      if (manuallyOpenedRef.current) return;
+
       const table = localStorage.getItem("karsa_table_number");
       const user = localStorage.getItem("karsa_user_name");
       const browseMode = sessionStorage.getItem("karsa_browse_mode");
@@ -65,6 +72,9 @@ export default function SmartTableModal() {
         setShowMap(false);
         setSelectedArea(null);
       }
+
+      // Mark as manually opened to prevent checkStatus interference
+      manuallyOpenedRef.current = true;
       setIsOpen(true);
     };
 
@@ -74,7 +84,10 @@ export default function SmartTableModal() {
 
     // ESC key to dismiss
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setIsOpen(false);
+      if (e.key === "Escape") {
+        manuallyOpenedRef.current = false;
+        setIsOpen(false);
+      }
     };
     document.addEventListener("keydown", handleKeyDown);
     
@@ -84,6 +97,12 @@ export default function SmartTableModal() {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  // Centralized close handler — always resets the manual-open ref
+  const closeModal = () => {
+    manuallyOpenedRef.current = false;
+    setIsOpen(false);
+  };
 
   const handleSelectTable = (t: number, area: "Indoor" | "Outdoor") => {
     if (occupiedTables.includes(t)) return;
@@ -96,20 +115,20 @@ export default function SmartTableModal() {
           detail: { tableNumber: displayNum, tableId: t, area },
         })
       );
-      setIsOpen(false);
+      closeModal();
       setIsReservationPick(false);
       return;
     }
 
     if (isViewOnly) {
       // In viewOnly mode, we don't actually sit at the table
-      setIsOpen(false);
+      closeModal();
       return;
     }
 
     sessionStorage.removeItem("karsa_browse_mode");
     checkInTable(t, area, userName || "Sultan").catch(e => console.error("Check-in error:", e));
-    setIsOpen(false);
+    closeModal();
   };
 
   if (!isOpen) return null;
@@ -122,12 +141,12 @@ export default function SmartTableModal() {
   return (
     <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/95 backdrop-blur-md animate-in fade-in duration-500">
       {/* Click outside to dismiss */}
-      <div className="absolute inset-0" onClick={() => setIsOpen(false)} />
+      <div className="absolute inset-0" onClick={closeModal} />
       <div className="bg-[#0A0A0A] border border-amber-500/20 rounded-[3rem] p-10 relative z-10 w-full max-w-xl shadow-[0_0_80px_rgba(245,158,11,0.15)] overflow-hidden max-h-[90vh] overflow-y-auto">
         
         {/* Close Button */}
         <button
-          onClick={() => setIsOpen(false)}
+          onClick={closeModal}
           className="absolute top-6 right-6 w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-stone-500 hover:text-white transition-all text-sm"
           aria-label="Tutup"
         >
@@ -227,7 +246,7 @@ export default function SmartTableModal() {
             <button
               onClick={() => {
                 sessionStorage.setItem("karsa_browse_mode", "true");
-                setIsOpen(false);
+                closeModal();
               }}
               className="w-full py-3 text-[9px] font-black tracking-[0.3em] uppercase text-stone-600 hover:text-stone-400 transition-colors"
             >
@@ -260,8 +279,8 @@ export default function SmartTableModal() {
               </div>
               <button 
                 onClick={() => {
-                  if (isViewOnly) {
-                    setIsOpen(false);
+                  if (isViewOnly || isReservationPick) {
+                    closeModal();
                   } else {
                     setShowMap(false);
                   }
