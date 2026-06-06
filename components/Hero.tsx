@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import MagneticWrapper from "./MagneticWrapper";
 
 interface Star {
   id: number;
@@ -103,14 +102,12 @@ export default function Hero() {
         <p className="text-cream-200 text-lg md:text-xl max-w-xl mx-auto mb-8">
           Tempat nugas, ngopi, dan diskusi paling nyaman untuk mahasiswa Air Tawar dan sekitarnya.
         </p>
-        <MagneticWrapper>
           <button
             onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })}
             className="inline-block bg-amber-700 hover:bg-amber-800 text-white px-8 py-3 rounded-full text-sm tracking-wider transition transform hover:scale-105"
           >
             Lihat Menu
           </button>
-        </MagneticWrapper>
       </div>
     </section>
   );

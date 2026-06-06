@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useCart } from "./CartProvider";
-import { playSound } from "./AudioWidget";
 import { useKarsa } from "./KarsaContext";
 
 const MENU_ITEMS = [
@@ -172,7 +171,7 @@ export default function MenuSection() {
                     <div className="flex justify-between items-center">
                       <p className="text-amber-500 font-bold">Rp {item.price.toLocaleString("id-ID")}</p>
                       <button 
-                        onClick={() => { updateQty(item.name, qty + 1, item.price); playSound('click'); }} 
+                        onClick={() => { updateQty(item.name, qty + 1, item.price); }} 
                         className="bg-amber-600 hover:bg-amber-500 text-white px-5 py-2 rounded-xl text-xs font-bold transition shadow-lg active:scale-95"
                       >
                         Tambah
@@ -194,7 +193,6 @@ export default function MenuSection() {
                 key={i} 
                 onClick={() => {
                   setSelectedMood(selectedMood === emoji ? null : emoji);
-                  playSound('click');
                 }}
                 className={`w-14 h-14 rounded-full border flex items-center justify-center text-2xl transition-all hover:scale-110 ${
                   selectedMood === emoji 
@@ -216,7 +214,7 @@ export default function MenuSection() {
                   <p className="text-stone-300 text-xs mt-1.5 leading-relaxed italic">"{MOOD_RECS[selectedMood].message}"</p>
                 </div>
                 <button 
-                  onClick={() => { setSelectedMood(null); playSound('click'); }}
+                  onClick={() => { setSelectedMood(null); }}
                   className="text-stone-500 hover:text-stone-300 transition text-[10px] p-1 font-bold uppercase tracking-wider"
                 >
                   ✕ Clear
@@ -344,7 +342,6 @@ export default function MenuSection() {
                     onClick={() => {
                       if (isSoldOut) return;
                       updateQty(item.name, qty + 1, item.price);
-                      playSound('click');
                     }}
                     disabled={isSoldOut}
                     className={`absolute top-4 right-4 w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 z-20 ${isSoldOut ? 'bg-stone-700 text-stone-500 cursor-not-allowed opacity-50' : 'bg-amber-600 hover:bg-amber-500 text-white hover:rotate-90 active:scale-90'}`}

@@ -27,9 +27,6 @@ export const viewport: Viewport = {
 };
 
 import NotificationHub from "@/components/NotificationHub";
-import AtmosphereEngine from "@/components/AtmosphereEngine";
-import AudioWidget from "@/components/AudioWidget";
-import CustomCursor from "@/components/CustomCursor";
 import { KarsaProvider } from "@/components/KarsaContext";
 
 export default function RootLayout({
@@ -51,10 +48,7 @@ export default function RootLayout({
         
         <div className="scanning-line"></div>
         <KarsaProvider>
-          <AtmosphereEngine />
           <NotificationHub />
-          <AudioWidget />
-          <CustomCursor />
           <main className="relative z-10">
             {children}
           </main>

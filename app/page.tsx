@@ -7,30 +7,17 @@ import "aos/dist/aos.css";
 import { CartProvider } from "@/components/CartProvider";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
-import QueueTracker from "@/components/QueueTracker";
-import RecentOrders from "@/components/RecentOrders";
 import MenuSection from "@/components/MenuSection";
 import ReservationForm from "@/components/ReservationForm";
-import TestimonialSlider from "@/components/TestimonialSlider";
-import BeforeAfterSlider from "@/components/BeforeAfterSlider";
 import Gallery from "@/components/Gallery";
-import StatusMeja from "@/components/StatusMeja";
 import MapsSection from "@/components/MapsSection";
 import Footer from "@/components/Footer";
-import AmbientWidget from "@/components/AmbientWidget";
 import CartWidget from "@/components/CartWidget";
-import LiveChatWidget from "@/components/LiveChatWidget";
 import FABMenu from "@/components/FABMenu";
-import InstagramGrid from "@/components/InstagramGrid";
 import CeritaKami from "@/components/CeritaKami";
 import OfflineToast from "@/components/OfflineToast";
-import PageTransition from "@/components/PageTransition";
-import LiveActivityFeed from "@/components/LiveActivityFeed";
-import OrderTrackerCard from "@/components/OrderTrackerCard";
 import LoyaltyCard from "@/components/LoyaltyCard";
-import CustomerReviewWall from "@/components/CustomerReviewWall";
 import AreaBanner from "@/components/AreaBanner";
-import SmartRecommendation from "@/components/SmartRecommendation";
 import SmartTableModal from "@/components/SmartTableModal";
 
 export default function Home() {
@@ -60,32 +47,19 @@ export default function Home() {
     <CartProvider>
       <SmartTableModal />
       <Navbar />
-      <PageTransition />
       <Hero />
       <AreaBanner />
       <main className="relative overflow-hidden selection:bg-amber-500/30">
-        <QueueTracker />
-        <RecentOrders />
         <CeritaKami />
         <MenuSection />
-        <SmartRecommendation />
         <LoyaltyCard />
         <ReservationForm />
-        <TestimonialSlider />
-        <BeforeAfterSlider />
         <Gallery />
-        <StatusMeja />
         <MapsSection />
-        <InstagramGrid />
-        <CustomerReviewWall />
       </main>
       <Footer />
-      <AmbientWidget />
       <FABMenu />
       <CartWidget />
-      <LiveChatWidget />
-      <LiveActivityFeed />
-      <OrderTrackerCard />
       <OfflineToast />
     </CartProvider>
   );

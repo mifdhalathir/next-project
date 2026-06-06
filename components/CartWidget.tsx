@@ -6,7 +6,6 @@ import DigitalReceipt from "./DigitalReceipt";
 import PaymentPicker, { type PaymentMethod } from "./PaymentPicker";
 import TaxServiceBreakdown from "./TaxServiceBreakdown";
 import { addActivityLog } from "./ActivityLog";
-import { playSound } from "./AudioWidget";
 
 export default function CartWidget() {
   const { cart, total, totalItems, updateQty, placeOrder, activeOrder, applyVoucher, voucherDiscount } = useCart();
@@ -51,7 +50,6 @@ export default function CartWidget() {
     addActivityLog(`Pesanan baru via ${methodLabel} — Meja ${tableNumber}`, "payment");
     
     placeOrder(tableNumber);
-    playSound('success');
     setIsOpen(false);
     setShowReceipt(true);
   };

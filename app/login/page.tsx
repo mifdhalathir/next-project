@@ -10,7 +10,6 @@ import {
   getRedirectResult, 
   signInWithRedirect 
 } from "firebase/auth";
-import PageTransition from "@/components/PageTransition";
 import { addKarsaNotification } from "@/components/NotificationHub";
 import { addActivityLog } from "@/components/ActivityLog";
 
@@ -144,8 +143,6 @@ export default function LoginPage() {
 
   return (
     <>
-      <PageTransition />
-      
       <div className="min-h-screen flex flex-col md:flex-row bg-stone-950 selection:bg-amber-500 selection:text-black">
 
         {/* ========== KIRI: PANEL GAMBAR ESTETIK ========== */}
